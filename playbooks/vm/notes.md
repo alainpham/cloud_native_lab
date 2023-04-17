@@ -5,7 +5,7 @@
 3 write vms for distributor and ingester
 1 for infra
 
-```console
+```
 debianimage=debian-11-genericcloud-amd64-20230124-1270
 
 vmcreate infra 1048 2 $debianimage 50 40G 1G debian11
@@ -51,4 +51,18 @@ bash
               -target=all
 
 
+```
+
+
+
+```
+
+current_date=`date +%s%N`
+TOKEN=ZGV2LWFsbC1hY2Nlc3MtZGV2LWFsbC1hY2Nlc3MtdGtuOjU1Wio2Mz8rMj49P14mRzU1NmYxKy5pMg==
+
+
+curl -u dev:$TOKEN infra:8080/loki/api/v1/push \
+-H "Content-Type: application/json" \
+-H "X-Scope-OrdID: dev" \
+--data "{\"streams\": [{ \"stream\": { \"job\": \"example\" }, \"values\": [ [ \"$current_date\", \"A log line\" ] ] }]}"
 ```

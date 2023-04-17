@@ -12,18 +12,17 @@ chunk_store_config:
       parallelism: 10
     memcached_client:
       # host: infra:11211
-      addresses: dns+infra:11211
+      addresses: dns+infra:11211 #chunk-cache
   write_dedupe_cache_config:
     memcached:
       batch_size: 100
       parallelism: 100
     memcached_client:
       consistent_hash: true
-      addresses: dns+infra:11212
+      addresses: dns+infra:11212 #write-cache
 cluster_name: enterprise-logs
 common:
-  compactor_address: http://infra:3101
-  compactor_grpc_address: infra:9096
+  compactor_address: http://infra:3100
   path_prefix: /var/lib/enterprise-logs
   replication_factor: 3
   storage:
@@ -66,7 +65,7 @@ limits_config:
   unordered_writes: true
 memberlist:
   join_members:
-  - infra:7946
+    - infra:7946
 querier:
   max_concurrent: 15
   query_ingesters_within: 15m
@@ -77,14 +76,16 @@ query_range:
     cache:
       default_validity: 12h
       memcached_client:
-        addresses: dns+infra:11213
+        addresses: dns+infra:11213 #results-cache 
         timeout: 500ms
 ruler:
   alertmanager_client:
     # basic_auth_password: TOKEN
     # basic_auth_username: TENANTID
-  alertmanager_url: http://infra:9093
+  alertmanager_url: http://infra:9093 #external alert manager
   enable_api: true
+  enable_alertmanager_v2: true
+  enable_sharding: true
   evaluation_interval: 1m
   poll_interval: 1m
   remote_write:
@@ -140,7 +141,7 @@ storage_config:
       batch_size: 100
       parallelism: 100
     memcached_client:
-      addresses: dns+infra:11214
+      addresses: dns+infra:11214 #index-cache 
 table_manager:
   retention_deletes_enabled: false
   retention_period: 0

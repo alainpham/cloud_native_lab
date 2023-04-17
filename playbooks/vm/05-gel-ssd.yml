@@ -10,22 +10,15 @@
         src: templates/sensitive/gel-license.jwt
         dest: /etc/enterprise-logs/license.jwt
 
-    - name: configure GEL
+    - name: configure GEL config.yaml
       copy:
         src: templates/gel-config.yml
         dest: /etc/enterprise-logs/config.yaml
 
-    - name: configure GEL
-      copy:
-        src: templates/gel-config-monolith.yml
-        dest: /etc/enterprise-logs/config-mono.yaml
-
-    - name: configure GEL
+    - name: configure GEL runtime-config.yaml
       copy:
         src: templates/runtime-config.yaml
         dest: /etc/enterprise-logs/runtime-config/runtime-config.yaml
-
-
 
 
 - name: Instal GEL write path
@@ -95,7 +88,7 @@
 
 - name: Gnerate token
   hosts:
-    - write01
+    - read01
   tasks:
     - name: check if GEL is present
       stat:
