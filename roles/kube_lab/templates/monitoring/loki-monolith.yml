@@ -1,0 +1,194 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki-config
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/version: "2.7.1"
+data:
+  loki.yaml: |
+    auth_enabled: false
+
+    server:
+      http_listen_port: 3100
+      grpc_listen_port: 9095
+
+    common:
+      path_prefix: /data/loki
+      storage:
+        filesystem:
+          chunks_directory: /data/loki/chunks
+          rules_directory: /data/loki/rules
+      replication_factor: 1
+
+    memberlist:
+      join_members:
+       - dns+loki-headless:7946
+       
+    query_range:
+      results_cache:
+        cache:
+          embedded_cache:
+            enabled: true
+            max_size_mb: 100
+
+    schema_config:
+      configs:
+        - from: 2023-01-01
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki-headless
+  labels:
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: memberlist
+    app.kubernetes.io/version: "2.7.1"
+  namespace: "monitoring"
+spec:
+  clusterIP: None
+  ports:
+    - name: http-svc
+      protocol: TCP
+      port: 3100
+      targetPort: http-svc
+    - name: grpc
+      protocol: TCP
+      port: 9095
+      targetPort: grpc
+    - name: gossip-ring
+      protocol: TCP
+      port: 7946
+      targetPort: gossip-ring
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: memberlist
+    app.kubernetes.io/version: "2.7.1"
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: memberlist
+    app.kubernetes.io/version: "2.7.1"
+  name: loki
+  namespace: "monitoring"
+spec:
+  podManagementPolicy: Parallel
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/component: server
+      app.kubernetes.io/version: "2.7.1"
+  serviceName: loki-headless
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: loki
+        app.kubernetes.io/instance: loki
+        app.kubernetes.io/component: server
+        app.kubernetes.io/part-of: memberlist
+        app.kubernetes.io/version: "2.7.1"
+    spec:
+      containers:
+        - args:
+            - -config.file=/etc/loki/loki.yaml
+          image: registry.work.lan/loki:2.7.1
+          imagePullPolicy: IfNotPresent
+          name: loki
+          ports:
+            - name: http-svc
+              containerPort: 3100
+              protocol: TCP
+            - name: grpc
+              containerPort: 9095
+              protocol: TCP
+            - name: gossip-ring
+              containerPort: 7946
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http-svc
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-svc
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          resources:
+          volumeMounts:
+            - mountPath: /data
+              name: storage
+            - mountPath: /etc/loki
+              name: loki-config
+      securityContext:
+        fsGroup: 10001
+        runAsUser: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+      terminationGracePeriodSeconds: 300
+      volumes:
+        - name: loki-config
+          configMap:
+            name: loki-config
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        name: storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: loki
+  labels:
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/component: server
+    app.kubernetes.io/version: "2.7.1"
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  namespace: "monitoring"
+spec:
+  rules:
+    - host: "loki.kube.loc"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mimir-headless
+                port:
+                  number: 3100

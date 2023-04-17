@@ -1,0 +1,14 @@
+- name: Get console password
+  shell: |
+    kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['data']['password']}" | base64 --decode && echo
+  register: rookpassword
+
+- name: print rookpassword
+  debug: 
+    var: rookpassword.stdout_lines
+
+- name: Get S3 host
+  shell: |
+    kubectl -n rook-ceph get cm default-s3-bucket -o yaml | grep BUCKET_HOST | awk '{print $2}'
+    kubectl -n rook-ceph get secret default-s3-bucket -o yaml | grep AWS_ACCESS_KEY_ID | awk '{print $2}' | base64 --decode
+    kubectl -n rook-ceph get secret default-s3-bucket -o yaml | grep AWS_SECRET_ACCESS_KEY | awk '{print $2}' | base64 --decode

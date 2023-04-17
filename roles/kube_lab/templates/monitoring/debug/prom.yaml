@@ -1,0 +1,112 @@
+# This is not a recommended configuration, and further support should be available
+# from the Prometheus and Grafana communities.  The main purpose of this file is to
+# provide a Prometheus server configuration that is compatible with the Strimzi
+# Grafana dashboards.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-server
+  namespace: monitoring
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-server
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  - nodes/proxy
+  - services
+  - endpoints
+  - pods
+  - events
+  verbs:
+  - get
+  - list
+  - watch
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-server
+subjects:
+- kind: ServiceAccount
+  name: prometheus-server
+  namespace: monitoring
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: prometheus
+  template:
+    metadata:
+      labels:
+        name: prometheus
+    spec:
+      serviceAccount: prometheus-server
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.43.0
+        args:
+          - "--storage.tsdb.retention.time=48h"
+          - "--config.file=/etc/prometheus/prometheus.yml"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: prometheus
+          containerPort: 9090
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /prometheus
+          name: prometheus-data
+        - mountPath: /etc/prometheus/
+          name: prometheus-config
+      volumes:
+        - name: prometheus-data
+          emptyDir: {}
+        - name: prometheus-config
+          configMap:
+            name: prometheus-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  ports:
+  - name: prometheus
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  selector:
+    name: prometheus
+

@@ -1,0 +1,29 @@
+---
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  name: mimir-s3-ent-admin
+  namespace: mimir
+spec:
+  bucketName: mimir-s3-ent-admin
+  storageClassName: rook-ceph-s3
+---
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  name: mimir-s3-ruler
+  namespace: mimir
+spec:
+  bucketName: mimir-s3-ruler
+  storageClassName: rook-ceph-s3
+---
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  name: mimir-s3-tsdb
+  namespace: mimir
+spec:
+  bucketName: mimir-s3-tsdb
+  storageClassName: rook-ceph-s3
+
+  

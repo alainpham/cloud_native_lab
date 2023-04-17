@@ -1,0 +1,44 @@
+---
+- set_fact:
+    appname: plex
+
+- name: provision infra
+  ansible.builtin.include_role:
+    name: docker_lab
+    tasks_from: infra-provision
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    env:
+      VERSION: latest
+      PLEX_UID: "{{ appconfig[appname].exec_as_user }}"
+      PLEX_GID: "{{ appconfig[appname].exec_as_group }}"
+      TZ: "Europe/Paris"
+    ports:
+    labels: |
+      {
+        "traefik.enable": "false"
+      }
+    volumes:
+      - "/home/{{ansible_user}}/apps/{{appname}}/config/:/config/:rw"
+      - "/home/{{ansible_user}}/apps/{{appname}}/data/tvshows:/data/tvshows"
+      - "/home/{{ansible_user}}/apps/{{appname}}/data/movies:/data/movies"
+      - "/home/{{ansible_user}}/apps/{{appname}}/data/music:/data/music"
+      - "/home/{{ansible_user}}/apps/{{appname}}/data/transcode:/data/transcode"
+      - "/home/{{ansible_user}}/apps/{{appname}}/data/videos/home-videos:/data/home-videos"
+      - "/home/{{ansible_user}}/apps/{{appname}}/data/videos/kids-videos:/data/kids-videos"
+      - "/home/{{ansible_user}}/apps/{{appname}}/data/videos/general-videos:/data/general-videos"
+    networks_cli_compatible: yes
+    network_mode: host
+
+- name: delete infra
+  ansible.builtin.include_role:
+    name: docker_lab
+    tasks_from: infra-delete

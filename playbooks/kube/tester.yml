@@ -1,0 +1,15 @@
+- name: Prepare Hosts
+  hosts:
+    - localhost
+  tasks:
+  - name: Prepare Kube Hosts
+    shell: |
+      echo hola ${kube_apiserver}
+    register: ps
+    environment: "{{ images  | regex_replace('-','_') }}"
+
+  - debug: 
+      msg: "{{ ps.stdout_lines}}"
+
+
+

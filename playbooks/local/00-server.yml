@@ -1,0 +1,13 @@
+---
+- name: install base
+  hosts:
+    - vms
+  tasks:
+    - name: install
+      include_role:
+        name: docker_lab
+        tasks_from: server-update
+    - name: install
+      include_role:
+        name: docker_lab
+        tasks_from: server-install-essentials

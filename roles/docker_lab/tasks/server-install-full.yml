@@ -1,0 +1,37 @@
+---
+- name: Base server packages
+  become: true
+  apt:
+    name: 
+      - ncdu
+      - git
+      - ansible
+      - docker.io
+      - docker-compose
+      - apparmor
+      - network-manager-openvpn
+      - haproxy
+      - tmux
+      - vim
+      - openjdk-17-jdk
+      - prometheus-node-exporter
+      - htop
+      - curl
+      - lshw
+      - rsync
+      - mediainfo
+      - ffmpeg
+      - python3-mutagen
+      - iperf
+      - dnsmasq
+      - imagemagick
+      - npm
+    state: present
+
+# by default we do not start dnsmasq service
+- name: disable dnsmasq service
+  become: true
+  ansible.builtin.systemd:
+    enabled: false
+    state: stopped
+    name: dnsmasq

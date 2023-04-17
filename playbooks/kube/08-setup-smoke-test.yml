@@ -1,0 +1,13 @@
+---
+- name: Setup smoke-test-app
+  hosts:
+    - master
+  vars_files:
+    - ../vars/global.yml
+    - ../vars/images.yml
+    - ../vars/kube.yml
+  tasks:
+  - name: Setup smoke-test-app
+    include_role:
+      name: kube_lab
+      tasks_from: setup-smoke-test-app

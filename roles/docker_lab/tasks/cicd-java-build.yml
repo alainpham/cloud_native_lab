@@ -1,0 +1,109 @@
+- set_fact:
+    application: "{{ apps[rolesvar] }}"
+
+- name: Create {{appname}} folders
+  when: application.cleanStart
+  file:
+    path: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/
+    state: absent
+  
+
+- name: Create {{appname}} folders
+  file:
+    path: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/
+    state: directory
+  
+
+- name: git clone
+  git: 
+    repo: "{{application.repo}}"
+    dest: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/
+    version: "{{application.version}}"
+  
+
+- name: create branch for version
+  when: '"SNAPSHOT" not in application.buildVersion'
+  shell: |
+    git checkout {{application.buildVersion}} || git checkout -b {{application.buildVersion}}
+  args:
+    chdir: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/
+  
+
+- name: set version
+  shell: |
+    mvn versions:set -DgenerateBackupPoms=false -DnewVersion={{application.buildVersion}}
+  args:
+    chdir: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/
+  
+
+- name: maven package
+  shell: |
+    mvn package -DskipTests
+  args:
+    chdir: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/
+  
+
+- name: package folder
+  when: application.type == 'folder'
+  community.general.archive:
+    path: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/{{ application.artifact }}
+    dest: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/target/{{application.artifactId}}-{{ application.buildVersion }}.tar.gz
+  
+
+- name: maven deploy on central repo
+  when: application.type == 'folder'
+  shell: |
+    mvn deploy:deploy-file \
+      -DgroupId={{ application.groupId }} \
+      -DartifactId={{ application.artifactId }} \
+      -Dversion={{ application.buildVersion }} \
+      -Dpackaging=tar.gz \
+      -Durl={{ application.mavenrepo }} \
+      -Dfile=/home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/target/{{application.artifactId}}-{{ application.buildVersion }}.tar.gz
+  
+
+- name: commit new version
+  when: '"SNAPSHOT" not in application.buildVersion'
+  shell: |
+    if [ -z "$(git status --porcelain)" ]; then 
+      echo "NOTHING_TO_COMMIT"
+    else 
+      # Uncommitted changes
+      git commit -a -m "new branch for {{application.buildVersion}}"
+    fi
+  args:
+    chdir: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/
+  
+  register: result
+  changed_when: result.stdout != 'NOTHING_TO_COMMIT'
+
+- name: push branch
+  when: '"SNAPSHOT" not in application.buildVersion'
+  shell: git push origin {{application.buildVersion}}
+  args:
+    chdir: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/
+  
+  register: pushresult
+  changed_when: 
+    - pushresult.rc == 0
+    - pushresult.stderr != 'Everything up-to-date'
+
+# - debug:
+#     msg: "{{pushresult}}"
+
+# - debug:
+#     msg: "{{containerbuidresult}}"
+
+# - name: print reg 
+#   debug: 
+#     msg: "{{application.1}}/{{application.0.artifactId}}:latest"
+#   with_subelements: 
+#     - "{{apps}}"
+#     - registries
+
+# - name: print repos
+#   shell: |
+#     docker tag {{artifactId}}:{{targetVersion}} 
+#   with_subelements: 
+#     - "{{apps}}"
+#     - registries

@@ -1,0 +1,151 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: minio
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-pv-claim
+  namespace: minio
+  labels:
+    k8s-app: minio
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: minio
+  labels:
+    k8s-app: minio
+spec:
+  selector:
+    matchLabels:
+      app: minio
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        # Label is used as selector in the service.
+        app: minio
+    spec:
+      nodeSelector:
+        kubernetes.io/os: linux
+        node-role.kubernetes.io/control-plane:
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      # Refer to the PVC created earlier
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            # Name of the PVC created earlier
+            claimName: minio-pv-claim
+      initContainers:
+        - name: create-buckets
+          image: ${localregistry}/busybox:1.36.0
+          command:
+            [
+              "sh",
+              "-c",
+              "mkdir -p /storage/mimir-tsdb && mkdir -p /storage/mimir-admin && mkdir -p /storage/mimir-ruler",
+            ]
+          volumeMounts:
+            - name: storage # must match the volume name, above
+              mountPath: "/storage"
+      containers:
+        - name: minio
+          # Pulls the default Minio image from Docker Hub
+          image: ${localregistry}/minio:RELEASE.2023-03-24T21-41-23Z
+          args:
+            - server
+            - /storage
+            - --console-address
+            - :9001
+          env:
+            # Minio access key and secret key
+            - name: MINIO_ROOT_USER
+              value: "admin"
+            - name: MINIO_ROOT_PASSWORD
+              value: "password"
+          ports:
+            - containerPort: 9000
+            - containerPort: 9001
+          volumeMounts:
+            - name: storage # must match the volume name, above
+              mountPath: "/storage"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: minio
+  labels:
+    k8s-app: minio
+spec:
+  type: ClusterIP
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+    - name: console
+      port: 9001
+      targetPort: 9001
+      protocol: TCP
+  selector:
+    app: minio
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio
+  namespace: minio
+  labels:
+    k8s-app: minio
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: minio.${kube_ingress_root_domain}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: minio
+            port:
+              number: 9000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-console
+  namespace: minio
+  labels:
+    k8s-app: minio
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: minio-console.${kube_ingress_root_domain}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: minio
+            port:
+              number: 9001

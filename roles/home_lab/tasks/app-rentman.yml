@@ -1,0 +1,45 @@
+---
+- set_fact:
+    appname: rentman
+
+- name: purge {{appname}} folders
+  when: purge
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}
+    state: absent
+
+- name: Create {{appname}} folders
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}/data
+    state: directory
+    owner: "1000"
+    group: "1000"
+    mode: '0755'
+
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{appstate}}"
+    recreate: "{{recreate}}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    user: "1000:1000"
+    env:
+      # QUARKUS_DATASOURCE_JDBC_URL: jdbc:h2:file:/db/data
+    labels: |
+      {
+        "traefik.http.routers.{{appname}}.entrypoints": "https",
+        "traefik.http.routers.{{appname}}.tls": "true"
+      }
+    volumes:
+      - "/home/{{ansible_user}}/apps/{{appname}}/data:/db:rw"
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig[appname].ip}}"

@@ -1,0 +1,13 @@
+---
+- name: Setup storage
+  hosts:
+    - master
+  vars_files:
+    - ../vars/global.yml
+    - ../vars/images.yml
+    - ../vars/kube.yml
+  tasks:
+  - name: Setup storage
+    include_role:
+      name: kube_lab
+      tasks_from: setup-storage

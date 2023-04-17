@@ -1,0 +1,505 @@
+
+appconfig:
+  # functional apps from 20 to 30 ip range
+  shopping-cart:
+    ip: 172.18.0.21
+    image: "{{ images['shopping-cart'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  products:
+    ip: 172.18.0.22
+    image: "{{ images['products'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+
+  web-shop:
+    ip: 172.18.0.23
+    image: "{{ images['web-shop'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  squid: 
+    ip: 172.18.0.24
+    image: "{{ images['squid'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  smoke-test-app:
+    ip: 172.18.0.29
+    image: "{{ images['smoke-test-app'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  serve:
+    ip: 172.18.0.30
+    image: "{{ images['serve'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  # platform essentials
+  portainer: 
+    ip: 172.18.0.40
+    image: "{{ images['portainer-ce'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  nexus: 
+    ip: 172.18.0.41
+    image: "{{ images['nexus3'] }}"
+    
+  registry: 
+    ip: 172.18.0.42
+    image: "{{ images['registry'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  regui: 
+    ip: 172.18.0.45
+    image: "{{ images['docker-registry-ui'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  traefik: 
+    ip: 172.18.0.43
+    image: "{{ images['traefik'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+      - "80:80"
+      - "443:443"
+      # - "8080:8080"
+
+  keycloak: 
+    ip: 172.18.0.48
+    image: "{{ images['keycloak'] }}"
+
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  reposilite: 
+    ip: 172.18.0.49
+    image: "{{ images['reposilite'] }}"
+
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  # databases
+  mysql: 
+    ip: 172.18.0.50
+    image: "{{ images['mysql'] }}"
+
+  oracledb: 
+    ip: 172.18.0.51 
+    image: "{{ images['oracledb'] }}"
+
+    declare_hostname: true
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 54321
+    exec_as_group: 54321
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  mariadb: 
+    ip: 172.18.0.52 
+    image: "{{ images['mariadb'] }}"
+
+    declare_hostname: true
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+      
+  infinispan:
+    ip: 172.18.0.53 
+  postgres: 
+    ip: 172.18.0.54
+    image: "{{ images['postgres'] }}"
+
+    declare_hostname: true
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  elastic:
+    ip: 172.18.0.55
+    image: "{{ images['elasticsearch'] }}"
+  kibana:
+    ip: 172.18.0.56
+    image: "{{ images['kibana'] }}"
+  adminer:
+    ip: 172.18.0.57
+    image: "{{ images['adminer'] }}"
+    
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+    
+  minio:
+    ip: 172.18.0.58
+    image: "{{ images['minio'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  memcached:
+    ip: 172.18.0.59
+    image: "{{ images['memcached'] }}"
+    
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  # messaging
+  zookeeper: 
+    ip: 172.18.0.61
+    image: "{{ images['kafka'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  kafka: 
+    ip: 172.18.0.62
+    image: "{{ images['kafka'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  kafdrop: 
+    ip: 172.18.0.63
+    image: "{{ images['kafdrop'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  kafkaexporter:
+    ip: 172.18.0.64
+    image: "{{ images['kafka'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  kafkaui: 
+    ip: 172.18.0.65
+    image: "{{ images['kafka-ui'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  artemis: 
+    ip: 172.18.0.66
+    image: "{{ images['artemis'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  # observability
+  prometheus: 
+    ip: 172.18.0.70
+    image: "{{ images['prometheus'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+
+  grafana: 
+    ip: 172.18.0.71
+    image: "{{ images['grafana'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+    prom_url: http://mimir:9090/prometheus
+  loki: 
+    ip: 172.18.0.72
+    image: "{{ images['loki'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  promtail: 
+    ip: 172.18.0.73
+    image: "{{ images['promtail'] }}"
+
+  grafana-enterprise: 
+    ip: 172.18.0.74
+    image: "{{ images['grafana-enterprise'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+    prom_url: http://mimir:9090/prometheus
+
+  grafana-agent:
+    ip: 172.18.0.75
+    # image: grafana/agent:v0.30.2 
+
+    #v0.28.x has working faro traces
+    image: "{{ images['agent'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  grafana-alpha: 
+    ip: 172.18.0.76
+    image: "{{ images['grafana-oss-dev'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+    prom_url: http://mimir:9090/prometheus
+
+  cadvisor: 
+    ip: 172.18.0.77
+    image: "{{ images['cadvisor'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  mimir: 
+    ip: 172.18.0.78
+    image: "{{ images['mimir'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  tempo: 
+    ip: 172.18.0.79
+    image: "{{ images['tempo'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  

@@ -1,0 +1,16 @@
+# my global config
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+# remote_write:
+#  - url: http://mimir.kube.loc/api/v1/push
+#    tls_config:
+#      ca_file: /tls/root-ca.pem
+#     basic_auth:
+#       username: 433408
+#       password: 
+{% if prom is defined %}
+{% include 'scrape_configs_multihosts.yml' %}
+{% else %}
+{% include 'scrape_configs.yml' %}
+{% endif %}

@@ -1,0 +1,167 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mimir-config
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+    app.kubernetes.io/version: "2.7.1"
+data:
+  mimir.yaml: |
+    multitenancy_enabled: false
+
+    server:
+      log_level: info
+
+    ingester:
+      ring:
+        replication_factor: 1
+
+    blocks_storage:
+      backend: filesystem
+      filesystem:
+        dir: /backend-data
+      tsdb:
+        dir: /data/tsdb
+      bucket_store:
+        sync_dir: /data/tsdb-sync
+
+    memberlist:
+      compression_enabled: false
+      join_members:
+       - dns+mimir-headless:7946
+
+    activity_tracker:
+      filepath: /data/metrics-activity.log
+
+    ruler: 
+      rule_path: /data/data-ruler/
+
+    ruler_storage:
+      backend: filesystem
+      filesystem:
+        dir: /data/backend
+
+    compactor:
+      data_dir: /data/data-compactor/
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mimir-headless
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: memberlist
+    app.kubernetes.io/version: "2.7.1"
+  namespace: "monitoring"
+spec:
+  clusterIP: None
+  ports:
+    - name: http-metrics
+      protocol: TCP
+      port: 8080
+      targetPort: http-metrics
+    - name: grpc
+      protocol: TCP
+      port: 9095
+      targetPort: grpc
+    - name: gossip-ring
+      protocol: TCP
+      port: 7946
+      targetPort: gossip-ring
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: memberlist
+    app.kubernetes.io/version: "2.7.1"
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: memberlist
+    app.kubernetes.io/version: "2.7.1"
+  name: mimir
+  namespace: "monitoring"
+spec:
+  podManagementPolicy: Parallel
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mimir
+      app.kubernetes.io/instance: mimir
+      app.kubernetes.io/component: server
+      app.kubernetes.io/version: "2.7.1"
+  serviceName: mimir-headless
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mimir
+        app.kubernetes.io/instance: mimir
+        app.kubernetes.io/component: server
+        app.kubernetes.io/part-of: memberlist
+        app.kubernetes.io/version: "2.7.1"
+    spec:
+      containers:
+        - args:
+            - -config.file=/etc/mimir/mimir.yaml
+          image: grafana/mimir:2.7.1
+          imagePullPolicy: IfNotPresent
+          name: mimir
+          ports:
+            - name: http-metrics
+              containerPort: 8080
+              protocol: TCP
+            - name: grpc
+              containerPort: 9095
+              protocol: TCP
+            - name: gossip-ring
+              containerPort: 7946
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          resources:
+          volumeMounts:
+            - mountPath: /data
+              name: storage
+            - mountPath: /backend-data
+              name: backend-storage
+            - mountPath: /etc/mimir
+              name: mimir-config
+      securityContext:
+        fsGroup: 10001
+        runAsUser: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+      terminationGracePeriodSeconds: 300
+      volumes:
+        - name: mimir-config
+          configMap:
+            name: mimir-config
+        - name: storage
+          emptyDir: {}
+        - name: backend-storage
+          emptyDir: {}
+  updateStrategy:
+    type: RollingUpdate

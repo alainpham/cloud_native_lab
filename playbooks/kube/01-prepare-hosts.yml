@@ -1,0 +1,15 @@
+---
+- name: Prepare Hosts
+  hosts:
+    - all
+  vars:
+  vars_files:
+    - ../vars/global.yml
+    - ../vars/images.yml
+    - ../vars/kube.yml
+  tasks:
+  - name: Prepare Kube Hosts
+    include_role:
+      name: kube_lab
+      tasks_from: prepare-hosts
+

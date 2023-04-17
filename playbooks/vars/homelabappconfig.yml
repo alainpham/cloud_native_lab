@@ -1,0 +1,43 @@
+---
+appconfig:
+  plex: 
+    image: linuxserver/plex:1.30.2
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+    
+  rentman:
+    ip: 172.18.1.20
+    image: registry.awon.lan/rentman:1.0.3
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+
+  teddycast:
+    ip: 172.18.1.21
+    image: registry.awon.lan/teddycast:1.0.6
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 

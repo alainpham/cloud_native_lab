@@ -1,0 +1,9 @@
+config_folder_root: /home/{{ ansible_user }}/apps
+data_folder_root: /home/{{ ansible_user }}/apps
+
+config_folder_default: "{{ config_folder_root }}/{{ appname }}/config"
+data_folder_default: "{{ data_folder_root }}/{{ appname }}/data"
+
+aptcacherproxy: http://work.lan:3142/
+
+localregistry: registry.work.lan

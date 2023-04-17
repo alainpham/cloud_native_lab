@@ -1,0 +1,13 @@
+---
+- name: Setup nodes
+  hosts:
+    - nodes
+  vars_files:
+    - ../vars/global.yml
+    - ../vars/images.yml
+    - ../vars/kube.yml
+  tasks:
+  - name: Setup kube nodes
+    include_role:
+      name: kube_lab
+      tasks_from: setup-node

@@ -1,0 +1,14 @@
+---
+- name: sync-resources
+  hosts:
+    - master
+  vars:
+  vars_files:
+    - ../vars/global.yml
+    - ../vars/images.yml
+    - ../vars/kube.yml
+  tasks:
+  - name: sync-resources
+    include_role:
+      name: kube_lab
+      tasks_from: sync-resources

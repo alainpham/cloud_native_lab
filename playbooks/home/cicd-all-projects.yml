@@ -1,0 +1,44 @@
+---
+- name: build java bytecode on x86 machines
+  hosts:
+    - awon.lan
+  serial: 1
+  vars_files:
+    - ../vars/appcicd.yml
+  tasks:
+    - include_role:
+        name: docker_lab
+        tasks_from: cicd-java-build
+      loop:
+        - teddycast
+      loop_control:
+        loop_var: rolesvar
+
+- name: build & push containers to registry
+  hosts:
+    - awon.lan
+    - bbee.lan
+  vars_files:
+    - ../vars/appcicd.yml
+  tasks:
+    - include_role:
+        name: docker_lab
+        tasks_from: cicd-container-push
+      loop:
+        - teddycast
+      loop_control:
+        loop_var: rolesvar
+
+- name: push multi arch manifest
+  hosts:
+    - awon.lan
+  vars_files:
+    - ../vars/appcicd.yml
+  tasks:
+    - include_role:
+        name: docker_lab
+        tasks_from: cicd-container-manifest
+      loop:
+        - teddycast
+      loop_control:
+        loop_var: rolesvar

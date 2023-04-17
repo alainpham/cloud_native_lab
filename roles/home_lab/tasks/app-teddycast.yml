@@ -1,0 +1,33 @@
+---
+- set_fact:
+    appname: teddycast
+
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    hostname: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports: "{{ appconfig[appname].ports | default(omit,true)}}"
+
+    command: 
+    env:
+    labels: |
+      {
+        "traefik.http.routers.{{appname}}.entrypoints": "https",
+        "traefik.http.routers.{{appname}}.tls": "true"
+      }
+    volumes:
+      - /home/{{ ansible_user }}/apps/plex/data/videos/general-videos:/videos
+      - /home/{{ ansible_user }}/apps/plex/data/music:/music
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig[appname].ip}}"

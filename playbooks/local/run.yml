@@ -1,0 +1,110 @@
+---
+- name: scopeo
+  hosts:
+    - localhost
+  vars_files:
+    - ../vars/global.yml
+    - ../vars/images.yml
+  tasks:
+    - include_role:
+        name: docker_lab
+        tasks_from: server-skopeo-copy
+      loop: 
+        #   # Kube
+        # - kube-apiserver
+        # - kube-controller-manager
+        # - kube-scheduler
+        # - kube-proxy
+        # - pause
+        # - etcd
+        # - coredns
+
+        #   # metrics server
+        # - metrics-server
+
+        #   # Flannel
+        # - flannel-cni-plugin
+        # - flannel
+
+        #   # ingress nginx
+        # - controller
+        # - kube-webhook-certgen
+        # - metrics-scraper
+
+        #   # kube ui
+        # - dashboard
+
+        #   # storage
+        # - local-path-provisioner
+
+        #   # Minio
+        # - minio
+        # - busybox
+        # - curl
+
+        #   # Grafana stack observability
+
+        #   # Metrics
+        # - enterprise-metrics
+        # - mimir
+        # - memcached
+        # - memcached-exporter
+
+        #   # Logs
+        # - enterprise-logs
+        # - loki
+        # - promtail
+
+        #   # Traces
+        # - enterprise-traces
+        # - tempo
+
+        #   # Grafana
+        # - grafana
+        # - grafana-enterprise
+        # - grafana-oss-dev
+          
+        # - agent
+
+
+        # - prometheus
+        # - node-exporter
+        # - cadvisor
+        # - kube-state-metrics
+          
+        #   # Databases
+        # - mariadb
+        # - mysql
+        # - postgres
+        # - elasticsearch
+        # - kibana
+
+        # - adminer
+
+        #   # messaging
+        # - kafka
+        # - kafdrop
+        # - kafka-ui
+        # - artemis
+
+        #   # platform essentials
+        # - portainer-ce
+        # - nexus3
+        # - registry
+        # - docker-registry-ui
+        # - traefik
+        # - keycloak
+        # - reposilite
+
+        #   # Demo Applications
+        # - web-shop
+        # - shopping-cart
+        # - products
+        - smoke-test-app
+        # - serve
+          
+        #   # Misc
+        # - squid
+        # - eclipse-temurin
+      loop_control:
+        loop_var: rolesvar

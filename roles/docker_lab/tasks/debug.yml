@@ -1,0 +1,7 @@
+- name: describe
+  debug:
+    msg: this is a log from the docker_lab role {{ images }}
+
+- name: describe
+  debug:
+    msg: this is a log from the docker_lab role {{ global_appstate }}

@@ -1,0 +1,14 @@
+---
+- name: Base server packages
+  become: true
+  apt:
+    name: 
+      - docker.io
+      - python3-docker
+    state: present
+
+- name: adding existing user '{{ ansible_user }}' to group docker
+  user:
+    name: '{{ ansible_user }}'
+    groups: docker
+    append: yes

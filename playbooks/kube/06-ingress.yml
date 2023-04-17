@@ -1,0 +1,13 @@
+---
+- name: Setup ingress
+  hosts:
+    - masters
+  vars_files:
+    - ../vars/global.yml
+    - ../vars/images.yml
+    - ../vars/kube.yml
+  tasks:
+  - name: Setup ingress
+    include_role:
+      name: kube_lab
+      tasks_from: setup-nginx-ingress

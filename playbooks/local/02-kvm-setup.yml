@@ -1,0 +1,9 @@
+---
+- name: kvm
+  hosts:
+    - x86
+  tasks:
+    - name: kvm scripts
+      include_role:
+        name: docker_lab
+        tasks_from: kvm-setup

@@ -1,0 +1,55 @@
+---
+- name: start-services
+  hosts:
+    - selected
+  vars:
+    global_recreate: true
+    global_appstate: absent
+    global_purge: true
+  vars_files:
+    - ../vars/global.yml
+    - ../vars/images.yml
+    - ../vars/dockerappconfig.yml
+  tasks:
+    - include_role:
+        name: docker_lab
+        tasks_from: app-{{ rolesvar }}
+      loop:
+        # platform essentials
+        - traefik
+        - portainer
+        - registry
+        - regui
+        - keycloak
+        - reposilite
+        - cadvisor
+
+        # databases
+        - postgres
+        - mariadb
+        - oracledb
+        - minio
+        - memcached
+        - adminer
+
+        # messaging
+        - kafka
+        - artemis
+
+        # observability
+        - prometheus
+        - grafana
+        - grafana-enterprise
+        - grafana-alpha
+        - loki
+        - mimir
+        - grafana-agent
+        - tempo
+
+        # functional apps
+        - smoke-test-app
+        - shopping-cart
+        - products
+        - web-shop
+      loop_control:
+        loop_var: rolesvar

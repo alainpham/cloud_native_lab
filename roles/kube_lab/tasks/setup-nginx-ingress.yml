@@ -1,0 +1,22 @@
+---
+#ingress 
+- name: Create initial namespaces
+  shell: | 
+    kubectl create ns ingress-nginx  --dry-run=client -o yaml | kubectl apply -f -
+
+- name: create self signed certificate in kube
+  shell: |
+    kubectl -n ingress-nginx create  secret tls nginx-ingress-tls  --key="/root/install/tls/kube.loc.key"   --cert="/root/install/tls/kube.loc.crt"  --dry-run=client -o yaml | kubectl apply -f -
+
+- name: install nginx ingress controller
+  shell: |
+    envsubst < /root/install/nginx-ingress/nginx.envsubst.yml | kubectl apply -f -
+  environment:
+    localregistry: "{{ localregistry }}"
+
+- name: wait for nginx to be ready
+  shell: |
+    kubectl wait --namespace ingress-nginx \
+      --for=condition=ready pod \
+      --selector=app.kubernetes.io/component=controller \
+      --timeout=90s

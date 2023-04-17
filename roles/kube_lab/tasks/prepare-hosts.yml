@@ -1,0 +1,98 @@
+---
+
+- name: Activate kernel modules
+  copy:
+    src: "templates/system/containerd.conf"
+    dest: /etc/modules-load.d/containerd.conf
+
+- name: Network config
+  copy:
+    src: "templates/system/99-kubernetes-cri.conf"
+    dest: /etc/sysctl.d/99-kubernetes-cri.conf
+
+- name: Container registry certs
+  copy:
+    src: "templates/tls/root-ca.pem"
+    dest: /etc/ssl/certs/root-ca.pem
+
+- name: apt cacher on host machine
+  ansible.builtin.lineinfile:
+    path: /etc/apt/apt.conf.d/proxy
+    regexp: '.*Acquire::http.*'
+    line: Acquire::http { Proxy "{{ aptcacherproxy }}"; }
+    create: true
+
+- name: Update all packages to the latest version
+  apt:
+    update_cache: yes
+    upgrade: full
+
+# - name: Update all packages to the latest version
+#   shell: |
+#     apt update
+#     apt upgrade -y
+
+- name: Install packages
+  apt:
+    name: 
+      - apt-transport-https
+      - gnupg2
+      - curl
+      - rsync
+    state: present
+
+- name: Add an Kubernetes Apt Signing key
+  shell: "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -"
+
+- name: Add an Docker Containerd Apt Signing key
+  shell: "curl -s https://download.docker.com/linux/debian/gpg | apt-key add -"
+
+
+- name: Add Kubernetes Repo
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+
+- name: Add Docker Repo
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/debian {{ansible_distribution_release}} stable
+    state: present
+
+# Helm install
+- name: Install Helm keys
+  shell: "curl https://baltocdn.com/helm/signing.asc | apt-key add -"
+
+- name: Add Helm Repo
+  apt_repository:
+    repo: deb https://baltocdn.com/helm/stable/debian/ all main
+    state: present
+
+- name: Install Kube packages
+  apt:
+    name: 
+      - containerd.io
+      - kubeadm={{ kube_version }}-00
+      - kubelet={{ kube_version }}-00
+      - kubectl={{ kube_version }}-00
+      - helm
+    update_cache: yes
+    state: present
+
+- name: Containerd default config
+  shell: "containerd config default | sudo tee /etc/containerd/config.toml"
+
+- name: Containerd config with SystemdCgroup true
+  copy:
+    src: "templates/containerd/config.toml"
+    dest: /etc/containerd/config.toml
+
+- name: install k9s
+  shell: |
+    curl -k -L {{ k9s_package }} -o k9s_Linux_amd64.tar.gz && tar -xzvf k9s_Linux_amd64.tar.gz  -C /usr/local/bin/ k9s
+  args:
+    chdir: /tmp
+    creates: /usr/local/bin/k9s
+
+- name: Reboot
+  reboot:
+    reboot_timeout: 30

@@ -1,0 +1,13 @@
+---
+- name: Deploy local storage provisioner
+  shell: |
+    envsubst '${localregistry}' < /root/install/local-path-provisioner/local-path-storage.envsubst.yaml | kubectl apply -f -
+  environment:
+    localregistry: "{{ localregistry }}"
+
+- name: Deploy minio object storage
+  shell: |
+     envsubst < /root/install/minio/minio.envsubst.yml | kubectl apply -f -
+  environment:
+    localregistry: "{{ localregistry }}"
+    kube_ingress_root_domain: "{{ kube_ingress_root_domain }}"

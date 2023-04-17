@@ -1,0 +1,204 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mimir-config
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+    app.kubernetes.io/version: "2.5.0"
+data:
+  mimir.yaml: |
+    multitenancy_enabled: true
+
+    server:
+      log_level: info
+
+    ingester:
+      ring:
+        replication_factor: 1
+
+    blocks_storage:
+      backend: s3
+      s3:
+        endpoint: minio.minio.svc.cluster.local:9000
+        bucket_name: mimir-tsdb
+        access_key_id: admin
+        secret_access_key: password
+        insecure: true
+      tsdb:
+        dir: /data/tsdb
+      bucket_store:
+        sync_dir: /data/tsdb-sync
+
+    memberlist:
+      compression_enabled: false
+      join_members:
+       - dns+mimir-headless:7946
+
+    activity_tracker:
+      filepath: /data/metrics-activity.log
+
+    ruler: 
+      rule_path: /data/data-ruler/
+
+    ruler_storage:
+      backend: s3
+      s3:
+        endpoint: minio.minio.svc.cluster.local:9000
+        bucket_name: mimir-ruler
+        access_key_id: admin
+        secret_access_key: password
+        insecure: true
+
+    compactor:
+      data_dir: /data/data-compactor/
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mimir-headless
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: memberlist
+    app.kubernetes.io/version: "2.5.0"
+  namespace: "monitoring"
+spec:
+  clusterIP: None
+  ports:
+    - name: http-metrics
+      protocol: TCP
+      port: 8080
+      targetPort: http-metrics
+    - name: grpc
+      protocol: TCP
+      port: 9095
+      targetPort: grpc
+    - name: gossip-ring
+      protocol: TCP
+      port: 7946
+      targetPort: gossip-ring
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: memberlist
+    app.kubernetes.io/version: "2.5.0"
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: memberlist
+    app.kubernetes.io/version: "2.5.0"
+  name: mimir
+  namespace: "monitoring"
+spec:
+  podManagementPolicy: Parallel
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mimir
+      app.kubernetes.io/instance: mimir
+      app.kubernetes.io/component: server
+      app.kubernetes.io/version: "2.5.0"
+  serviceName: mimir-headless
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mimir
+        app.kubernetes.io/instance: mimir
+        app.kubernetes.io/component: server
+        app.kubernetes.io/part-of: memberlist
+        app.kubernetes.io/version: "2.5.0"
+    spec:
+      containers:
+        - args:
+            - -config.file=/etc/mimir/mimir.yaml
+          image: registry.work.lan/mimir:2.5.0
+          imagePullPolicy: IfNotPresent
+          name: mimir
+          ports:
+            - name: http-metrics
+              containerPort: 8080
+              protocol: TCP
+            - name: grpc
+              containerPort: 9095
+              protocol: TCP
+            - name: gossip-ring
+              containerPort: 7946
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          resources:
+          volumeMounts:
+            - mountPath: /data
+              name: storage
+            - mountPath: /etc/mimir
+              name: mimir-config
+      securityContext:
+        fsGroup: 10001
+        runAsUser: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+      terminationGracePeriodSeconds: 300
+      volumes:
+        - name: mimir-config
+          configMap:
+            name: mimir-config
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        name: storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mimir
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+    app.kubernetes.io/component: server
+    app.kubernetes.io/version: "2.5.0"
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  namespace: "monitoring"
+spec:
+  rules:
+    - host: "mimir.kube.loc"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mimir-headless
+                port:
+                  number: 8080

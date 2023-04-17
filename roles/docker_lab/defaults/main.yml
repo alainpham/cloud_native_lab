@@ -1,0 +1,37 @@
+---
+docker:
+  pullregistry: registry.awon.lan
+  registries:
+    - registry.work.lan
+    - registry.awon.lan
+  dns: 
+    - 172.17.0.1
+
+aptproxy: http://192.168.8.100:3142
+
+# global dnsmasq config. useful in home networks not so much on single host
+dnsmasq:
+  # listen: 0.0.0.0
+  dhcp-range: 192.168.8.8,192.168.8.253,255.255.255.0,12h
+  dhcp-option-router: option:router,192.168.8.1
+  dhcp-option-dns: option:dns-server,192.168.8.1
+  address:
+    # gateway
+    - hostname: gate.lan
+      ip: 192.168.8.1
+      mac: "00:00:00:00:00:00"
+    
+    # dns dhcp
+    - hostname: cipi.lan
+      ip: 192.168.8.254
+      mac: "00:00:00:00:00:00"
+    
+    # 24/7 on servers
+    - hostname: awon.lan
+      ip: 192.168.8.100
+      mac: "00:00:00:00:00:00"
+    - hostname: bbee.lan
+      ip: 192.168.8.101
+      mac: "00:00:00:00:00:00"
+
+

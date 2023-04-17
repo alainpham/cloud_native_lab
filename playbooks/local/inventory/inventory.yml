@@ -1,0 +1,22 @@
+---
+baremetal:
+  hosts:
+    work.lan:
+      ansible_connection: local
+      ansible_user: apham
+      ansible_python_interpreter: /usr/bin/python3
+      arch: linux-amd64
+vms:
+  hosts:
+    sandbox.loc:
+      ansible_connection: ssh
+      ansible_user: cloud-user
+      ansible_python_interpreter: /usr/bin/python3
+      arch: linux-amd64
+
+selected:
+  # children:
+  #   x86:
+  #   vms:
+  hosts:
+    work.lan:

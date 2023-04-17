@@ -1,0 +1,27 @@
+---
+- name: Delete {{appname}} config folder
+  when: appconfig[appname].appstate == 'absent' and appconfig[appname].purge 
+  become: true
+  file:
+    path: "{{ appconfig[appname].config_folder }}"
+    state: absent
+
+# - name: debug vars
+#   debug:
+#     msg: "purge  : {{appconfig[appname].appstate}} {{appconfig[appname].purge }}"
+
+- name: Delete {{appname}} data folder
+  when: appconfig[appname].appstate == 'absent' and appconfig[appname].purge 
+  become: true
+  file:
+    path: "{{ appconfig[appname].data_folder }}"
+    state: absent
+
+- name: remove from /etc/hosts
+  become: true
+  when : appconfig[appname].appstate == 'absent' and appconfig[appname].declare_hostname
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^.*{{appconfig[appname].ip}}\s.*$'
+    line: "{{appconfig[appname].ip}} {{appname}}"
+    state: absent

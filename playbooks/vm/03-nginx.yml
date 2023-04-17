@@ -1,0 +1,69 @@
+    ####################
+    # NGINX deployment
+    ####################
+- name: Prepare Hosts
+  hosts:
+    - infrastructure
+  tasks:
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /nginx/
+        state: directory
+        mode: '0755'
+        owner: 101
+        group: 101
+
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /nginx/entrypoint
+        state: directory
+        mode: '0755'
+        owner: 101
+        group: 101
+
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /nginx/tmp
+        state: directory
+        mode: '0755'
+        owner: 101
+        group: 101
+
+    - name: Copy config
+      copy:
+        src: "templates/nginx.conf"
+        dest: /nginx/nginx.conf
+        owner: 101
+        group: 101
+
+
+    - name: "Manage nginx container state"
+      docker_container:
+        name: "nginx"
+        hostname: "nginx"
+        image: "docker.io/nginxinc/nginx-unprivileged:1.19-alpine"
+        state: "started"
+        recreate: "true"
+        restart_policy: unless-stopped
+        container_default_behavior: no_defaults
+        detach: true
+        user: "101:101"
+        ports: 
+          - 8080:8080
+          - 7946:7946
+          - 9095:9095
+          - 3101:3101
+
+          - 4946:4946
+          - 4095:4095
+          - 4100:4100
+        command: 
+        env:
+        labels: |
+          {
+            "app": "nginx",
+          }
+        volumes:
+          - /nginx/nginx.conf:/etc/nginx/nginx.conf
+          - /nginx/entrypoint:/docker-entrypoint.d
+          - /nginx/tmp/:/tmp/

@@ -1,0 +1,22 @@
+---
+
+- name: Create tls folder
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/tls
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy config ca cert
+  copy:
+    src: "/home/{{ ansible_user }}/apps/tls/{{lookup('pipe','hostname')}}.lan-root-ca.pem"
+    dest: "/home/{{ ansible_user }}/apps/tls/{{ inventory_hostname }}-root-ca.pem"
+    mode: '0644'
+
+- name: Copy config ca key
+  copy:
+    src: "/home/{{ ansible_user }}/apps/tls/{{lookup('pipe','hostname')}}.lan-root-ca.key"
+    dest: "/home/{{ ansible_user }}/apps/tls/{{ inventory_hostname }}-root-ca.key"
+    mode: '0600'

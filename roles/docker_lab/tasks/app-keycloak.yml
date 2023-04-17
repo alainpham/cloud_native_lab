@@ -1,0 +1,135 @@
+---
+- set_fact:
+    appname: keycloak
+
+- name: provision infra
+  ansible.builtin.include_role:
+    name: docker_lab
+    tasks_from: infra-provision
+
+- name: Template {{appname}} config
+  when:  appconfig[appname].appstate == 'started'
+  become: true
+  ansible.builtin.template:
+    src: templates/{{appname}}/config/apps-realm-template.j2
+    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/apps-realm.json
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+    mode: '0644'
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    hostname: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports: "{{ appconfig[appname].ports | default(omit,true)}}"
+
+    command: start
+    env:
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: "{{appname}}.{{inventory_hostname}}"
+      # KC_HOSTNAME_ADMIN: "{{appname}}.{{inventory_hostname}}"
+      KC_PROXY: edge
+      # KC_HOSTNAME_PORT:  "443"
+      # KC_HOSTNAME_STRICT: "true"
+      # KC_HOSTNAME: "172.18.0.80"
+      # KC_HOSTNAME_PORT:  "8443"
+      # KC_HTTPS_CERTIFICATE_FILE: /certs/{{inventory_hostname}}.pem
+      # KC_HTTPS_CERTIFICATE_KEY_FILE: /certs/{{inventory_hostname}}.key
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: password
+    # labels: |
+    #   {
+    #     "traefik.tcp.services.{{appname}}.loadbalancer.server.port": "8443",
+    #     "traefik.tcp.routers.{{appname}}.entrypoints": "https",
+    #     "traefik.tcp.routers.{{appname}}.tls": "true",
+    #     "traefik.tcp.routers.{{appname}}.tls.passthrough": "true",
+    #     "traefik.tcp.routers.{{appname}}.rule": "HostSNI(`{{appname}}.{{inventory_hostname}}`)",
+    #     "traefik.tcp.routers.{{appname}}.service": "{{appname}}",
+    #   }
+    labels: |
+      {
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "8080",
+        "traefik.http.routers.{{appname}}.service": "{{appname}}",
+        "traefik.http.routers.{{appname}}.entrypoints": "https",
+        "traefik.http.routers.{{appname}}.tls": "true",
+        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
+      }
+    volumes:
+      # - "/home/{{ansible_user}}/apps/tls:/certs:ro"
+      - "/home/{{ ansible_user }}/apps/{{appname}}/data:/opt/keycloak/data:rw"
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig[appname].ip}}"
+
+
+# - name: add to /etc/hosts
+#   become: true
+#   lineinfile:
+#     dest: /etc/hosts
+#     regexp: '^.*{{appconfig[appname].ip}}\s.*$'
+#     line: "{{appconfig[appname].ip}} {{appname}}"
+#     state: present
+
+# setup realm
+
+- name: Check if server is up {{inventory_hostname}}
+  when:  appconfig[appname].appstate == 'started'
+  uri:
+    url: "https://{{appname}}.{{inventory_hostname}}/health"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 2
+
+- name: login
+  when:  appconfig[appname].appstate == 'started'
+  ansible.builtin.uri:
+    url: https://{{appname}}.{{inventory_hostname}}/realms/master/protocol/openid-connect/token
+    method: POST
+    body_format: form-urlencoded
+    body:
+      grant_type: password
+      client_id: admin-cli
+      username: admin
+      password: password
+  register: login
+
+- name: delete realm
+  when:  appconfig[appname].appstate == 'started'
+  ansible.builtin.uri:
+    url: https://{{appname}}.{{inventory_hostname}}/admin/realms/apps
+    method: DELETE
+    headers: 
+      Authorization: "Bearer {{ login.json.access_token }}"
+    status_code: 204
+  ignore_errors: true
+
+- name: create realm
+  when:  appconfig[appname].appstate == 'started'
+  ansible.builtin.uri:
+    url: https://{{appname}}.{{inventory_hostname}}/admin/realms/
+    method: POST
+    headers: 
+      Authorization: "Bearer {{ login.json.access_token }}"
+      Content-Type: "application/json"
+    src: /home/{{ ansible_user }}/apps/{{appname}}/config/apps-realm.json
+    remote_src: yes
+    status_code: 201
+
+- name: delete infra
+  ansible.builtin.include_role:
+    name: docker_lab
+    tasks_from: infra-delete

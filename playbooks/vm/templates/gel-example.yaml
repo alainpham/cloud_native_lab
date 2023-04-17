@@ -1,0 +1,1201 @@
+---
+# Source: loki/templates/backend/poddisruptionbudget-backend.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: enterprise-logs-backend
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: backend
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: enterprise-logs
+      app.kubernetes.io/instance: enterprise-logs
+      app.kubernetes.io/component: backend
+  maxUnavailable: 1
+---
+# Source: loki/templates/read/poddisruptionbudget-read.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: enterprise-logs-read
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: read
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: enterprise-logs
+      app.kubernetes.io/instance: enterprise-logs
+      app.kubernetes.io/component: read
+  maxUnavailable: 1
+---
+# Source: loki/templates/write/poddisruptionbudget-write.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: enterprise-logs-write
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: write
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: enterprise-logs
+      app.kubernetes.io/instance: enterprise-logs
+      app.kubernetes.io/component: write
+  maxUnavailable: 1
+---
+# Source: loki/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: enterprise-logs
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: loki/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: enterprise-logs
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  config.yaml: |
+    admin_client:
+      storage:
+        s3:
+          bucket_name: enterprise-logs-admin
+    auth:
+      type: enterprise
+    auth_enabled: true
+    chunk_store_config:
+      chunk_cache_config:
+        memcached:
+          batch_size: 256
+          parallelism: 10
+        memcached_client:
+          host: chunk-cache-memcached.gel.svc.cluster.local
+          service: memcache
+      write_dedupe_cache_config:
+        memcached:
+          batch_size: 100
+          parallelism: 100
+        memcached_client:
+          consistent_hash: true
+          host: write-cache-memcached.gel.svc.cluster.local
+          service: memcache
+    cluster_name: enterprise-logs
+    common:
+      compactor_address: 'enterprise-logs-backend'
+      path_prefix: /var/loki
+      replication_factor: 3
+      storage:
+        s3:
+          access_key_id: enterprise-logs
+          bucketnames: enterprise-logs-chunks
+          endpoint: minio.gel.svc.cluster.local:9000
+          insecure: true
+          s3forcepathstyle: true
+          secret_access_key: supersecret
+    compactor:
+      compaction_interval: 10m
+      delete_batch_size: 70
+      delete_max_interval: 0s
+      delete_request_cancel_period: 24h
+      deletion_mode: filter-and-delete
+      retention_delete_delay: 1h
+      retention_delete_worker_count: 150
+      retention_enabled: true
+      retention_table_timeout: 0s
+    ingester:
+      max_chunk_age: 2h
+    license:
+      path: /etc/loki/license/license.jwt
+    limits_config:
+      enforce_metric_name: false
+      ingestion_burst_size_mb: 6
+      ingestion_rate_mb: 4
+      max_cache_freshness_per_query: 10m
+      max_chunks_per_query: 2000000
+      max_line_size: 0
+      max_line_size_truncate: false
+      max_query_parallelism: 32
+      max_query_series: 500
+      reject_old_samples: true
+      reject_old_samples_max_age: 1w
+      retention_period: 31d
+      retention_stream: []
+      split_queries_by_interval: 15m
+      unordered_writes: true
+    memberlist:
+      join_members:
+      - enterprise-logs-memberlist
+    querier:
+      max_concurrent: 15
+      query_ingesters_within: 15m
+    query_range:
+      align_queries_with_step: true
+      cache_results: true
+      results_cache:
+        cache:
+          default_validity: 12h
+          memcached_client:
+            host: results-cache-memcached.gel.svc.cluster.local
+            service: memcache
+            timeout: 500ms
+    ruler:
+      alertmanager_client:
+        basic_auth_password: TOKEN
+        basic_auth_username: TENANTID
+      alertmanager_url: http://<gem_cluster_name>-mimir-alertmanager.gem.svc.cluster.local
+      enable_api: true
+      evaluation_interval: 1m
+      poll_interval: 1m
+      remote_write:
+        clients:
+          gem:
+            basic_auth:
+              password: TOKEN
+              username: TENANTID
+            headers: {}
+            remote_timeout: 30s
+            tls_config:
+              insecure_skip_verify: true
+            url: http://<gem_cluster_name>-mimir-gateway.gem.svc.cluster.local/api/v1/write
+            write_relabel_configs:
+            - action: replace
+              replacement: enterprise-logs
+              target_label: cluster
+        config_refresh_period: 10s
+        enabled: true
+      storage:
+        s3:
+          access_key_id: enterprise-logs
+          bucketnames: enterprise-logs-ruler
+          endpoint: minio.gel.svc.cluster.local:9000
+          insecure: true
+          s3forcepathstyle: true
+          secret_access_key: supersecret
+        type: s3
+    runtime_config:
+      file: /etc/loki/runtime-config/runtime-config.yaml
+    schema_config:
+      configs:
+      - from: "2022-01-11"
+        index:
+          period: 24h
+          prefix: loki_index_
+        object_store: s3
+        schema: v12
+        store: boltdb-shipper
+    server:
+      grpc_listen_port: 9095
+      http_listen_port: 3100
+      http_server_read_timeout: 5m
+      http_server_write_timeout: 5m
+      log_level: info
+    storage_config:
+      hedging:
+        at: 250ms
+        max_per_second: 20
+        up_to: 3
+      index_queries_cache_config:
+        memcached:
+          batch_size: 100
+          parallelism: 100
+        memcached_client:
+          host: index-cache-memcached.gel.svc.cluster.local
+          service: memcache
+    table_manager:
+      retention_deletes_enabled: false
+      retention_period: 0
+---
+# Source: loki/templates/gateway/configmap-gateway.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: enterprise-logs-gateway
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: gateway
+data:
+  nginx.conf: |    
+    worker_processes  5;  ## Default: 1
+    error_log  /dev/stderr;
+    pid        /tmp/nginx.pid;
+    worker_rlimit_nofile 8192;
+    
+    events {
+      worker_connections  4096;  ## Default: 1024
+    }
+    
+    http {
+      client_body_temp_path /tmp/client_temp;
+      proxy_temp_path       /tmp/proxy_temp_path;
+      fastcgi_temp_path     /tmp/fastcgi_temp;
+      uwsgi_temp_path       /tmp/uwsgi_temp;
+      scgi_temp_path        /tmp/scgi_temp;
+    
+      client_max_body_size 4M;
+    
+      proxy_read_timeout    600; ## 6 minutes
+      proxy_send_timeout    600;
+      proxy_connect_timeout 600;
+    
+      proxy_http_version    1.1;
+    
+      default_type application/octet-stream;
+      log_format   main '$remote_addr - $remote_user [$time_local]  $status '
+            '"$request" $body_bytes_sent "$http_referer" '
+            '"$http_user_agent" "$http_x_forwarded_for"';
+      access_log   /dev/stderr  main;
+    
+      sendfile     on;
+      tcp_nopush   on;
+      resolver kube-dns.kube-system.svc.cluster.local.;
+      
+    
+      server {
+        listen             8080;
+    
+        location = / {
+          return 200 'OK';
+          auth_basic off;
+        }
+    
+        location = /api/prom/push {
+          proxy_pass       http://enterprise-logs-write.gel.svc.cluster.local:3100$request_uri;
+        }
+    
+        location = /api/prom/tail {
+          proxy_pass       http://enterprise-logs-read.gel.svc.cluster.local:3100$request_uri;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+        }
+    
+        location ~ /api/prom/.* {
+          proxy_pass       http://enterprise-logs-read.gel.svc.cluster.local:3100$request_uri;
+        }
+    
+        location ~ /prometheus/api/v1/alerts.* {
+          proxy_pass       http://enterprise-logs-backend.gel.svc.cluster.local:3100$request_uri;
+        }
+        location ~ /prometheus/api/v1/rules.* {
+          proxy_pass       http://enterprise-logs-backend.gel.svc.cluster.local:3100$request_uri;
+        }
+        location ~ /ruler/.* {
+          proxy_pass       http://enterprise-logs-backend.gel.svc.cluster.local:3100$request_uri;
+        }
+    
+        location = /loki/api/v1/push {
+          proxy_pass       http://enterprise-logs-write.gel.svc.cluster.local:3100$request_uri;
+        }
+    
+        location = /loki/api/v1/tail {
+          proxy_pass       http://enterprise-logs-read.gel.svc.cluster.local:3100$request_uri;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+        }
+    
+        location ~ /compactor/.* {
+          proxy_pass       http://enterprise-logs-backend.gel.svc.cluster.local:3100$request_uri;
+        }
+    
+        location ~ /distributor/.* {
+          proxy_pass       http://enterprise-logs-write.gel.svc.cluster.local:3100$request_uri;
+        }
+    
+        location ~ /ring {
+          proxy_pass       http://enterprise-logs-write.gel.svc.cluster.local:3100$request_uri;
+        }
+    
+        location ~ /ingester/.* {
+          proxy_pass       http://enterprise-logs-write.gel.svc.cluster.local:3100$request_uri;
+        }
+    
+        location ~ /store-gateway/.* {
+          proxy_pass       http://enterprise-logs-backend.gel.svc.cluster.local:3100$request_uri;
+        }
+    
+        location ~ /query-scheduler/.* {
+          proxy_pass       http://enterprise-logs-backend.gel.svc.cluster.local:3100$request_uri;
+        }
+        location ~ /scheduler/.* {
+          proxy_pass       http://enterprise-logs-backend.gel.svc.cluster.local:3100$request_uri;
+        }
+    
+        location ~ /loki/api/.* {
+          proxy_pass       http://enterprise-logs-read.gel.svc.cluster.local:3100$request_uri;
+        }
+    
+        location ~ /admin/api/.* {
+          proxy_pass       http://enterprise-logs-write.gel.svc.cluster.local:3100$request_uri;
+        }
+      }
+    }
+---
+# Source: loki/templates/runtime-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: enterprise-logs-runtime
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  runtime-config.yaml: |
+    
+    {}
+---
+# Source: loki/templates/backend/service-backend-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-logs-backend-headless
+  labels:
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/component: backend
+    prometheus.io/service-monitor: "false"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: http-metrics
+      port: 3100
+      targetPort: http-metrics
+      protocol: TCP
+    - name: grpc
+      port: 9095
+      targetPort: grpc
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/component: backend
+---
+# Source: loki/templates/backend/service-backend.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-logs-backend
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  ports:
+    - name: http-metrics
+      port: 3100
+      targetPort: http-metrics
+      protocol: TCP
+    - name: grpc
+      port: 9095
+      targetPort: grpc
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/component: backend
+---
+# Source: loki/templates/gateway/service-gateway.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-logs-gateway
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: gateway
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/component: gateway
+---
+# Source: loki/templates/read/service-read-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-logs-read-headless
+  labels:
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/component: read
+    prometheus.io/service-monitor: "false"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: http-metrics
+      port: 3100
+      targetPort: http-metrics
+      protocol: TCP
+    - name: grpc
+      port: 9095
+      targetPort: grpc
+      protocol: TCP
+      appProtocol: tcp
+  selector:
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/component: read
+---
+# Source: loki/templates/read/service-read.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-logs-read
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: read
+spec:
+  type: ClusterIP
+  ports:
+    - name: http-metrics
+      port: 3100
+      targetPort: http-metrics
+      protocol: TCP
+    - name: grpc
+      port: 9095
+      targetPort: grpc
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/component: read
+---
+# Source: loki/templates/service-memberlist.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-logs-memberlist
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: tcp
+      port: 7946
+      targetPort: http-memberlist
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/part-of: memberlist
+---
+# Source: loki/templates/write/service-write-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-logs-write-headless
+  labels:
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/component: write
+    prometheus.io/service-monitor: "false"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: http-metrics
+      port: 3100
+      targetPort: http-metrics
+      protocol: TCP
+    - name: grpc
+      port: 9095
+      targetPort: grpc
+      protocol: TCP
+      appProtocol: tcp
+  selector:
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/component: write
+---
+# Source: loki/templates/write/service-write.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-logs-write
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: write
+spec:
+  type: ClusterIP
+  ports:
+    - name: http-metrics
+      port: 3100
+      targetPort: http-metrics
+      protocol: TCP
+    - name: grpc
+      port: 9095
+      targetPort: grpc
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/component: write
+---
+# Source: loki/templates/gateway/deployment-gateway.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-logs-gateway
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: gateway
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: enterprise-logs
+      app.kubernetes.io/instance: enterprise-logs
+      app.kubernetes.io/component: gateway
+  template:
+    metadata:
+      annotations:
+        checksum/config: 8743e7f2dba0b66187f85caba8f1d439f5f578a712cb7ed3f4e049fc7cff38cd
+      labels:
+        app.kubernetes.io/name: enterprise-logs
+        app.kubernetes.io/instance: enterprise-logs
+        app.kubernetes.io/component: gateway
+    spec:
+      serviceAccountName: enterprise-logs
+      enableServiceLinks: true
+      
+      securityContext:
+        fsGroup: 101
+        runAsGroup: 101
+        runAsNonRoot: true
+        runAsUser: 101
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: nginx
+          image: docker.io/nginxinc/nginx-unprivileged:1.19-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx
+            - name: tmp
+              mountPath: /tmp
+            - name: docker-entrypoint-d-override
+              mountPath: /docker-entrypoint.d
+          resources:
+            {}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: enterprise-logs
+                  app.kubernetes.io/instance: enterprise-logs
+                  app.kubernetes.io/component: gateway
+              topologyKey: kubernetes.io/hostname
+        
+      volumes:
+        - name: config
+          configMap:
+            name: enterprise-logs-gateway
+        - name: tmp
+          emptyDir: {}
+        - name: docker-entrypoint-d-override
+          emptyDir: {}
+---
+# Source: loki/templates/read/deployment-read.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-logs-read
+  labels:
+    app.kubernetes.io/part-of: memberlist
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: read
+spec:
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: enterprise-logs
+      app.kubernetes.io/instance: enterprise-logs
+      app.kubernetes.io/component: read
+  template:
+    metadata:
+      annotations:
+        checksum/config: bebdbd15ba38acbfcb20dce03d8aa340cd67cefb754a1c6f4cdc34a507dca60c
+      labels:
+        app.kubernetes.io/part-of: memberlist
+        app.kubernetes.io/name: enterprise-logs
+        app.kubernetes.io/instance: enterprise-logs
+        app.kubernetes.io/component: read
+    spec:
+      serviceAccountName: enterprise-logs
+      automountServiceAccountToken: true
+      
+      securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: loki
+          image: docker.io/grafana/enterprise-logs:v1.7.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/loki/config/config.yaml
+            - -target=read
+            - -legacy-read-mode=false
+            - -common.compactor-grpc-address=enterprise-logs-backend.gel.svc.cluster.local:9095
+            - -config.expand-env=true
+          ports:
+            - name: http-metrics
+              containerPort: 3100
+              protocol: TCP
+            - name: grpc
+              containerPort: 9095
+              protocol: TCP
+            - name: http-memberlist
+              containerPort: 7946
+              protocol: TCP
+          env:
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+          volumeMounts:
+            - name: config
+              mountPath: /etc/loki/config
+            - name: runtime-config
+              mountPath: /etc/loki/runtime-config
+            - name: tmp
+              mountPath: /tmp
+            - name: data
+              mountPath: /var/loki
+            - name: license
+              mountPath: /etc/loki/license
+          resources:
+            {}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: enterprise-logs
+                  app.kubernetes.io/instance: enterprise-logs
+                  app.kubernetes.io/component: read
+              topologyKey: kubernetes.io/hostname
+        
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: data
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: enterprise-logs
+        - name: runtime-config
+          configMap:
+            name: enterprise-logs-runtime
+        - name: license
+          secret:
+            secretName: gel-license
+---
+# Source: loki/templates/backend/statefulset-backend.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: enterprise-logs-backend
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: memberlist
+spec:
+  replicas: 3
+  podManagementPolicy: Parallel
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+  serviceName: enterprise-logs-backend-headless
+  revisionHistoryLimit: 10
+  
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Delete
+    whenScaled: Delete
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: enterprise-logs
+      app.kubernetes.io/instance: enterprise-logs
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      annotations:
+        checksum/config: bebdbd15ba38acbfcb20dce03d8aa340cd67cefb754a1c6f4cdc34a507dca60c
+      labels:
+        app.kubernetes.io/name: enterprise-logs
+        app.kubernetes.io/instance: enterprise-logs
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/part-of: memberlist
+    spec:
+      serviceAccountName: enterprise-logs
+      automountServiceAccountToken: true
+      
+      securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+      terminationGracePeriodSeconds: 300
+      containers:
+        - name: loki
+          image: docker.io/grafana/enterprise-logs:v1.7.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/loki/config/config.yaml
+            - -target=backend
+            - -legacy-read-mode=false
+          ports:
+            - name: http-metrics
+              containerPort: 3100
+              protocol: TCP
+            - name: grpc
+              containerPort: 9095
+              protocol: TCP
+            - name: http-memberlist
+              containerPort: 7946
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+          volumeMounts:
+            - name: config
+              mountPath: /etc/loki/config
+            - name: runtime-config
+              mountPath: /etc/loki/runtime-config
+            - name: tmp
+              mountPath: /tmp
+            - name: data
+              mountPath: /var/loki
+            - name: license
+              mountPath: /etc/loki/license
+          resources:
+            {}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: enterprise-logs
+                  app.kubernetes.io/instance: enterprise-logs
+                  app.kubernetes.io/component: backend
+              topologyKey: kubernetes.io/hostname
+        
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: enterprise-logs
+        - name: runtime-config
+          configMap:
+            name: enterprise-logs-runtime
+        - name: license
+          secret:
+            secretName: gel-license
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "10Gi"
+---
+# Source: loki/templates/write/statefulset-write.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: enterprise-logs-write
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: write
+    app.kubernetes.io/part-of: memberlist
+spec:
+  replicas: 3
+
+  podManagementPolicy: Parallel
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+  serviceName: enterprise-logs-write-headless
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: enterprise-logs
+      app.kubernetes.io/instance: enterprise-logs
+      app.kubernetes.io/component: write
+  template:
+    metadata:
+      annotations:
+        checksum/config: bebdbd15ba38acbfcb20dce03d8aa340cd67cefb754a1c6f4cdc34a507dca60c
+      labels:
+        app.kubernetes.io/name: enterprise-logs
+        app.kubernetes.io/instance: enterprise-logs
+        app.kubernetes.io/component: write
+        app.kubernetes.io/part-of: memberlist
+    spec:
+      serviceAccountName: enterprise-logs
+      automountServiceAccountToken: true
+      enableServiceLinks: true
+      
+      securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+      terminationGracePeriodSeconds: 300
+      containers:
+        - name: loki
+          image: docker.io/grafana/enterprise-logs:v1.7.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/loki/config/config.yaml
+            - -target=write
+            - -config.expand-env=true
+          ports:
+            - name: http-metrics
+              containerPort: 3100
+              protocol: TCP
+            - name: grpc
+              containerPort: 9095
+              protocol: TCP
+            - name: http-memberlist
+              containerPort: 7946
+              protocol: TCP
+          env:
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+          volumeMounts:
+            - name: config
+              mountPath: /etc/loki/config
+            - name: runtime-config
+              mountPath: /etc/loki/runtime-config
+            - name: data
+              mountPath: /var/loki
+            - name: license
+              mountPath: /etc/loki/license
+          resources:
+            {}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: enterprise-logs
+                  app.kubernetes.io/instance: enterprise-logs
+                  app.kubernetes.io/component: write
+              topologyKey: kubernetes.io/hostname
+        
+      volumes:
+        - name: config
+          configMap:
+            name: enterprise-logs
+        - name: runtime-config
+          configMap:
+            name: enterprise-logs-runtime
+        - name: license
+          secret:
+            secretName: gel-license
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "10Gi"
+---
+# Source: loki/templates/tokengen/serviceaccount-tokengen.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: enterprise-logs-tokengen
+  namespace: gel
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: tokengen
+  annotations:
+    argocd.argoproj.io/hook: Skip
+    "helm.sh/hook": post-install
+---
+# Source: loki/templates/tokengen/clusterrole-tokengen.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: enterprise-logs-tokengen
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: tokengen
+  annotations:
+    argocd.argoproj.io/hook: Skip
+    "helm.sh/hook": post-install
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create", "get", "patch"]
+---
+# Source: loki/templates/tokengen/clusterrolebinding-tokengen.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: enterprise-logs-tokengen
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: tokengen
+  annotations:
+    argocd.argoproj.io/hook: Skip
+    "helm.sh/hook": post-install
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: enterprise-logs-tokengen
+subjects:
+  - kind: ServiceAccount
+    name: enterprise-logs-tokengen
+    namespace: gel
+---
+# Source: loki/templates/tokengen/job-tokengen.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: enterprise-logs-tokengen
+  labels:
+    helm.sh/chart: loki-5.0.0
+    app.kubernetes.io/name: enterprise-logs
+    app.kubernetes.io/instance: enterprise-logs
+    app.kubernetes.io/version: "2.8.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: tokengen
+  annotations:
+    argocd.argoproj.io/hook: Skip
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "10"
+spec:
+  backoffLimit: 6
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: enterprise-logs
+        app.kubernetes.io/instance: enterprise-logs
+        app.kubernetes.io/component: tokengen
+      annotations:
+        argocd.argoproj.io/hook: Skip
+    spec:
+      securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+      initContainers:
+        - name: loki
+          image: docker.io/grafana/enterprise-logs:v1.7.0
+          imagePullPolicy: IfNotPresent
+          args:
+            # The shared emptyDir exists only while the job is running, and is deleted once the job is completed.
+            # The tokengen generates a new admin token in case the 'token-file' file doesn't exist.
+            # As a result, subsequent executions of this tokengen job will generate new admin tokens.
+            # Note that previously generated tokens remain valid, as these remain present in the object storage.
+            - -config.file=/etc/loki/config/config.yaml
+            - -target=tokengen
+            - -tokengen.token-file=/shared/admin-token
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+            - name: config
+              mountPath: /etc/loki/config
+            - name: runtime-config
+              mountPath: /etc/loki/runtime-config
+            - name: license
+              mountPath: /etc/loki/license
+          env:
+      containers:
+        - name: create-secret
+          image: docker.io/bitnami/kubectl:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+            - -euc
+            - |
+              # Create or update admin token secrets generated by tokengen job
+              kubectl create secret generic "enterprise-logs-admin-token" \
+                --from-file=token=/shared/admin-token \
+                --dry-run=client -o yaml \
+                | kubectl apply -f -
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+            - name: config
+              mountPath: /etc/loki/config
+            - name: license
+              mountPath: /etc/loki/license
+      restartPolicy: OnFailure
+      serviceAccount: enterprise-logs-tokengen
+      serviceAccountName: enterprise-logs-tokengen
+      volumes:
+        - name: config
+          configMap:
+            name: enterprise-logs
+        - name: runtime-config
+          configMap:
+            name: enterprise-logs-runtime
+        - name: license
+          secret:
+            secretName: gel-license
+        - name: shared
+          emptyDir: {}

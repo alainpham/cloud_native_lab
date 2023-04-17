@@ -1,0 +1,9 @@
+- name: Prepare Hosts
+  hosts:
+    - master
+  tasks:
+  - name: Prepare Kube Hosts
+    include_role:
+      name: kube_lab
+      tasks_from: merge-local-kubeconfig
+

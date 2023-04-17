@@ -1,0 +1,57 @@
+apps: 
+  smoke-test-app:
+    artifactId: smoke-test-app
+    groupId: net.alainpham
+    cleanStart: true
+    repo: git@github.com:alainpham/smoke-test-app.git
+    version: master
+    dockerfile: src/main/docker/Dockerfile.multiarch
+    artifact: target/quarkus-app
+    type: folder
+    buildVersion: "1.2.1"
+    nextVersion:
+    subfolder: 
+    mavenrepo: https://admin:password@reposilite.awon.lan/releases
+    arch:
+      - linux-amd64
+      - linux-arm-v7
+    registries: 
+      - registry.awon.lan
+      - docker.io/alainpham
+  rentman:
+    artifactId: rentman
+    groupId: com.itteddy
+    cleanStart: true
+    repo: git@github.com:itteddy/rentman.git
+    version: master
+    dockerfile: src/main/docker/Dockerfile.multiarch
+    artifact: target/quarkus-app
+    type: folder
+    buildVersion: "1.0.3"
+    nextVersion:
+    subfolder: 
+    mavenrepo: https://admin:password@reposilite.awon.lan/releases
+    arch:
+      - linux-amd64
+      - linux-arm-v7
+    registries: 
+      - registry.awon.lan
+  teddycast:
+    artifactId: teddycast
+    groupId: com.itteddy
+    cleanStart: true
+    repo: git@github.com:itteddy/teddycast.git
+    version: master
+    dockerfile: src/main/docker/Dockerfile.multiarch
+    artifact: target/quarkus-app
+    type: folder
+    buildVersion: "1.0.6"
+    nextVersion:
+    subfolder: 
+    mavenrepo: https://admin:password@reposilite.awon.lan/releases
+    arch:
+      - linux-amd64
+      - linux-arm-v7
+    registries: 
+      - registry.awon.lan
+
