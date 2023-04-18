@@ -1,0 +1,65 @@
+
+- name: Instal GEL
+  hosts:
+    - backend
+  tasks:
+    - name: install GEL license
+      copy:
+        src: templates/sensitive/gel-license.jwt
+        dest: /etc/enterprise-logs/license.jwt
+
+    - name: configure GEL config.yaml
+      copy:
+        src: templates/gel-config.yml
+        dest: /etc/enterprise-logs/config.yaml
+
+    - name: configure GEL runtime-config.yaml
+      copy:
+        src: templates/runtime-config.yaml
+        dest: /etc/enterprise-logs/runtime-config/runtime-config.yaml
+
+
+- name: Instal GEL write backend
+  hosts:
+    - backend
+  tasks:
+    - name: create the enterprise-logs service file
+      copy:
+        src: templates/enterprise-logs-backend.service
+        dest: /etc/systemd/system/enterprise-logs-backend.service
+    - name: reload systemd
+      systemd:
+        daemon_reload: yes
+    - name: restart enterprise-logs-backend
+      systemd:
+        name: enterprise-logs-backend
+        state: restarted
+
+
+- name: Check readiness
+  hosts:
+    - backend
+  tasks:
+    - name: Check if server is up 
+      uri:
+        url: "http://{{inventory_hostname}}:3100/ready"
+        method: GET
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 100
+      delay: 2
+
+- name: Gnerate token
+  hosts:
+    - backend01
+  tasks:
+    - name: check if GEL is present
+      stat:
+        path: /root/gel-admin-token.txt
+      register: stat_token
+    - name: run the tokengen job
+      command: /usr/local/bin/enterprise-logs --config.file=/etc/enterprise-logs/config.yaml --target=tokengen --tokengen.token-file=/root/gel-admin-token.txt
+      args:
+        creates: /root/gel-admin-token.txt
+      when: not stat_token.stat.exists

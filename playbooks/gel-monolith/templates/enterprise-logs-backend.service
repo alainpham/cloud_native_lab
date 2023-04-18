@@ -1,0 +1,23 @@
+[Unit]
+Description=Grafana Enterprise Logs
+Documentation=https://grafana.com/docs/enterprise-logs/latest/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=enterprise-logs
+ExecStart=/usr/local/bin/enterprise-logs \
+              -config.file=/etc/enterprise-logs/config.yaml \
+              -target=all
+
+# Limits should instead be imposed by ulimit.
+LimitNOFILE=infinity
+
+Restart=always
+# Give ingesters plenty of time to gracefully leave.
+TimeoutStopSec=4800
+
+WorkingDirectory=/var/lib/enterprise-logs
+
+[Install]
+WantedBy=default.target
