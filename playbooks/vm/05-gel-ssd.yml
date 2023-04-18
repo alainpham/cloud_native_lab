@@ -4,6 +4,7 @@
     - write
     - backend
     - read
+    - infrastructure
   tasks:
     - name: install GEL license
       copy:
@@ -37,7 +38,7 @@
         name: enterprise-logs-write
         state: restarted
 
-- name: Instal GEL write backend
+- name: Instal GEL backend
   hosts:
     - backend
   tasks:
@@ -53,7 +54,7 @@
         name: enterprise-logs-backend
         state: restarted
 
-- name: Instal GEL write read
+- name: Instal GEL read
   hosts:
     - read
   tasks:
@@ -69,6 +70,21 @@
         name: enterprise-logs-read
         state: restarted
 
+- name: Instal GEL gateway
+  hosts:
+    - infrastructure
+  tasks:
+    - name: create the enterprise-logs service file
+      copy:
+        src: templates/enterprise-logs-gateway.service
+        dest: /etc/systemd/system/enterprise-logs-gateway.service
+    - name: reload systemd
+      systemd:
+        daemon_reload: yes
+    - name: restart enterprise-logs-gateway
+      systemd:
+        name: enterprise-logs-gateway
+        state: restarted
 
 - name: Check readiness
   hosts:
@@ -88,7 +104,7 @@
 
 - name: Gnerate token
   hosts:
-    - read01
+    - infra
   tasks:
     - name: check if GEL is present
       stat:

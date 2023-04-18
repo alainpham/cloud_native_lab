@@ -66,3 +66,18 @@ curl -u dev:$TOKEN infra:8080/loki/api/v1/push \
 -H "X-Scope-OrdID: dev" \
 --data "{\"streams\": [{ \"stream\": { \"job\": \"example\" }, \"values\": [ [ \"$current_date\", \"A log line\" ] ] }]}"
 ```
+
+
+```
+/usr/local/bin/enterprise-logs \
+              -config.file=/etc/enterprise-logs/config.yaml \
+              -target=gateway \
+              -gateway.proxy.default.url=http://infra:5100 \
+              -gateway.proxy.admin-api.url=http://infra:4100 \
+              -gateway.proxy.compactor.url=http://infra:5100 \
+              -gateway.proxy.distributor.url=http://infra:4100 \
+              -gateway.proxy.ingester.url=http://infra:4100 \
+              -gateway.proxy.query-frontend.url=http://infra:6100 \
+              -gateway.proxy.ruler.url=http://infra:5100
+
+```

@@ -22,7 +22,7 @@ chunk_store_config:
       addresses: dns+infra:11212 #write-cache
 cluster_name: enterprise-logs
 common:
-  compactor_address: http://infra:3100
+  compactor_address: http://infra:5100
   path_prefix: /var/lib/enterprise-logs
   replication_factor: 3
   storage:

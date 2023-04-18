@@ -1,0 +1,18 @@
+- name: Instal GEL
+  hosts:
+    - infrastructure
+  tasks:
+    - name: install GEL license
+      copy:
+        src: templates/sensitive/gel-license.jwt
+        dest: /etc/enterprise-logs/license.jwt
+
+    - name: configure GEL config.yaml
+      copy:
+        src: templates/gel-config.yml
+        dest: /etc/enterprise-logs/config.yaml
+
+    - name: configure GEL runtime-config.yaml
+      copy:
+        src: templates/runtime-config.yaml
+        dest: /etc/enterprise-logs/runtime-config/runtime-config.yaml
