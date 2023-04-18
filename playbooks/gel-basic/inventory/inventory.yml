@@ -19,6 +19,11 @@ read:
       ansible_user: cloud-user
       ansible_python_interpreter: /usr/bin/python3
       ansible_become: true
+    read03:
+      ansible_connection: ssh
+      ansible_user: cloud-user
+      ansible_python_interpreter: /usr/bin/python3
+      ansible_become: true
 
 write:
   hosts:
@@ -33,24 +38,6 @@ write:
       ansible_python_interpreter: /usr/bin/python3
       ansible_become: true
     write03:
-      ansible_connection: ssh
-      ansible_user: cloud-user
-      ansible_python_interpreter: /usr/bin/python3
-      ansible_become: true
-
-backend:
-  hosts:
-    backend01:
-      ansible_connection: ssh
-      ansible_user: cloud-user
-      ansible_python_interpreter: /usr/bin/python3
-      ansible_become: true
-    backend02:
-      ansible_connection: ssh
-      ansible_user: cloud-user
-      ansible_python_interpreter: /usr/bin/python3
-      ansible_become: true
-    backend03:
       ansible_connection: ssh
       ansible_user: cloud-user
       ansible_python_interpreter: /usr/bin/python3

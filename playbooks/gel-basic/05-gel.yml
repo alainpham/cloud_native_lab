@@ -1,8 +1,7 @@
 
-- name: Instal GEL
+- name: Install GEL
   hosts:
     - write
-    - backend
     - read
   tasks:
     - name: install GEL license
@@ -15,20 +14,14 @@
         src: templates/gel-config.yml
         dest: /etc/enterprise-logs/config.yaml
 
-    - name: configure GEL
-      copy:
-        src: templates/gel-config-monolith.yml
-        dest: /etc/enterprise-logs/config-mono.yaml
 
-    - name: configure GEL
+    - name: configure GEL runtime
       copy:
         src: templates/runtime-config.yaml
         dest: /etc/enterprise-logs/runtime-config/runtime-config.yaml
 
 
-
-
-- name: Instal GEL write path
+- name: Install GEL write path
   hosts:
     - write
   tasks:
@@ -44,23 +37,7 @@
         name: enterprise-logs-write
         state: restarted
 
-- name: Instal GEL write backend
-  hosts:
-    - backend
-  tasks:
-    - name: create the enterprise-logs service file
-      copy:
-        src: templates/enterprise-logs-backend.service
-        dest: /etc/systemd/system/enterprise-logs-backend.service
-    - name: reload systemd
-      systemd:
-        daemon_reload: yes
-    - name: restart enterprise-logs-backend
-      systemd:
-        name: enterprise-logs-backend
-        state: restarted
-
-- name: Instal GEL write read
+- name: Install GEL write read
   hosts:
     - read
   tasks:
@@ -77,21 +54,35 @@
         state: restarted
 
 
-- name: Check readiness
+- name: Check readiness on readpath
   hosts:
-    - write
-    - backend
-    - read
+    - infra
   tasks:
     - name: Check if server is up 
       uri:
-        url: "http://{{inventory_hostname}}:3100/ready"
+        url: "http://{{ item }}:3100/ready"
         method: GET
         status_code: 200
       register: result
       until: result.status == 200
       retries: 100
       delay: 2
+      loop: "{{ query('inventory_hostnames', 'write') }}"
+
+- name: Check readiness on readpath
+  hosts:
+    - infra
+  tasks:
+    - name: Check if server is up 
+      uri:
+        url: "http://{{ item }}:3100/ready"
+        method: GET
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 100
+      delay: 2
+      loop: "{{ query('inventory_hostnames', 'read') }}"
 
 - name: Gnerate token
   hosts:
