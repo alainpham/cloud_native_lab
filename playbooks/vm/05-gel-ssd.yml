@@ -36,7 +36,8 @@
     - name: restart enterprise-logs-write
       systemd:
         name: enterprise-logs-write
-        state: restarted
+        enabled: true
+        state: started
 
 - name: Instal GEL backend
   hosts:
@@ -52,7 +53,8 @@
     - name: restart enterprise-logs-backend
       systemd:
         name: enterprise-logs-backend
-        state: restarted
+        enabled: true
+        state: started
 
 - name: Instal GEL read
   hosts:
@@ -68,7 +70,8 @@
     - name: restart enterprise-logs-read
       systemd:
         name: enterprise-logs-read
-        state: restarted
+        enabled: true
+        state: started
 
 - name: Instal GEL gateway
   hosts:
@@ -84,7 +87,8 @@
     - name: restart enterprise-logs-gateway
       systemd:
         name: enterprise-logs-gateway
-        state: restarted
+        enabled: true
+        state: started
 
 - name: Check readiness
   hosts:

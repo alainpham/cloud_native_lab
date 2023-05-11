@@ -15,7 +15,7 @@ ExecStart=/usr/local/bin/enterprise-logs \
               -gateway.proxy.distributor.url=http://infra:4100 \
               -gateway.proxy.ingester.url=http://infra:4100 \
               -gateway.proxy.query-frontend.url=http://infra:6100 \
-              -gateway.proxy.query-scheduler.url=http://infra:5100 \
+              -gateway.proxy.query-scheduler.url=http://infra:6100 \
               -gateway.proxy.ruler.url=http://infra:5100
 
 # Limits should instead be imposed by ulimit.

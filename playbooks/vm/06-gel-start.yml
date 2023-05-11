@@ -1,0 +1,52 @@
+
+- name: Instal GEL write path
+  hosts:
+    - write
+  tasks:
+    - name: restart enterprise-logs-write
+      systemd:
+        name: enterprise-logs-write
+        state: restarted
+
+- name: Instal GEL backend
+  hosts:
+    - backend
+  tasks:
+    - name: restart enterprise-logs-backend
+      systemd:
+        name: enterprise-logs-backend
+        state: restarted
+
+- name: Instal GEL read
+  hosts:
+    - read
+  tasks:
+    - name: restart enterprise-logs-read
+      systemd:
+        name: enterprise-logs-read
+        state: restarted
+
+- name: Instal GEL gateway
+  hosts:
+    - infrastructure
+  tasks:
+    - name: restart enterprise-logs-gateway
+      systemd:
+        name: enterprise-logs-gateway
+        state: restarted
+
+- name: Check readiness
+  hosts:
+    - write
+    - backend
+    - read
+  tasks:
+    - name: Check if server is up 
+      uri:
+        url: "http://{{inventory_hostname}}:3100/ready"
+        method: GET
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 100
+      delay: 2
