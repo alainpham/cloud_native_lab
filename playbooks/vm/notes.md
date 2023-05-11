@@ -102,6 +102,7 @@ with separate read and write path
               -gateway.proxy.distributor.url=http://writepath.loadbalancer:3100 \
               -gateway.proxy.ingester.url=http://writepath.loadbalancer:3100 \
               -gateway.proxy.query-frontend.url=http://readpath.loadbalancer:3100 \
+              -gateway.proxy.query-scheduler.url=http://readpath.loadbalancer:3100 \
               -gateway.proxy.ruler.url=http://readpath.loadbalancer:3100
 
 
@@ -111,14 +112,27 @@ with separate read, write, backend path
 /usr/local/bin/enterprise-logs \
               -config.file=/etc/enterprise-logs/config.yaml \
               -target=gateway \
-              -gateway.proxy.default.url=http://readpath.loadbalancer:3100 \
+              -gateway.proxy.default.url=http://backend.loadbalancer:3100 \
               -gateway.proxy.admin-api.url=http://writepath.loadbalancer:3100 \
               -gateway.proxy.compactor.url=http://backend.loadbalancer:3100 \
               -gateway.proxy.distributor.url=http://writepath.loadbalancer:3100 \
               -gateway.proxy.ingester.url=http://writepath.loadbalancer:3100 \
               -gateway.proxy.query-frontend.url=http://readpath.loadbalancer:3100 \
+              -gateway.proxy.query-scheduler.url=http://backend.loadbalancer:3100 \
               -gateway.proxy.ruler.url=http://backend.loadbalancer:3100
 ```
+
+ExecStart=/usr/local/bin/enterprise-logs \
+              -config.file=/etc/enterprise-logs/config.yaml \
+              -target=gateway \
+              -gateway.proxy.default.url=http://infra:5100 \
+              -gateway.proxy.admin-api.url=http://infra:4100 \
+              -gateway.proxy.compactor.url=http://infra:5100 \
+              -gateway.proxy.distributor.url=http://infra:4100 \
+              -gateway.proxy.ingester.url=http://infra:4100 \
+              -gateway.proxy.query-frontend.url=http://infra:6100 \
+              -gateway.proxy.query-scheduler.url=http://infra:5100 \
+              -gateway.proxy.ruler.url=http://infra:5100
 
 # Manual checks
 
