@@ -1,0 +1,37 @@
+
+- name: Instal GEL write path
+  hosts:
+    - write
+  tasks:
+    - name: restart enterprise-logs-write
+      systemd:
+        name: enterprise-logs-write
+        state: stopped
+
+- name: Instal GEL backend
+  hosts:
+    - backend
+  tasks:
+    - name: restart enterprise-logs-backend
+      systemd:
+        name: enterprise-logs-backend
+        state: stopped
+
+- name: Instal GEL read
+  hosts:
+    - read
+  tasks:
+    - name: restart enterprise-logs-read
+      systemd:
+        name: enterprise-logs-read
+        state: stopped
+
+- name: Instal GEL gateway
+  hosts:
+    - infrastructure
+  tasks:
+    - name: restart enterprise-logs-gateway
+      systemd:
+        name: enterprise-logs-gateway
+        state: stopped
+

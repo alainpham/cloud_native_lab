@@ -1,4 +1,6 @@
-# For Loki Create 9 vms
+# Install Grafana Enterprise Logs (Loki) on VMS 
+
+## Create 9 vms
 
 2 read vms for querier and query frontend
 3 backend vms for the ruler
@@ -36,47 +38,23 @@ dvm backend03
 ```
 
 
+## Examples of start commands
 
+Monolithic
 
 ```
-
 sudo su - enterprise-logs
 
 cd /var/lib/enterprise-logs
 
-bash
-
 /usr/local/bin/enterprise-logs \
               -config.file=/etc/enterprise-logs/config-mono.yaml \
               -target=all
-
-
 ```
 
+Starting gateway for L7 routing towards different microservices.
 
-
-```
-
-TOKEN=ZGV2LXByb2QtYWRtaW4tdGVzdDEyMzQ1Njp9LEEyIzQ2L10rKjkwMzUzLT9VOXJyYDA=
-
-curl -u dev:$TOKEN infra:3100/loki/api/v1/push \
--H "Content-Type: application/json" \
--H "X-Scope-OrdID: dev" \
---data "{\"streams\": [{ \"stream\": { \"job\": \"example\" }, \"values\": [ [ \"$current_date\", \"A log line\" ] ] }]}"
-
-TOKEN=ZGRkLXRlc3Q6NDQials4LzYoKGg9NzAlNjJJLDk3S3wu
-current_date=`date +%s%N` && \
-curl -u prod:$TOKEN infra:3100/loki/api/v1/push \
--H "Content-Type: application/json" \
--H "X-Scope-OrdID: prod" \
---data "{\"streams\": [{ \"stream\": { \"job\": \"example\" }, \"values\": [ [ \"$current_date\", \"A log line on prod\" ] ] }]}"
-
-
-current_date=`date +%s%N` && \
-curl -u dev:$TOKEN infra:3100/loki/api/v1/push \
--H "Content-Type: application/json" \
--H "X-Scope-OrdID: prod" \
---data "{\"streams\": [{ \"stream\": { \"job\": \"example\" }, \"values\": [ [ \"$current_date\", \"A log line on dev\" ] ] }]}"
+targeting a single nginx or haproxy host
 
 ```
 /usr/local/bin/enterprise-logs \
@@ -88,11 +66,15 @@ curl -u dev:$TOKEN infra:3100/loki/api/v1/push \
               -gateway.proxy.distributor.url=http://infra:4100 \
               -gateway.proxy.ingester.url=http://infra:4100 \
               -gateway.proxy.query-frontend.url=http://infra:6100 \
+              -gateway.proxy.query-scheduler.url=http://infra:5100 \
               -gateway.proxy.ruler.url=http://infra:5100
 
+```
 
-with separate read and write path
 
+with separate legacy read and write path 
+
+```
 /usr/local/bin/enterprise-logs \
               -config.file=/etc/enterprise-logs/config.yaml \
               -target=gateway \
@@ -105,10 +87,11 @@ with separate read and write path
               -gateway.proxy.query-scheduler.url=http://readpath.loadbalancer:3100 \
               -gateway.proxy.ruler.url=http://readpath.loadbalancer:3100
 
+```
 
 with separate read, write, backend path
 
-
+```
 /usr/local/bin/enterprise-logs \
               -config.file=/etc/enterprise-logs/config.yaml \
               -target=gateway \
@@ -122,26 +105,15 @@ with separate read, write, backend path
               -gateway.proxy.ruler.url=http://backend.loadbalancer:3100
 ```
 
-ExecStart=/usr/local/bin/enterprise-logs \
-              -config.file=/etc/enterprise-logs/config.yaml \
-              -target=gateway \
-              -gateway.proxy.default.url=http://infra:5100 \
-              -gateway.proxy.admin-api.url=http://infra:4100 \
-              -gateway.proxy.compactor.url=http://infra:5100 \
-              -gateway.proxy.distributor.url=http://infra:4100 \
-              -gateway.proxy.ingester.url=http://infra:4100 \
-              -gateway.proxy.query-frontend.url=http://infra:6100 \
-              -gateway.proxy.query-scheduler.url=http://infra:5100 \
-              -gateway.proxy.ruler.url=http://infra:5100
 
-# Manual checks
+# Manual checks and creating tenants and access policies through admin api calls
 
 ```
+ssh cloud-user@infra "sudo /usr/local/bin/enterprise-logs --config.file=/etc/enterprise-logs/config.yaml --target=tokengen --tokengen.token-file=/root/gel-admin-token.txt"
 
 token=`ssh cloud-user@infra "sudo cat /root/gel-admin-token.txt"`
 
 curl http://infra:3100/ready
-
 
 curl http://write01:3100/ready
 curl http://write02:3100/ready
@@ -206,8 +178,6 @@ curl -u :$token http://read01:3100/services
 # get cluster name and info
 curl -s -u :$token http://infra:3100/admin/api/v3/clusters | jq
 
-curl -s -u :$token http://infra:3100/admin/api/v3/tenants | jq
-
 curl -s -u :$token http://infra:3100/admin/api/v3/tenants --data-raw '
     {
         "name":"dev",
@@ -215,4 +185,122 @@ curl -s -u :$token http://infra:3100/admin/api/v3/tenants --data-raw '
         "cluster": "enterprise-logs"
     }
 ' | jq
+
+
+curl -s -u :$token http://infra:3100/admin/api/v3/accesspolicies --data-raw '
+    {
+        "name":"dev-admin",
+        "display_name":"tenant admin policy",
+        "realms":[
+            {
+                "tenant":"dev",
+                "cluster":"enterprise-logs"
+            }
+        ],
+        "scopes":[
+            "admin",
+            "alerts:read",
+            "alerts:write",
+            "logs:delete",
+            "logs:write",
+            "logs:read",
+            "rules:read",
+            "rules:write"
+        ]
+    }
+' | jq
+
+curl -s -u :$token http://infra:3100/admin/api/v3/accesspolicies | jq '.items[] | select (.name == "dev-admin")'
+
+curl -s -u :$token -X PUT  -H 'If-Match: "5"' http://write03:3100/admin/api/v3/accesspolicies/dev-admin --data-raw '
+    {
+        "status": "inactive",
+        "display_name":"tenant admin policy",
+        "realms":[
+            {
+                "tenant":"dev",
+                "cluster":"enterprise-logs"
+            }
+        ],
+        "scopes":[
+            "admin",
+            "alerts:read",
+            "alerts:write",
+            "logs:delete",
+            "logs:write",
+            "logs:read",
+            "rules:read",
+            "rules:write"
+        ]
+    }
+' | jq
+
+
+curl -s -u :$token http://infra:3100/admin/api/v3/accesspolicies --data-raw '
+    {
+        "name":"dev-app-a",
+        "display_name":"read access policy for app a",
+        "realms":[
+            {
+                "tenant":"dev",
+                "cluster":"enterprise-logs",
+                "label_policies":[
+                    {
+                        "selector":"{tenant=\"appa\"}"
+                    }
+                ]
+            }
+        ],
+        "scopes":[
+            "alerts:read",
+            "alerts:write",
+            "logs:read",
+            "rules:read",
+            "rules:write"
+        ]
+    }
+' | jq
+
+
+
+
+curl -s -u :$token http://infra:3100/admin/api/v3/tokens --data-raw '
+{
+    "name":"dev-admin-token01", 
+    "display_name":"dev-admin-token01",
+    "access_policy": "dev-admin"}
+' | jq
+
+ZGV2LWFkbWluLXRva2VuMDE6PEAwM2AhMTMxXDBvIzg3OnZlMzhOJiIh
+
+curl -s -u :$token http://infra:3100/admin/api/v3/tokens --data-raw '
+{
+    "name":"app-a-token01", 
+    "display_name":"app-a-token01",
+    "access_policy": "dev-app-a"}
+' | jq
+
+YXBwLWEtdG9rZW4wMTpRMC58fEoyJjQwOTNffjlMe1w2MF9WNiM=
+
+dev_admin_token=YXBwLWEtdG9rZW4wMTpRMC58fEoyJjQwOTNffjlMe1w2MF9WNiM
+
+current_date=`date +%s%N` && curl -u dev:$dev_admin_token \
+-H "Content-Type: application/json" \
+-H "X-Scope-OrdID: dev" \
+http://infra:3100/loki/api/v1/push \
+--data "{\"streams\": [{ \"stream\": { \"job\": \"example\" }, \"values\": [ [ \"$current_date\", \"A log line on dev\" ] ] }]}"
+
+
+current_date=`date +%s%N` && curl -u dev:$dev_admin_token \
+-H "Content-Type: application/json" \
+-H "X-Scope-OrdID: dev" \
+http://infra:3100/loki/api/v1/push \
+--data "{\"streams\": [{ \"stream\": {\"job\": \"test\", \"tenant\": \"appa\" }, \"values\": [ [ \"$current_date\", \"A log line on dev for appa\" ] ] }]}"
+
+current_date=`date +%s%N` && curl -u dev:$dev_admin_token \
+-H "Content-Type: application/json" \
+-H "X-Scope-OrdID: dev" \
+http://infra:3100/loki/api/v1/push \
+--data "{\"streams\": [{ \"stream\": { \"job\": \"test\",\"tenant\": \"appb\" }, \"values\": [ [ \"$current_date\", \"A log line on dev for appb\" ] ] }]}"
+
 ```
