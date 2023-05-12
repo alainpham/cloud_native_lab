@@ -37,6 +37,9 @@ dvm backend02
 dvm backend03
 ```
 
+## Architecture
+
+![architecture](docs/slides.png)
 
 ## Examples of start commands
 
