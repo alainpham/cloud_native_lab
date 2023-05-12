@@ -40,7 +40,7 @@
         # # observability
         # - prometheus
         - grafana
-        - grafana-enterprise
+        # - grafana-enterprise
         # - grafana-alpha
         # - loki
         # - mimir
