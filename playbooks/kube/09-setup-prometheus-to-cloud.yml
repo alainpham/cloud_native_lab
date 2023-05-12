@@ -1,0 +1,11 @@
+---
+- name: Setup setup-prometheus-app
+  hosts:
+    - master
+  vars_files:
+    - ../vars/sensitive/secretappconfig.yml
+  tasks:
+  - name: Setup setup-prometheus-app
+    include_role:
+      name: kube_lab
+      tasks_from: setup-prometheus-app

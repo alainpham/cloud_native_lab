@@ -1,7 +1,8 @@
 ---
 - name: Deploy smoke-test-app
   shell: |
-     envsubst < /root/install/smoke-test-app/smoke-test-app.envsubst.yml | kubectl apply -f -
+    envsubst < /root/install/smoke-test-app/smoke-test-app.envsubst.yml | kubectl delete -f -
+    envsubst < /root/install/smoke-test-app/smoke-test-app.envsubst.yml | kubectl apply -f -
   environment:
     localregistry: "{{ localregistry }}"
     kube_ingress_root_domain: "{{ kube_ingress_root_domain }}"

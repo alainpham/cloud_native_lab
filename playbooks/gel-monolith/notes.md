@@ -53,8 +53,8 @@ bash
 TOKEN=ZGV2LWFkbWluLWRldi1hZG1pbi10a24yOkpgLHguWzAzaWA2OSMxMWshezU1MDUlLA==
 
 
-export current_date=`date +%s%N` && \
-curl -u dev:$TOKEN infra:8080/loki/api/v1/push \
+current_date=`date +%s%N` && \
+curl -u dev:$TOKEN infra:3100/loki/api/v1/push \
 -H "Content-Type: application/json" \
 -H "X-Scope-OrdID: dev" \
 --data "{\"streams\": [{ \"stream\": { \"job\": \"example\" }, \"values\": [ [ \"$current_date\", \"A log line\" ] ] }]}"

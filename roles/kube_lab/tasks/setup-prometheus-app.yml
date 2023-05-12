@@ -1,0 +1,8 @@
+---
+- name: Deploy prometheus
+  shell: |
+    envsubst < /root/install/monitoring/prometheus-application-metrics.envsubst.yaml | kubectl apply -f -
+  environment:
+    url: "{{ secretappconfig['grafana-agent'].metrics.url }}"
+    username: "{{ secretappconfig['grafana-agent'].metrics.user }}"
+    password: "{{ secretappconfig['grafana-agent'].metrics.pwd }}" 

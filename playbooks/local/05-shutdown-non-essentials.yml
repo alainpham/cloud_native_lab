@@ -21,35 +21,35 @@
         # - portainer
         # - registry
         # - regui
-        # - keycloak
+        - keycloak
         # - reposilite
-        # - cadvisor
+        - cadvisor
 
-        # # databases
-        # - postgres
-        # - mariadb
-        # - oracledb
-        # - minio
-        # - memcached
-        # - adminer
+        # databases
+        - postgres
+        - mariadb
+        - oracledb
+        - minio
+        - memcached
+        - adminer
 
-        # # messaging
-        # - kafka
-        # - artemis
+        # messaging
+        - kafka
+        - artemis
 
-        # # observability
-        # - prometheus
-        # - grafana
-        # - grafana-enterprise
-        # - grafana-alpha
-        # - loki
-        # - mimir
-        # - grafana-agent
-        # - tempo
+        # observability
+        - prometheus
+        - grafana
+        - grafana-enterprise
+        - grafana-alpha
+        - loki
+        - mimir
+        - grafana-agent
+        - tempo
 
 
-        # # functional apps
-        # - smoke-test-app
+        # functional apps
+        - smoke-test-app
         - shopping-cart
         - products
         - web-shop
