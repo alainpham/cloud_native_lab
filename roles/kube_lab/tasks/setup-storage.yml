@@ -1,13 +1,18 @@
 ---
 - name: Deploy local storage provisioner
   shell: |
-    envsubst '${localregistry}' < /root/install/local-path-provisioner/local-path-storage.envsubst.yaml | kubectl apply -f -
+    envsubst '${localregistry} ${local_path_provisioner} ${busybox}' < /root/install/local-path-provisioner/local-path-storage.envsubst.yaml | kubectl apply -f -
   environment:
     localregistry: "{{ localregistry }}"
+    local_path_provisioner: "{{ images['local-path-provisioner'] | regex_replace('.*/(.*)','\\1')  }}"
+    busybox: "{{ images['busybox'] | regex_replace('.*/(.*)','\\1')  }}"
 
 - name: Deploy minio object storage
   shell: |
      envsubst < /root/install/minio/minio.envsubst.yml | kubectl apply -f -
   environment:
     localregistry: "{{ localregistry }}"
+    busybox: "{{ images['busybox'] | regex_replace('.*/(.*)','\\1')  }}"
+    minio: "{{ images['minio'] | regex_replace('.*/(.*)','\\1')  }}"
+    buckets: "mimir-tsdb mimir-admin mimir-ruler loki-chunks loki-admin loki-ruler"
     kube_ingress_root_domain: "{{ kube_ingress_root_domain }}"

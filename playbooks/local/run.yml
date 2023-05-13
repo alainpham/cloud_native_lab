@@ -4,7 +4,7 @@
     - selected
   vars:
     global_recreate: true
-    global_appstate: absent
+    global_appstate: started
     global_purge: true
   vars_files:
     - ../vars/global.yml
@@ -16,14 +16,13 @@
         name: docker_lab
         tasks_from: app-{{ rolesvar }}
       loop:
-        # # platform essentials
-        # - traefik
-        # - portainer
-        # - registry
-        # - regui
-        # - keycloak
-        # - reposilite
-        # - cadvisor
+        # platform essentials
+        - traefik
+        - portainer
+        - registry
+        - regui
+        - keycloak
+        - reposilite
 
         # # databases
         # - postgres
@@ -38,8 +37,9 @@
         # - artemis
 
         # # observability
+        # - cadvisor
         # - prometheus
-        - grafana
+        # - grafana
         # - grafana-enterprise
         # - grafana-alpha
         # - loki

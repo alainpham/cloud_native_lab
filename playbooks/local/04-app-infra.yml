@@ -23,7 +23,6 @@
         - regui
         - keycloak
         - reposilite
-        - cadvisor
 
         # databases
         - postgres
@@ -38,6 +37,7 @@
         - artemis
 
         # observability
+        - cadvisor
         - prometheus
         - grafana
         - grafana-enterprise

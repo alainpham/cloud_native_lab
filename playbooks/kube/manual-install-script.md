@@ -1,14 +1,14 @@
-# Install Vanilla Kubernetes
+# Install Vanilla Kubernetes1.25.9
 
 
 OS : Debian 11
-Kubernetes version : 1.25.8
+Kubernetes version : 1.25.9
 
 ## Prepare hosts
 
 ```console
 
-export kube_version=1.25.8
+export kube_version=1.25.9
 
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
 overlay
@@ -459,8 +459,8 @@ images=(
 
    # Minio
    "minio/minio:RELEASE.2022-10-20T00-55-09Z"
-   "docker.io/busybox:1.35.0"
-   "curlimages/curl:7.85.0"
+   "docker.io/busybox:1.36.0"
+   "curlimages/curl:8.00.1"
 
    # Grafana stack
    "grafana/enterprise-metrics:v2.3.0"

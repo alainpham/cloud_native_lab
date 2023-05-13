@@ -48,10 +48,10 @@
     networks:
       - name: primenet
         ipv4_address: "{{appconfig[appname].ip}}"
-    log_driver: loki
-    log_options:
-      loki-url: "http://{{appconfig.loki.ip}}/loki/api/v1/push"
-      loki-external-labels: "service={{ '{{' }}.Name{{ '}}' }}"
+    # log_driver: loki
+    # log_options:
+    #   loki-url: "http://{{appconfig.loki.ip}}/loki/api/v1/push"
+    #   loki-external-labels: "service={{ '{{' }}.Name{{ '}}' }}"
 
 - name: Check if server is up {{inventory_hostname}}
   when:  appconfig[appname].appstate == 'started'

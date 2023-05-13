@@ -53,12 +53,15 @@
   shell: envsubst < /root/install/flannel/flannel.envsubst.yml | kubectl apply -f -
   environment:
     localregistry: "{{ localregistry }}"
+    flannel: "{{ images['flannel'] | regex_replace('.*/(.*)','\\1')  }}"
+    flannel_cni_plugin: "{{ images['flannel-cni-plugin'] | regex_replace('.*/(.*)','\\1')  }}"
 
 - name: install metrics-server 
   shell: |
-    envsubst < /root/install/metrics-server/components.yaml | kubectl apply -f -
+    envsubst < /root/install/metrics-server/components.envsubst.yaml | kubectl apply -f -
   environment:
     localregistry: "{{ localregistry }}"
+    metrics_server: "{{ images['metrics-server'] | regex_replace('.*/(.*)','\\1')  }}"
 
 - name: create join token
   shell: kubeadm token create helloo.mynameiskubeadm0

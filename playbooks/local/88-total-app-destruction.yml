@@ -10,6 +10,7 @@
     - ../vars/global.yml
     - ../vars/images.yml
     - ../vars/dockerappconfig.yml
+    - ../vars/sensitive/secretappconfig.yml
   tasks:
     - include_role:
         name: docker_lab

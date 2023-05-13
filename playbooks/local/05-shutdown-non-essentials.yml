@@ -21,9 +21,9 @@
         # - portainer
         # - registry
         # - regui
-        - keycloak
+        # - keycloak
         # - reposilite
-        - cadvisor
+        # - cadvisor
 
         # databases
         - postgres

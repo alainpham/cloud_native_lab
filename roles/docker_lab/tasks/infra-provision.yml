@@ -1,5 +1,5 @@
 ---
-- name: Create {{appname}} config folder
+- name: Create {{ appname }} config folder
   when: appconfig[appname].appstate == 'started'
   become: true
   file:

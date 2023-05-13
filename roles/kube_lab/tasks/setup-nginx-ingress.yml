@@ -13,6 +13,10 @@
     envsubst < /root/install/nginx-ingress/nginx.envsubst.yml | kubectl apply -f -
   environment:
     localregistry: "{{ localregistry }}"
+    controller: "{{ images['controller'] | regex_replace('.*/(.*)','\\1')  }}"
+    kube_webhook_certgen: "{{ images['kube-webhook-certgen'] | regex_replace('.*/(.*)','\\1')  }}"
+
+
 
 - name: wait for nginx to be ready
   shell: |
