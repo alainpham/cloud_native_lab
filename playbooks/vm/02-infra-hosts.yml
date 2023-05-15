@@ -8,6 +8,10 @@
       - /data/enterprise-logs-chunks
       - /data/enterprise-logs-admin
       - /data/enterprise-logs-ruler
+      - /data/mimir-admin
+      - /data/mimir-tsdb
+      - /data/mimir-ruler
+      - /data/mimir-alertmanager
     memcacheds:
       - name: chunk-cache
         port: 11211
@@ -23,10 +27,13 @@
       # memcached: bitnami/memcached:1.6.20-debian-11-r0
       # prometheus: prom/prometheus:v2.43.1
       # alertmanager: "prom/alertmanager:v0.25.0"
+      # mimir: "grafana/mimir:2.8.0"
       minio: "{{ localregistry }}/minio:RELEASE.2023-05-04T21-44-30Z"
       memcached: "{{ localregistry }}/memcached:1.6.20-debian-11-r0"
       prometheus: "{{ localregistry }}/prometheus:v2.43.1"
       alertmanager: "{{ localregistry }}/alertmanager:v0.25.0"
+      mimir: "{{ localregistry }}/mimir:2.8.0"
+
   vars_files:
   tasks:
     - name: Base server packages
@@ -186,7 +193,7 @@
         detach: true
         user: "1002:1002"
         ports: 
-          - "9090:9090"
+          - "9190:9090"
         command:
           - --config.file=/etc/prometheus/prometheus.yml
           - --storage.tsdb.path=/prometheus
@@ -253,3 +260,122 @@
 
 
           
+    ####################
+    # Mimir OSS
+    ####################
+
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /mimir/{{item}}
+        state: directory
+        mode: '0755'
+        owner: 1010
+        group: 1010
+      loop:
+        - data
+        - config
+
+    - name: Mimir config
+      copy:
+        dest: "/mimir/config/config.yml"
+        content: |
+          multitenancy_enabled: false
+
+          ingester:
+            ring:
+              replication_factor: 1
+
+          blocks_storage:
+            backend: s3
+            s3:
+              endpoint: infra:9000
+              bucket_name: mimir-tsdb
+              access_key_id: admin
+              secret_access_key: password
+              insecure: true
+            tsdb:
+              dir: /data/tsdb/
+            bucket_store:
+              sync_dir: /data/tsdb-sync/
+
+          memberlist:
+            join_members: [ mimir ]
+
+          activity_tracker:
+            filepath: /data/metrics-activity.log
+
+          ruler: 
+            rule_path: /data/data-ruler/
+
+          ruler_storage:
+            backend: s3
+            s3:
+              endpoint: infra:9000
+              bucket_name: mimir-ruler
+              access_key_id: admin
+              secret_access_key: password
+              insecure: true
+          alertmanager:
+            data_dir: /data/alertmanager
+            enable_api: true
+            external_url: /alertmanager
+            fallback_config_file: /config/alertmanager_fallback_config.yaml
+          alertmanager_storage:
+            backend: s3
+            s3:
+              endpoint: infra:9000
+              bucket_name: mimir-alertmanager
+              access_key_id: admin
+              secret_access_key: password
+              insecure: true
+
+          compactor:
+            data_dir: /data/data-compactor/
+
+          server:
+            log_level: info
+            http_listen_port: 9090
+
+
+    - name: Mimir config
+      copy:
+        dest: "/mimir/config/alertmanager_fallback_config.yaml"
+        content: |
+          receivers:
+              - name: default-receiver
+          route:
+              receiver: default-receiver
+
+    - name: "Manage mimir container"
+      docker_container:
+        name: "mimir"
+        hostname: "mimir"
+        image: "{{ images['mimir'] }}"
+        state: "started"
+        recreate: "true"
+        restart_policy: unless-stopped
+        container_default_behavior: no_defaults
+        detach: true
+        user: "1010:1010"
+        ports: 
+          - "9090:9090"
+        command: "-config.file=/config/config.yml"
+        env:
+        entrypoint: 
+        labels: |
+          {
+            "app": "mimir",
+          }
+        volumes:
+          - /mimir/data:/data:rw
+          - /mimir/config/:/config:ro
+
+    - name: Check mimir is up
+      uri:
+        url: "http://infra:9090/ready"
+        method: GET
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 60
+      delay: 2

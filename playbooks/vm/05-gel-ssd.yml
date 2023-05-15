@@ -95,6 +95,7 @@
     - write
     - backend
     - read
+    - infrastructure
   tasks:
     - name: Check if server is up 
       uri:
@@ -106,7 +107,7 @@
       retries: 100
       delay: 2
 
-- name: Gnerate token
+- name: Gnerate tokens
   hosts:
     - infra
   tasks:
@@ -119,3 +120,170 @@
       args:
         creates: /root/gel-admin-token.txt
       when: not stat_token.stat.exists
+
+    - name: "Read token"
+      shell: |
+        cat /root/gel-admin-token.txt
+      register: token
+
+    - name: Create tenant
+      uri: 
+        url: "http://{{inventory_hostname}}:3100/admin/api/v3/tenants"
+        user: "admin"
+        password: "{{ token.stdout }}"
+        method: POST
+        body_format: json
+        body: | 
+          {
+              "name":"{{ item }}",
+              "display_name": "{{ item }}",
+              "cluster": "enterprise-logs"
+          }
+        force_basic_auth: yes
+        status_code: 
+          - 200
+          - 409
+      loop:
+        - dev
+        - prod
+
+    - name: Create tenant admin accesspolicies
+      uri: 
+        url: "http://{{inventory_hostname}}:3100/admin/api/v3/accesspolicies"
+        user: "admin"
+        password: "{{ token.stdout }}"
+        method: POST
+        body_format: json
+        body: | 
+          {
+              "name":"{{ item }}_admin",
+              "display_name":"{{ item }}_admin",
+              "realms":[
+                  {
+                      "tenant":"{{ item }}",
+                      "cluster":"enterprise-logs"
+                  }
+              ],
+              "scopes":[
+                  "admin",
+                  "alerts:read",
+                  "alerts:write",
+                  "logs:delete",
+                  "logs:write",
+                  "logs:read",
+                  "rules:read",
+                  "rules:write"
+              ]
+          }
+        force_basic_auth: yes
+        status_code:
+          - 200
+          - 409
+      loop:
+        - dev
+        - prod
+
+    - name: Create tenant admin accesspolicies
+      uri: 
+        url: "http://{{inventory_hostname}}:3100/admin/api/v3/accesspolicies"
+        user: "admin"
+        password: "{{ token.stdout }}"
+        method: POST
+        body_format: json
+        body: | 
+          {
+              "name":"{{ item }}_admin",
+              "display_name":"{{ item }}_admin",
+              "realms":[
+                  {
+                      "tenant":"{{ item }}",
+                      "cluster":"enterprise-logs"
+                  }
+              ],
+              "scopes":[
+                  "admin",
+                  "alerts:read",
+                  "alerts:write",
+                  "logs:delete",
+                  "logs:write",
+                  "logs:read",
+                  "rules:read",
+                  "rules:write"
+              ]
+          }
+        force_basic_auth: yes
+        status_code:
+          - 200
+          - 409
+      loop:
+        - dev
+        - prod
+
+    - name: Create label based tenant accesspolicies
+      uri: 
+        url: "http://{{inventory_hostname}}:3100/admin/api/v3/accesspolicies"
+        user: "admin"
+        password: "{{ token.stdout }}"
+        method: POST
+        body_format: json
+        body: | 
+          {
+              "name":"{{ item }}_team_a",
+              "display_name":"{{ item }}_team_a",
+              "realms":[
+                  {
+                      "tenant":"{{ item }}",
+                      "cluster":"enterprise-logs",
+                      "label_policies":[
+                          {
+                              "selector":"{tenant=\"appa\"}"
+                          }
+                      ]
+                  }
+              ],
+              "scopes":[
+                  "alerts:read",
+                  "alerts:write",
+                  "logs:read",
+                  "rules:read",
+                  "rules:write"
+              ]
+          }
+        force_basic_auth: yes
+        status_code:
+          - 200
+          - 409
+      loop:
+        - dev
+        - prod
+
+    - name: Create tokens
+      uri: 
+        url: "http://{{inventory_hostname}}:3100/admin/api/v3/tokens"
+        user: "admin"
+        password: "{{ token.stdout }}"
+        method: POST
+        body_format: json
+        body: | 
+          {
+              "name":"{{ item }}_token01", 
+              "display_name":"{{ item }}_token01",
+              "access_policy": "{{ item }}"
+          }
+        force_basic_auth: yes
+        status_code:
+          - 200
+          - 409
+      loop:
+        - dev_admin
+        - dev_team_a
+        - prod_admin
+        - prod_team_a
+      register: usertokens
+
+    - name: copy tokens
+      copy:
+        dest: "/root/{{ item.item }}.token"
+        content: "{{ item.json.token }}"
+      loop: "{{ usertokens.results }}"
+      when: item.status == 200

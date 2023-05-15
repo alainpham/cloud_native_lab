@@ -30,6 +30,7 @@
         - config
         - config/plugins
         - config/provisioning/plugins
+        - config/provisioning/datasources
 
     - name: install GEL license
       copy:
@@ -78,6 +79,16 @@
         cat /root/gel-admin-token.txt
       register: token
 
+    - name: "Read dev_admin_token"
+      shell: |
+        cat /root/dev_admin.token
+      register: dev_admin_token
+
+    - name: "Read dev_team_a_token"
+      shell: |
+        cat /root/dev_team_a.token
+      register: dev_team_a_token
+
     - name: configure gex apps
       copy:
         dest: "/ge/config/provisioning/plugins/provisioned-grafana-apps.yml"
@@ -92,6 +103,52 @@
                 adminApiVersion: v3
               secureJsonData:
                 base64EncodedAccessToken: "{{ (':' + token.stdout) | b64encode }}"
+        mode: '0755'
+        owner: 1004
+        group: 1004
+
+    - name: configure datasources
+      copy:
+        dest: "/ge/config/provisioning/datasources/datasources.yml"
+        content: |
+          # config file version
+          apiVersion: 1
+          datasources:
+            - name: grafanacloud-prom
+              uid: grafanacloud-prom
+              type: prometheus
+              access: proxy
+              orgId: 1
+              url: http://infra:9090/prometheus
+              version: 1
+              isDefault: true
+              editable: false
+              jsonData:
+                prometheusType: Mimir
+                prometheusVersion: "2.4.0"
+                manageAlerts: true
+
+              #   exemplarTraceIdDestinations:
+              #     - datasourceUid: grafanacloud-traces
+              #       name: traceId
+              #   httpMethod: POST
+
+            - name: grafanacloud-logs
+              uid: grafanacloud-logs
+              type: loki
+              access: proxy
+              url: http://infra:3100
+              basicAuth: true
+              basicAuthUser: dev
+              # jsonData:
+              #   derivedFields:
+              #     - datasourceUid: grafanacloud-traces
+              #       matcherRegex: "traceID=(\\w+)"
+              #       name: traceId
+              #       url: '$${__value.raw}'
+              secureJsonData:
+                basicAuthPassword: {{ dev_admin_token.stdout }}
+
         mode: '0755'
         owner: 1004
         group: 1004
@@ -121,13 +178,14 @@
         entrypoint: 
         labels: |
           {
-            "app": "alertmanager",
+            "app": "grafana-enterprise",
           }
         volumes:
           - /ge/data/:/data:rw
           - /ge/config/plugins:/plugins:rw
           - /ge/config/license.jwt:/config/license.jwt:ro
           - /ge/config/provisioning/plugins:/etc/grafana/provisioning/plugins:ro
+          - /ge/config/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
 
 
     - name: Check if server is up

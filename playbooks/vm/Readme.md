@@ -286,7 +286,8 @@ curl -s -u :$token http://infra:3100/admin/api/v3/tokens --data-raw '
 {
     "name":"dev-admin-token01", 
     "display_name":"dev-admin-token01",
-    "access_policy": "dev-admin"}
+    "access_policy": "dev-admin"
+}
 ' | jq
 
 ZGV2LWFkbWluLXRva2VuMDE6OTdhRns4PSJ6ODdeODMhOl9bMX02aDkk
@@ -295,18 +296,23 @@ curl -s -u :$token http://infra:3100/admin/api/v3/tokens --data-raw '
 {
     "name":"app-a-token01", 
     "display_name":"app-a-token01",
-    "access_policy": "dev-app-a"}
+    "access_policy": "dev-app-a"
+}
 ' | jq
 
 YXBwLWEtdG9rZW4wMTo5W2MwLnwhPD84ejQkMCpsITVcSzM5NTI=
 
 dev_admin_token=ZGV2LWFkbWluLXRva2VuMDE6OTdhRns4PSJ6ODdeODMhOl9bMX02aDkk
 
+
+
+dev_admin_token=`ssh cloud-user@infra "sudo cat /root/dev_admin.token"`
+
 current_date=`date +%s%N` && curl -u dev:$dev_admin_token \
 -H "Content-Type: application/json" \
 -H "X-Scope-OrdID: dev" \
 http://infra:3100/loki/api/v1/push \
---data "{\"streams\": [{ \"stream\": { \"job\": \"example\" }, \"values\": [ [ \"$current_date\", \"A log line on dev\" ] ] }]}"
+--data "{\"streams\": [{ \"stream\": { \"job\": \"test\" }, \"values\": [ [ \"$current_date\", \"A log line on dev\" ] ] }]}"
 
 
 current_date=`date +%s%N` && curl -u dev:$dev_admin_token \
