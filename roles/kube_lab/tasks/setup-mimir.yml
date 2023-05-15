@@ -1,0 +1,9 @@
+---
+- name: Deploy mimir
+  shell: |
+     envsubst < /root/install/mimir/mimir.envsubst.yml | kubectl apply -f -
+  environment:
+    localregistry: "{{ localregistry }}"
+    mimir: "{{ images['enterprise-metrics'] | regex_replace('.*/(.*)','\\1')  }}"
+    kube_ingress_root_domain: "{{ kube_ingress_root_domain }}"
+    license_text: "{{ secretappconfig.mimir.license }}"

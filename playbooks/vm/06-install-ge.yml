@@ -1,0 +1,141 @@
+---
+# this is to simulate all the dependencies that LOKI could have
+- name: Prepare Hosts
+  hosts:
+    - infrastructure
+  vars:
+    localregistry: registry.work.lan
+    images:
+      # grafana-enterprise: grafana/grafana-enterprise:9.5.2
+      grafana-enterprise: "{{ localregistry }}/grafana-enterprise:9.5.2"
+    gplugins:
+      # gel-app: https://grafana.com/api/plugins/grafana-enterprise-logs-app/versions/3.0.1/download
+      gel-app: https://reposilite.work.lan/releases/com/grafana/grafana-enterprise-logs-app/3.0.1/grafana-enterprise-logs-app-3.0.1.zip
+  vars_files:
+  tasks:
+         
+    ####################
+    # Grafana Enterprise
+    ####################
+
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /ge/{{item}}
+        state: directory
+        mode: '0755'
+        owner: 1004
+        group: 1004
+      loop:
+        - data
+        - config
+        - config/plugins
+        - config/provisioning/plugins
+
+    - name: install GEL license
+      copy:
+        src: templates/sensitive/ge-license.jwt
+        dest: /ge/config/license.jwt
+        mode: '0644'
+        owner: 1004
+        group: 1004
+
+    - stat:
+        path: "/ge/config/plugins/grafana-enterprise-logs-app.zip"
+      register: gelapp
+
+    - stat:
+        path: "/ge/config/plugins/grafana-enterprise-logs-app"
+      register: gelappfolder
+
+    - name: Download gel plugin
+      ansible.builtin.get_url:
+        url: "{{ gplugins['gel-app'] }}"
+        dest: /ge/config/plugins/grafana-enterprise-logs-app.zip
+        mode: '0644'
+        owner: 1004
+        group: 1004
+        validate_certs: false
+      when: not gelapp.stat.exists 
+
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /ge/config/plugins/grafana-enterprise-logs-app
+        state: directory
+        mode: '0755'
+        owner: 1004
+        group: 1004
+      when: not gelappfolder.stat.exists 
+
+    - name: unarchive gel plugin
+      ansible.builtin.unarchive:
+        src: /ge/config/plugins/grafana-enterprise-logs-app.zip
+        dest: /ge/config/plugins/grafana-enterprise-logs-app
+        remote_src: yes
+      when: not gelappfolder.stat.exists 
+
+    - name: "Read a file content"
+      shell: |
+        cat /root/gel-admin-token.txt
+      register: token
+
+    - name: configure gex apps
+      copy:
+        dest: "/ge/config/provisioning/plugins/provisioned-grafana-apps.yml"
+        content: |
+          apiVersion: 1
+          apps:
+            - type: grafana-enterprise-logs-app
+              org_id: 1
+              jsonData:
+                backendUrl: http://infra:3100
+                base64EncodedAccessTokenSet: true
+                adminApiVersion: v3
+              secureJsonData:
+                base64EncodedAccessToken: "{{ (':' + token.stdout) | b64encode }}"
+        mode: '0755'
+        owner: 1004
+        group: 1004
+
+    - name: "Manage ge container"
+      docker_container:
+        name: "ge"
+        hostname: "ge"
+        image: "{{ images['grafana-enterprise'] }}" 
+        state: "started"
+        recreate: "true"
+        restart_policy: unless-stopped
+        container_default_behavior: no_defaults
+        detach: true
+        user: "1004:1004"
+        ports: 
+          - "3000:3000"
+        command:
+        env:
+          GF_SERVER_DOMAIN: infra
+          GF_SERVER_ROOT_URL: http://infra:3000/
+          GF_ENTERPRISE_LICENSE_PATH: /config/license.jwt
+          GF_PATHS_DATA: "/data"
+          GF_PATHS_LOGS: "/data/logs"
+          GF_PATHS_PLUGINS: "/plugins"
+          GF_SECURITY_ADMIN_PASSWORD: "password"
+        entrypoint: 
+        labels: |
+          {
+            "app": "alertmanager",
+          }
+        volumes:
+          - /ge/data/:/data:rw
+          - /ge/config/plugins:/plugins:rw
+          - /ge/config/license.jwt:/config/license.jwt:ro
+          - /ge/config/provisioning/plugins:/etc/grafana/provisioning/plugins:ro
+
+
+    - name: Check if server is up
+      uri:
+        url: "http://infra:3000/api/health"
+        method: GET
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 60
+      delay: 2

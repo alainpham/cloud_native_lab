@@ -68,6 +68,7 @@
 
         - prometheus
         - node-exporter
+        - alertmanager
         - cadvisor
         - kube-state-metrics
           
@@ -92,6 +93,7 @@
         - registry
         - docker-registry-ui
         - traefik
+        - nginx
         - keycloak
         - reposilite
 

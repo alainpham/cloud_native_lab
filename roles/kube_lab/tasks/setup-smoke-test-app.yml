@@ -5,4 +5,5 @@
     envsubst < /root/install/smoke-test-app/smoke-test-app.envsubst.yml | kubectl apply -f -
   environment:
     localregistry: "{{ localregistry }}"
+    metrics_server: "{{ images['smoke-test-app'] | regex_replace('.*/(.*)','\\1')  }}"
     kube_ingress_root_domain: "{{ kube_ingress_root_domain }}"

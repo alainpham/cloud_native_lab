@@ -14,5 +14,5 @@
     localregistry: "{{ localregistry }}"
     busybox: "{{ images['busybox'] | regex_replace('.*/(.*)','\\1')  }}"
     minio: "{{ images['minio'] | regex_replace('.*/(.*)','\\1')  }}"
-    buckets: "mimir-tsdb mimir-admin mimir-ruler loki-chunks loki-admin loki-ruler"
+    buckets: "mimir-tsdb mimir-admin mimir-ruler mimir-alertmanager loki-chunks loki-admin loki-ruler"
     kube_ingress_root_domain: "{{ kube_ingress_root_domain }}"

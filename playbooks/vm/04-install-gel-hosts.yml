@@ -5,9 +5,9 @@
     - read
     - infrastructure
   vars:
-    gel_version: 1.7.0
-    gel_url: https://reposilite.work.lan/releases/com/grafana/gel/1.7.0/enterprise-logs-v1.7.0-linux-amd64
-    # https://dl.grafana.com/gel/releases/enterprise-logs-v{{ gel_version }}-linux-amd64
+    gel_version: 1.7.2
+    gel_url: https://reposilite.work.lan/releases/com/grafana/grafana-enterprise-logs/{{ gel_version }}/enterprise-logs-v{{ gel_version }}-linux-amd64
+    # gel_url: https://dl.grafana.com/gel/releases/enterprise-logs-v{{ gel_version }}-linux-amd64
   tasks:
 
     - name: create the enterprise-logs user

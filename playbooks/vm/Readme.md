@@ -8,7 +8,7 @@
 1 for infra
 
 ```
-debianimage=debian-11-genericcloud-amd64-20230124-1270
+debianimage=debian-11-genericcloud-amd64-20230501-1367
 
 vmcreate infra 1048 2 $debianimage 50 40G 1G debian11
 
@@ -40,6 +40,21 @@ dvm backend03
 ## Architecture
 
 ![architecture](docs/slides.png)
+
+## Setup lab environment with ansible
+
+```
+
+# get all hosts up to date
+ansible-playbook 01-prepare-hosts.yml
+
+# install infra host containing ecosystem that Loki needs to work :
+# minio for object storage, memecached, grafana enterprise, prometheus, alertmanager
+
+
+```
+
+
 
 ## Examples of start commands
 
@@ -109,7 +124,7 @@ with separate read, write, backend path
 ```
 
 
-# Manual checks and creating tenants and access policies through admin api calls
+## Manual checks and creating tenants and access policies through admin api calls
 
 ```
 ssh cloud-user@infra "sudo /usr/local/bin/enterprise-logs --config.file=/etc/enterprise-logs/config.yaml --target=tokengen --tokengen.token-file=/root/gel-admin-token.txt"
@@ -184,7 +199,7 @@ curl -s -u :$token http://infra:3100/admin/api/v3/clusters | jq
 curl -s -u :$token http://infra:3100/admin/api/v3/tenants --data-raw '
     {
         "name":"dev",
-        "display_name": "Grafana Enterprise Logs dev tenant",
+        "display_name": "Dev Tenant",
         "cluster": "enterprise-logs"
     }
 ' | jq
@@ -193,7 +208,7 @@ curl -s -u :$token http://infra:3100/admin/api/v3/tenants --data-raw '
 curl -s -u :$token http://infra:3100/admin/api/v3/accesspolicies --data-raw '
     {
         "name":"dev-admin",
-        "display_name":"tenant admin policy",
+        "display_name":"Dev Admin Policy",
         "realms":[
             {
                 "tenant":"dev",
@@ -242,7 +257,7 @@ curl -s -u :$token -X PUT  -H 'If-Match: "5"' http://write03:3100/admin/api/v3/a
 curl -s -u :$token http://infra:3100/admin/api/v3/accesspolicies --data-raw '
     {
         "name":"dev-app-a",
-        "display_name":"read access policy for app a",
+        "display_name":"dev-app-a",
         "realms":[
             {
                 "tenant":"dev",
@@ -274,7 +289,7 @@ curl -s -u :$token http://infra:3100/admin/api/v3/tokens --data-raw '
     "access_policy": "dev-admin"}
 ' | jq
 
-ZGV2LWFkbWluLXRva2VuMDE6PEAwM2AhMTMxXDBvIzg3OnZlMzhOJiIh
+ZGV2LWFkbWluLXRva2VuMDE6OTdhRns4PSJ6ODdeODMhOl9bMX02aDkk
 
 curl -s -u :$token http://infra:3100/admin/api/v3/tokens --data-raw '
 {
@@ -283,9 +298,9 @@ curl -s -u :$token http://infra:3100/admin/api/v3/tokens --data-raw '
     "access_policy": "dev-app-a"}
 ' | jq
 
-YXBwLWEtdG9rZW4wMTpRMC58fEoyJjQwOTNffjlMe1w2MF9WNiM=
+YXBwLWEtdG9rZW4wMTo5W2MwLnwhPD84ejQkMCpsITVcSzM5NTI=
 
-dev_admin_token=YXBwLWEtdG9rZW4wMTpRMC58fEoyJjQwOTNffjlMe1w2MF9WNiM
+dev_admin_token=ZGV2LWFkbWluLXRva2VuMDE6OTdhRns4PSJ6ODdeODMhOl9bMX02aDkk
 
 current_date=`date +%s%N` && curl -u dev:$dev_admin_token \
 -H "Content-Type: application/json" \

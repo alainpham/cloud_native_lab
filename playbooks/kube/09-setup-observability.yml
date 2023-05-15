@@ -1,0 +1,14 @@
+---
+- name: Setup observability
+  hosts:
+    - master
+  vars_files:
+    - ../vars/global.yml
+    - ../vars/images.yml
+    - ../vars/kube.yml
+    - ../vars/sensitive/kubesecretappconfig.yml
+  tasks:
+  - name: Setup observability
+    include_role:
+      name: kube_lab
+      tasks_from: setup-mimir

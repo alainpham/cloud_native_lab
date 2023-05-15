@@ -50,11 +50,10 @@ images:
   enterprise-metrics: grafana/enterprise-metrics:v2.8.1
   # https://hub.docker.com/r/grafana/mimir/tags?page=1&name=2.
   mimir: grafana/mimir:2.8.0
-  # https://hub.docker.com/_/memcached/tags?page=1&name=1.
-  memcached: docker.io/memcached:1.6.19-alpine
-  # https://hub.docker.com/r/prom/memcached-exporter/tags?page=1&name=0.
-  memcached-exporter: prom/memcached-exporter:v0.11.3
-
+  # https://hub.docker.com/r/bitnami/memcached/tags?page=1&name=1.
+  memcached: bitnami/memcached:1.6.20-debian-11-r0
+  # https://hub.docker.com/r/bitnami/memcached-exporter/tags?page=1&name=0..
+  memcached-exporter: bitnami/memcached-exporter:0.11.3-debian-11-r10
   # Logs
   # https://hub.docker.com/r/grafana/enterprise-logs/tags?page=1&name=1.
   enterprise-logs: grafana/enterprise-logs:v1.7.2
@@ -83,6 +82,9 @@ images:
   prometheus: prom/prometheus:v2.43.1
   # https://hub.docker.com/r/prom/node-exporter/tags?page=1&name=1.
   node-exporter: prom/node-exporter:v1.5.0
+  # https://hub.docker.com/r/prom/alertmanager/tags?page=1&name=0.
+  alertmanager: "prom/alertmanager:v0.25.0"
+
   # https://console.cloud.google.com/gcr/images/cadvisor/GLOBAL/cadvisor
   cadvisor: gcr.io/cadvisor/cadvisor:v0.47.1
   # https://github.com/kubernetes/kube-state-metrics
@@ -121,6 +123,10 @@ images:
   docker-registry-ui: joxit/docker-registry-ui:2.4.1
   # https://hub.docker.com/_/traefik/tags?page=1&name=2.
   traefik: docker.io/traefik:2.10.1
+  
+  # https://hub.docker.com/r/nginxinc/nginx-unprivileged/tags?page=1&name=1.
+  nginx: nginxinc/nginx-unprivileged:1.23-alpine
+  
   # https://quay.io/repository/keycloak/keycloak?tab=tags&tag=latest
   keycloak: quay.io/keycloak/keycloak:21.1.0-0
   # https://hub.docker.com/r/dzikoysk/reposilite/tags?page=1&name=3.

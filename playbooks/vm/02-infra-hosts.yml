@@ -17,15 +17,40 @@
         port: 11213
       - name: index-cache
         port: 11214
+    localregistry: registry.work.lan
+    images:
+      # minio: minio/minio:RELEASE.2023-05-04T21-44-30Z
+      # memcached: bitnami/memcached:1.6.20-debian-11-r0
+      # prometheus: prom/prometheus:v2.43.1
+      # alertmanager: "prom/alertmanager:v0.25.0"
+      minio: "{{ localregistry }}/minio:RELEASE.2023-05-04T21-44-30Z"
+      memcached: "{{ localregistry }}/memcached:1.6.20-debian-11-r0"
+      prometheus: "{{ localregistry }}/prometheus:v2.43.1"
+      alertmanager: "{{ localregistry }}/alertmanager:v0.25.0"
   vars_files:
   tasks:
     - name: Base server packages
-      become: true
       apt:
         name: 
           - docker.io
           - python3-docker
+          - unzip
         state: present
+
+    - name: Docker insecure registry
+      copy:
+        dest: "/etc/docker/daemon.json"
+        content: |
+          {
+              "insecure-registries" : ["{{ localregistry }}"]
+          }
+      register: dockerconfig
+
+    - name: Restart docker
+      ansible.builtin.systemd:
+        name: docker
+        state: restarted
+      when: dockerconfig.changed
 
     - name: adding existing user '{{ ansible_user }}' to group docker
       user:
@@ -59,7 +84,7 @@
       docker_container:
         name: "minio"
         hostname: "minio"
-        image: "minio/minio:RELEASE.2023-04-13T03-08-07Z"
+        image: "{{ images['minio'] }}"
         state: "started"
         recreate: "true"
         restart_policy: unless-stopped
@@ -69,7 +94,8 @@
         ports: 
           - 9000:9000
           - 9001:9001
-        command: "sh -c 'mkdir -p {{ minio_buckets | join(' ') }} && minio server /data --console-address :9001'"
+        command: 
+         - "sh -c 'mkdir -p {{ minio_buckets | join(' ') }} && minio server /data --console-address :9001'"
         env:
           MINIO_ROOT_USER: admin
           MINIO_ROOT_PASSWORD: password
@@ -101,7 +127,7 @@
       docker_container:
         name: "{{ item.name }}"
         hostname: "{{ item.name }}"
-        image: "docker.io/bitnami/memcached:1.6.19-debian-11-r7"
+        image: "{{ images['memcached'] }}"
         state: "started"
         recreate: "true"
         restart_policy: unless-stopped
@@ -152,7 +178,7 @@
       docker_container:
         name: "prometheus"
         hostname: "prometheus"
-        image: "docker.io/prom/prometheus:v2.43.0"
+        image: "{{ images['prometheus'] }}"
         state: "started"
         recreate: "true"
         restart_policy: unless-stopped
@@ -205,7 +231,7 @@
       docker_container:
         name: "alertmanager"
         hostname: "alertmanager"
-        image: "docker.io/prom/alertmanager:v0.25.0"
+        image: "{{ images['alertmanager'] }}"
         state: "started"
         recreate: "true"
         restart_policy: unless-stopped
@@ -227,83 +253,3 @@
 
 
           
-    ####################
-    # Grafana Enterprise
-    ####################
-
-    - name: Create a directory if it does not exist
-      ansible.builtin.file:
-        path: /ge/{{item}}
-        state: directory
-        mode: '0755'
-        owner: 1004
-        group: 1004
-      loop:
-        - data
-        - config
-        - config/plugins
-
-    - name: install GEL license
-      copy:
-        src: templates/sensitive/ge-license.jwt
-        dest: /ge/config/license.jwt
-
-    - name: "Manage ge container"
-      docker_container:
-        name: "ge"
-        hostname: "ge"
-        image: "docker.io/grafana/grafana-enterprise:9.4.7" 
-        state: "started"
-        recreate: "true"
-        restart_policy: unless-stopped
-        container_default_behavior: no_defaults
-        detach: true
-        user: "1004:1004"
-        ports: 
-          - "3000:3000"
-        command:
-        env:
-          GF_SERVER_DOMAIN: infra
-          GF_SERVER_ROOT_URL: http://infra:3000/
-          GF_ENTERPRISE_LICENSE_PATH: /config/license.jwt
-          GF_PATHS_DATA: "/data"
-          GF_PATHS_LOGS: "/data/logs"
-          GF_PATHS_PLUGINS: "/plugins"
-        entrypoint: 
-        labels: |
-          {
-            "app": "alertmanager",
-          }
-        volumes:
-          - /ge/data/:/data:rw
-          - /ge/config/plugins:/plugins:rw
-          - /ge/config/license.jwt:/config/license.jwt:ro
-
-
-    - name: Check if server is up
-      uri:
-        url: "http://infra:3000/api/health"
-        method: GET
-        status_code: 200
-      register: result
-      until: result.status == 200
-      retries: 60
-      delay: 2
-
-    - name: Reset password
-      ignore_errors: true
-      uri:
-        url: "http://infra:3000/api/user/password"
-        user: "admin"
-        password: "admin"
-        method: PUT
-        body: |
-          {
-            "oldPassword": "admin",
-            "newPassword": "password"
-          }
-        force_basic_auth: yes
-        status_code: 200
-        headers:
-          Content-Type: application/json
-          accept: application/json

@@ -1,57 +1,111 @@
 ---
-- name: start-services
+- name: scopeo
   hosts:
-    - selected
-  vars:
-    global_recreate: true
-    global_appstate: started
-    global_purge: true
+    - localhost
   vars_files:
     - ../vars/global.yml
     - ../vars/images.yml
-    - ../vars/dockerappconfig.yml
-    - ../vars/sensitive/secretappconfig.yml
   tasks:
     - include_role:
         name: docker_lab
-        tasks_from: app-{{ rolesvar }}
-      loop:
-        # platform essentials
-        - traefik
-        - portainer
-        - registry
-        - regui
-        - keycloak
-        - reposilite
+        tasks_from: server-skopeo-copy
+      loop: 
+        #   # Kube
+        # - kube-apiserver
+        # - kube-controller-manager
+        # - kube-scheduler
+        # - kube-proxy
+        # - pause
+        # - etcd
+        # - coredns
 
-        # # databases
-        # - postgres
-        # - mariadb
-        # - oracledb
+        #   # metrics server
+        # - metrics-server
+
+        #   # Flannel
+        # - flannel-cni-plugin
+        # - flannel
+
+        #   # ingress nginx
+        # - controller
+        # - kube-webhook-certgen
+        # - metrics-scraper
+
+        #   # kube ui
+        # - dashboard
+
+        #   # storage
+        # - local-path-provisioner
+
+        #   # Minio
         # - minio
-        # - memcached
-        # - adminer
+        # - busybox
+        # - curl
 
-        # # messaging
-        # - kafka
-        # - artemis
+        #   # Grafana stack observability
 
-        # # observability
-        # - cadvisor
-        # - prometheus
-        # - grafana
-        # - grafana-enterprise
-        # - grafana-alpha
-        # - loki
+        #   # Metrics
+        # - enterprise-metrics
         # - mimir
-        # - grafana-agent
+        # - memcached
+        # - memcached-exporter
+
+        #   # Logs
+        # - enterprise-logs
+        # - loki
+        # - promtail
+
+        #   # Traces
+        # - enterprise-traces
         # - tempo
 
+        #   # Grafana
+        # - grafana
+        # - grafana-enterprise
+        # - grafana-oss-dev
+          
+        # - agent
 
-        # # functional apps
-        # - smoke-test-app
+        # - prometheus
+        # - node-exporter
+        - alertmanager
+        # - cadvisor
+        # - kube-state-metrics
+          
+        #   # Databases
+        # - mariadb
+        # - mysql
+        # - postgres
+        # - elasticsearch
+        # - kibana
+
+        # - adminer
+
+        #   # messaging
+        # - kafka
+        # - kafdrop
+        # - kafka-ui
+        # - artemis
+
+        #   # platform essentials
+        # - portainer-ce
+        # - nexus3
+        # - registry
+        # - docker-registry-ui
+        # - traefik
+        # - nginx
+        # - keycloak
+        # - reposilite
+
+        #   # Demo Applications
+        # - web-shop
         # - shopping-cart
         # - products
-        # - web-shop
+        # - smoke-test-app
+        # - serve
+          
+        #   # Misc
+        # - squid
+        # - eclipse-temurin
       loop_control:
         loop_var: rolesvar

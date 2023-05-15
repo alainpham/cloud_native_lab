@@ -1,0 +1,405 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gem-license
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+data:
+  license.jwt: |
+    ${license_text}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mimir-config
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+data:
+  mimir.yaml: |
+    # enterprise features only
+    admin_api:
+      leader_election:
+        enabled: true
+        ring:
+          kvstore:
+            store: memberlist
+    admin_client:
+      storage:
+        s3:
+          endpoint: minio.minio.svc.cluster.local:9000
+          bucket_name: mimir-admin
+          access_key_id: admin
+          secret_access_key: password
+          insecure: true
+        type: s3
+
+    auth:
+      type: enterprise
+
+    cluster_name: mimir
+
+    instrumentation:
+      distributor_client:
+        address: dns:///mimir-headless.observability.svc.cluster.local:9095
+      enabled: true
+
+    license:
+      path: /license/license.jwt
+
+    # oss configs
+    multitenancy_enabled: true
+
+    activity_tracker:
+      filepath: /active-query-tracker/activity.log
+
+    alertmanager:
+      data_dir: /data/alertmanager
+      enable_api: true
+      external_url: /alertmanager
+      fallback_config_file: /configs/alertmanager_fallback_config.yaml
+    alertmanager_storage:
+      backend: s3
+      s3:
+        endpoint: minio.minio.svc.cluster.local:9000
+        bucket_name: mimir-alertmanager
+        access_key_id: admin
+        secret_access_key: password
+        insecure: true
+
+    blocks_storage:
+      backend: s3
+      bucket_store:
+        # chunks_cache:
+        #   backend: memcached
+        #   memcached:
+        #     addresses: dns+mimir-chunks-cache.mimir.svc:11211
+        #     max_item_size: 1048576
+        #     timeout: 450ms
+        # index_cache:
+        #   backend: memcached
+        #   memcached:
+        #     addresses: dns+mimir-index-cache.mimir.svc:11211
+        #     max_item_size: 5242880
+        # max_chunk_pool_bytes: 12884901888
+        # metadata_cache:
+        #   backend: memcached
+        #   memcached:
+        #     addresses: dns+mimir-metadata-cache.mimir.svc:11211
+        #     max_item_size: 1048576
+        sync_dir: /data/tsdb-sync
+      s3:
+        endpoint: minio.minio.svc.cluster.local:9000
+        bucket_name: mimir-tsdb
+        access_key_id: admin
+        secret_access_key: password
+        insecure: true
+      tsdb:
+        dir: /data/tsdb
+
+    compactor:
+      compaction_interval: 30m
+      data_dir: /data/data-compactor/
+      deletion_delay: 2h
+      max_closing_blocks_concurrency: 2
+      max_opening_blocks_concurrency: 4
+      sharding_ring:
+        wait_stability_min_duration: 1m
+      symbols_flushers_concurrency: 4
+
+    # frontend:
+    #   cache_results: false
+    #   parallelize_shardable_queries: true
+    #   results_cache:
+    #     backend: memcached
+    #     memcached:
+    #       addresses: dns+mimir-results-cache.mimir.svc:11211
+    #       max_item_size: 1048576
+    #       timeout: 500ms
+
+    # frontend_worker:
+    #   frontend_address: mimir-query-frontend-headless.mimir.svc:9095
+
+    # gateway:
+    #   proxy:
+    #     admin_api:
+    #       url: http://mimir-admin-api.mimir.svc:8080
+    #     alertmanager:
+    #       url: http://mimir-alertmanager-headless.mimir.svc:8080
+    #     compactor:
+    #       url: http://mimir-compactor.mimir.svc:8080
+    #     default:
+    #       url: http://mimir-admin-api.mimir.svc:8080
+    #     distributor:
+    #       url: dns:///mimir-distributor-headless.mimir.svc.cluster.local:9095
+    #     ingester:
+    #       url: http://mimir-ingester-headless.mimir.svc:8080
+    #     query_frontend:
+    #       url: http://mimir-query-frontend.mimir.svc:8080
+    #     ruler:
+    #       url: http://mimir-ruler.mimir.svc:8080
+    #     store_gateway:
+    #       url: http://mimir-store-gateway-headless.mimir.svc:8080
+
+    ingester:
+      ring:
+        replication_factor: 3
+        final_sleep: 0s
+        num_tokens: 512
+        tokens_file_path: /data/ingester_tokens
+        unregister_on_shutdown: true
+        zone_awareness_enabled: false
+    ingester_client:
+      grpc_client_config:
+        max_recv_msg_size: 104857600
+        max_send_msg_size: 104857600
+
+    limits:
+      max_cache_freshness: 10m
+      max_query_parallelism: 240
+      max_total_query_length: 12000h
+
+    memberlist:
+      abort_if_cluster_join_fails: false
+      compression_enabled: false
+      join_members:
+       - dns+mimir-headless.observability.svc.cluster.local:7946
+
+    querier:
+      max_concurrent: 16
+    query_scheduler:
+      max_outstanding_requests_per_tenant: 800
+
+    ruler: 
+      alertmanager_url: dnssrvnoa+http://_http-metrics._tcp.mimir-headless.observability.svc.cluster.local/alertmanager
+      enable_api: true
+      rule_path: /data/data-ruler/
+
+    ruler_storage:
+      backend: s3
+      s3:
+        endpoint: minio.minio.svc.cluster.local:9000
+        bucket_name: mimir-ruler
+        access_key_id: admin
+        secret_access_key: password
+        insecure: true
+
+    runtime_config:
+      file: /var/mimir/runtime.yaml
+
+    server:
+      http_listen_port: 8080
+      grpc_listen_port: 9095
+      log_level: info
+
+      grpc_server_max_concurrent_streams: 1000
+      grpc_server_max_connection_age: 2m
+      grpc_server_max_connection_age_grace: 5m
+      grpc_server_max_connection_idle: 1m
+
+    # store_gateway:
+    #   sharding_ring:
+    #     kvstore:
+    #       prefix: multi-zone/
+    #     tokens_file_path: /data/store_gateway_tokens
+    #     wait_stability_min_duration: 1m
+    #     zone_awareness_enabled: true
+
+    usage_stats:
+      installation_mode: custom
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mimir-runtime
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+  namespace: "observability"
+data:
+  runtime.yaml: |
+    
+    {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mimir-alertmanager-fallback-config
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+  namespace: "observability"
+data:
+  alertmanager_fallback_config.yaml: |
+    receivers:
+        - name: default-receiver
+    route:
+        receiver: default-receiver
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mimir-headless
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+  namespace: observability
+spec:
+  clusterIP: None
+  ports:
+    - name: http-metrics
+      protocol: TCP
+      port: 8080
+      targetPort: http-metrics
+    - name: grpc
+      protocol: TCP
+      port: 9095
+      targetPort: grpc
+    - name: gossip-ring
+      protocol: TCP
+      port: 7946
+      targetPort: gossip-ring
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+  name: mimir
+  namespace: observability
+spec:
+  podManagementPolicy: Parallel
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mimir
+      app.kubernetes.io/instance: mimir
+  serviceName: mimir-headless
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mimir
+        app.kubernetes.io/instance: mimir
+    spec:
+      containers:
+        - args:
+            - "-target=all"
+            - "-config.expand-env=true"
+            - "-config.file=/etc/mimir/mimir.yaml"
+          image: ${localregistry}/${mimir}
+          imagePullPolicy: IfNotPresent
+          name: mimir
+          ports:
+            - name: http-metrics
+              containerPort: 8080
+              protocol: TCP
+            - name: grpc
+              containerPort: 9095
+              protocol: TCP
+            - name: gossip-ring
+              containerPort: 7946
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            failureThreshold: 12
+          resources:
+          volumeMounts:
+            - name: license
+              mountPath: /license
+            - name: config
+              mountPath: /etc/mimir
+            - name: runtime-config
+              mountPath: /var/mimir
+            - name: storage
+              mountPath: /data
+            - name: alertmanager-fallback-config
+              mountPath: /configs/
+            - name: tmp
+              mountPath: /tmp
+            - name: active-queries
+              mountPath: /active-query-tracker
+      securityContext:
+        fsGroup: 10001
+        runAsUser: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+      terminationGracePeriodSeconds: 300
+      volumes:
+        - name: license
+          configMap:
+            name: gem-license
+        - name: config
+          configMap:
+            name: mimir-config
+        - name: runtime-config
+          configMap:
+            name: mimir-runtime
+        - name: alertmanager-fallback-config
+          configMap:
+            name: mimir-alertmanager-fallback-config
+        - name: tmp
+          emptyDir: {}
+        - name: active-queries
+          emptyDir: {}
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        name: storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mimir
+  labels:
+    app.kubernetes.io/name: mimir
+    app.kubernetes.io/instance: mimir
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  namespace: "observability"
+spec:
+  rules:
+    - host: "mimir.${kube_ingress_root_domain}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mimir-headless
+                port:
+                  number: 8080
