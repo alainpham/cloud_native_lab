@@ -1,111 +1,57 @@
 ---
-- name: scopeo
+- name: start-services
   hosts:
-    - localhost
+    - selected
+  vars:
+    global_recreate: true
+    global_appstate: started
+    global_purge: true
   vars_files:
     - ../vars/global.yml
     - ../vars/images.yml
+    - ../vars/dockerappconfig.yml
+    - ../vars/sensitive/secretappconfig.yml
   tasks:
     - include_role:
         name: docker_lab
-        tasks_from: server-skopeo-copy
-      loop: 
-        #   # Kube
-        # - kube-apiserver
-        # - kube-controller-manager
-        # - kube-scheduler
-        # - kube-proxy
-        # - pause
-        # - etcd
-        # - coredns
-
-        #   # metrics server
-        # - metrics-server
-
-        #   # Flannel
-        # - flannel-cni-plugin
-        # - flannel
-
-        #   # ingress nginx
-        # - controller
-        # - kube-webhook-certgen
-        # - metrics-scraper
-
-        #   # kube ui
-        # - dashboard
-
-        #   # storage
-        # - local-path-provisioner
-
-        #   # Minio
-        # - minio
-        # - busybox
-        # - curl
-
-        #   # Grafana stack observability
-
-        #   # Metrics
-        # - enterprise-metrics
-        # - mimir
-        # - memcached
-        # - memcached-exporter
-
-        #   # Logs
-        # - enterprise-logs
-        # - loki
-        # - promtail
-
-        #   # Traces
-        # - enterprise-traces
-        # - tempo
-
-        #   # Grafana
-        # - grafana
-        # - grafana-enterprise
-        # - grafana-oss-dev
-          
-        # - agent
-
-        # - prometheus
-        # - node-exporter
-        - alertmanager
-        # - cadvisor
-        # - kube-state-metrics
-          
-        #   # Databases
-        # - mariadb
-        # - mysql
-        # - postgres
-        # - elasticsearch
-        # - kibana
-
-        # - adminer
-
-        #   # messaging
-        # - kafka
-        # - kafdrop
-        # - kafka-ui
-        # - artemis
-
-        #   # platform essentials
-        # - portainer-ce
-        # - nexus3
-        # - registry
-        # - docker-registry-ui
+        tasks_from: app-{{ rolesvar }}
+      loop:
+        # # platform essentials
         # - traefik
-        # - nginx
+        # - portainer
+        # - registry
+        # - regui
         # - keycloak
         # - reposilite
 
-        #   # Demo Applications
-        # - web-shop
+        # # databases
+        # - postgres
+        # - mariadb
+        # - oracledb
+        # - minio
+        # - memcached
+        # - adminer
+
+        # # messaging
+        # - kafka
+        # - artemis
+
+        # # observability
+        # - cadvisor
+        # - prometheus
+        # - grafana
+        - grafana-enterprise
+        # - grafana-alpha
+        # - loki
+        # - mimir
+        # - grafana-agent
+        # - tempo
+
+
+        # # functional apps
+        # - smoke-test-app
         # - shopping-cart
         # - products
-        # - smoke-test-app
-        # - serve
-          
-        #   # Misc
-        # - squid
-        # - eclipse-temurin
+        # - web-shop
       loop_control:
         loop_var: rolesvar

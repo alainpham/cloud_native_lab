@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: observability
+  name: ${namespace}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: gem-license
-  namespace: observability
+  namespace: ${namespace}
   labels:
     app.kubernetes.io/name: mimir
     app.kubernetes.io/instance: mimir
@@ -20,7 +20,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mimir-config
-  namespace: observability
+  namespace: ${namespace}
   labels:
     app.kubernetes.io/name: mimir
     app.kubernetes.io/instance: mimir
@@ -50,7 +50,7 @@ data:
 
     instrumentation:
       distributor_client:
-        address: dns:///mimir-headless.observability.svc.cluster.local:9095
+        address: dns:///mimir-headless.${namespace}.svc.cluster.local:9095
       enabled: true
 
     license:
@@ -172,7 +172,7 @@ data:
       abort_if_cluster_join_fails: false
       compression_enabled: false
       join_members:
-       - dns+mimir-headless.observability.svc.cluster.local:7946
+       - dns+mimir-headless.${namespace}.svc.cluster.local:7946
 
     querier:
       max_concurrent: 16
@@ -180,7 +180,7 @@ data:
       max_outstanding_requests_per_tenant: 800
 
     ruler: 
-      alertmanager_url: dnssrvnoa+http://_http-metrics._tcp.mimir-headless.observability.svc.cluster.local/alertmanager
+      alertmanager_url: dnssrvnoa+http://_http-metrics._tcp.mimir-headless.${namespace}.svc.cluster.local/alertmanager
       enable_api: true
       rule_path: /data/data-ruler/
 
@@ -225,7 +225,7 @@ metadata:
   labels:
     app.kubernetes.io/name: mimir
     app.kubernetes.io/instance: mimir
-  namespace: "observability"
+  namespace: "${namespace}"
 data:
   runtime.yaml: |
     
@@ -238,7 +238,7 @@ metadata:
   labels:
     app.kubernetes.io/name: mimir
     app.kubernetes.io/instance: mimir
-  namespace: "observability"
+  namespace: "${namespace}"
 data:
   alertmanager_fallback_config.yaml: |
     receivers:
@@ -253,7 +253,7 @@ metadata:
   labels:
     app.kubernetes.io/name: mimir
     app.kubernetes.io/instance: mimir
-  namespace: observability
+  namespace: ${namespace}
 spec:
   clusterIP: None
   ports:
@@ -282,7 +282,7 @@ metadata:
     app.kubernetes.io/name: mimir
     app.kubernetes.io/instance: mimir
   name: mimir
-  namespace: observability
+  namespace: ${namespace}
 spec:
   podManagementPolicy: Parallel
   replicas: 3
@@ -390,7 +390,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: HTTP
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-  namespace: "observability"
+  namespace: "${namespace}"
 spec:
   rules:
     - host: "mimir.${kube_ingress_root_domain}"

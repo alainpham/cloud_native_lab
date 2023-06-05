@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubectlsa
+  namespace: ${namespace}
+  labels:
+    app.kubernetes.io/name: kubectl
+    app.kubernetes.io/instance: kubectl
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: secretsadm
+  namespace: ${namespace}
+  labels:
+    app.kubernetes.io/name: kubectl
+    app.kubernetes.io/instance: kubectl
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create", "get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubectlsasecretsadm
+  namespace: ${namespace}
+  labels:
+    app.kubernetes.io/name: kubectl
+    app.kubernetes.io/instance: kubectl
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: secretsadm
+subjects:
+  - kind: ServiceAccount
+    name: kubectlsa
+    namespace: ${namespace}

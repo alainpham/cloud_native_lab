@@ -7,3 +7,26 @@
     mimir: "{{ images['enterprise-metrics'] | regex_replace('.*/(.*)','\\1')  }}"
     kube_ingress_root_domain: "{{ kube_ingress_root_domain }}"
     license_text: "{{ secretappconfig.mimir.license }}"
+    namespace: observability
+
+- name: wait for mimir to be ready
+  shell: |
+    kubectl wait --namespace observability \
+      --for=condition=ready pod \
+      --selector=app.kubernetes.io/name=mimir --selector=app.kubernetes.io/instance=mimir \
+      --timeout=120s
+
+- name: Service account
+  shell: |
+     envsubst < /root/install/kubectl/kubectl.envsubst.yml | kubectl apply -f -
+  environment:
+    namespace: observability
+
+- name: Tokengen
+  shell: |
+     envsubst < /root/install/mimir/tokengen.envsubst.yml | kubectl apply -f -
+  environment:
+    localregistry: "{{ localregistry }}"
+    mimir: "{{ images['enterprise-metrics'] | regex_replace('.*/(.*)','\\1')  }}"
+    kubectl: "{{ images['kubectl'] | regex_replace('.*/(.*)','\\1')  }}"
+    namespace: observability
