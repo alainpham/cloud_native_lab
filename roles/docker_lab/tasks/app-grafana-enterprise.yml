@@ -17,6 +17,85 @@
     group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0644'
 
+- name: configure license
+  copy:
+    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/license.jwt"
+    content: |
+      {{ secretappconfig[appname].license }}
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+    mode: '0644'
+
+
+- stat:
+    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip"
+  register: apppackage
+
+- stat:
+    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
+  register: apppackagefolder
+
+- name: Download gel plugin
+  ansible.builtin.get_url:
+    url: "{{ appconfig[appname].gem_app_url }}"
+    dest: /home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip
+    mode: '0644'
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+    validate_certs: false
+  when: not apppackage.stat.exists and appconfig[appname].appstate == 'started'
+
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
+    state: directory
+    mode: '0755'
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+  when: not apppackagefolder.stat.exists  and appconfig[appname].appstate == 'started'
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugin-provisioning"
+    state: directory
+    mode: '0755'
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+  when: not apppackagefolder.stat.exists  and appconfig[appname].appstate == 'started'
+
+- name: unarchive gel plugin
+  ansible.builtin.unarchive:
+    src:  "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip"
+    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
+    remote_src: yes
+  when: not apppackagefolder.stat.exists and appconfig[appname].appstate == 'started'
+
+- name: "Read a admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/mimir/data/admin-token.txt
+  register: admtoken
+  when: appconfig[appname].appstate == 'started'
+
+- name: configure gex apps
+  when: appconfig[appname].appstate == 'started'
+  copy:
+    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugin-provisioning/provisioned-grafana-apps.yml"
+    content: |
+      apiVersion: 1
+      apps:
+        - type: grafana-metrics-enterprise-app
+          org_id: 1
+          jsonData:
+            backendUrl: http://mimir:8080
+            base64EncodedAccessTokenSet: true
+            adminApiVersion: v3
+          secureJsonData:
+            base64EncodedAccessToken: "{{ (':' + admtoken.stdout) | b64encode }}"
+    mode: '0644'
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
@@ -34,7 +113,7 @@
     env:
       GF_SERVER_DOMAIN: "{{ appname }}.{{ inventory_hostname }}"
       GF_SERVER_ROOT_URL: https://{{ appname }}.{{ inventory_hostname }}/
-      GF_ENTERPRISE_LICENSE_TEXT: "{{ secretappconfig[appname].license }}"
+      GF_ENTERPRISE_LICENSE_PATH: "/license/license.jwt"
       GF_AUTH_BASIC_ENABLED: "true"
       GF_AUTH_DISABLE_LOGIN_FORM: "false"
       GF_AUTH_OAUTH_AUTO_LOGIN: "false"
@@ -73,11 +152,13 @@
     volumes:
       - /home/{{ansible_user}}/apps/{{ appname }}/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/plugin-provisioning/:/etc/grafana/provisioning/plugins:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/plugins:/plugins:rw
       - /home/{{ansible_user}}/apps/{{ appname }}/config/graphics:/usr/share/grafana/public/graphics:ro
-      - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
+      # - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/rbac/rbac.yml:/etc/grafana/provisioning/access-control/rbac.yml:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/branding:/usr/share/grafana/public/branding:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/license.jwt:/license/license.jwt:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/data/:/data:rw
     networks_cli_compatible: yes
     network_mode: primenet

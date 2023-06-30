@@ -426,6 +426,7 @@ appconfig:
     ports: 
 
     prom_url: http://mimir:9090/prometheus
+    gem_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/gem-app/4.0.3/grafana-metrics-enterprise-app-v4.0.3.zip
 
   grafana-agent:
     ip: 172.18.0.75
@@ -476,7 +477,7 @@ appconfig:
 
   mimir: 
     ip: 172.18.0.78
-    image: "{{ images['mimir'] }}"
+    image: "{{ images['enterprise-metrics'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"

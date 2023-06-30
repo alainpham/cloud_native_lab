@@ -1,14 +1,14 @@
 ---
 baremetal:
   hosts:
-    work.lan:
-      ansible_connection: local
+    aphm.duckdns.org:
+      ansible_connection: ssh
       ansible_user: apham
       ansible_python_interpreter: /usr/bin/python3
       arch: linux-amd64
 vms:
   hosts:
-    sandbox.loc:
+    vrbx.duckdns.org:
       ansible_connection: ssh
       ansible_user: cloud-user
       ansible_python_interpreter: /usr/bin/python3
@@ -19,4 +19,4 @@ selected:
   #   x86:
   #   vms:
   hosts:
-    work.lan:
+    aphm.duckdns.org:

@@ -3,5 +3,5 @@ tls:
   stores:
     default:
       defaultCertificate:
-          keyFile: "/certs/{{[ inventory_hostname ]}}.key"
-          certFile: "/certs/{{[ inventory_hostname ]}}.pem"
+          keyFile: "/certs/cfg/live/{{[ inventory_hostname ]}}/privkey.pem"
+          certFile: "/certs/cfg/live/{{[ inventory_hostname ]}}/fullchain.pem"

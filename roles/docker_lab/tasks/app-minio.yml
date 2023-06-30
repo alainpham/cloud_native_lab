@@ -4,13 +4,13 @@
 
 - set_fact:
     minio_buckets:
-      - /data/gem-tsdb
-      - /data/gem-ruler 
-      - /data/gem-admin
-      - /data/gel-admin
-      - /data/gel-chunks
-      - /data/mimir-tsdb 
+      - /data/mimir-tsdb
       - /data/mimir-ruler 
+      - /data/mimir-admin
+      - /data/mimir-alertmanager
+      - /data/loki-chunks
+      - /data/loki-ruler
+      - /data/loki-admin
       - /data/sandbox
 
 - name: provision infra

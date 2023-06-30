@@ -39,13 +39,13 @@
         # observability
         - cadvisor
         - prometheus
-        - grafana
-        - grafana-enterprise
-        - grafana-alpha
         - loki
         - mimir
         - grafana-agent
         - tempo
+        - grafana
+        - grafana-enterprise
+        - grafana-alpha
 
 
         # functional apps

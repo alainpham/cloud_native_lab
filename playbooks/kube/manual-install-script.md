@@ -1,14 +1,14 @@
-# Install Vanilla Kubernetes1.25.9
+# Install Vanilla Kubernetes 1.25.11
 
 
-OS : Debian 11
-Kubernetes version : 1.25.9
+OS : Debian 12
+Kubernetes version : 1.25.11
 
 ## Prepare hosts
 
 ```console
 
-export kube_version=1.25.9
+export kube_version=1.25.11
 
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
 overlay

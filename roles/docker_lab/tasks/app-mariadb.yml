@@ -22,8 +22,10 @@
 
     command: 
     env:
-      MARIADB_ROOT_PASSWORD: myrootpassword
-      MARIADB_DATABASE: webshop
+      MARIADB_ROOT_PASSWORD: password
+      MARIADB_DATABASE: db
+      MARIADB_USER: admin
+      MARIADB_PASSWORD: password
     labels: |
       {
         "traefik.enable": "false",

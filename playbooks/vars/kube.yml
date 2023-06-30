@@ -1,5 +1,5 @@
 
-kube_version: 1.25.9
+kube_version: 1.25.11
 
 # k9s_package: https://github.com/derailed/k9s/releases/download/v0.27.4/k9s_Linux_amd64.tar.gz
 k9s_package: https://reposilite.awon.lan/releases/k9s/k9s/0.27.3/k9s_Linux_amd64.tar.gz

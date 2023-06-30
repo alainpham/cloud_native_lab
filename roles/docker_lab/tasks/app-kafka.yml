@@ -44,7 +44,7 @@
     command: bin/zookeeper-server-start.sh /config/zookeeper.properties 
     env:
       LOG_DIR: /tmp/logs
-      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-0.17.2.jar=9779:/config/zookeeper-metrics-config.yml
+      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-0.18.0.jar=9779:/config/zookeeper-metrics-config.yml
     labels: |
       {
         "traefik.enable": "true",
@@ -85,17 +85,25 @@
     user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
     ports:
     command: 
-      - bin/kafka-server-start.sh config/server.properties 
-      - --override listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093 
-      - --override advertised.listeners=PLAINTEXT://{{appconfig[appname].ip}}:9092,SSL://kafka.{{inventory_hostname}}:443 
-      - --override ssl.keystore.location=/certs/{{inventory_hostname}}.p12 
-      - --override ssl.keystore.password=password
-      - --override ssl.key.password=password
-      - --override zookeeper.connect=zookeeper:2181
-      - --override log.dirs=/kafka-data
+      - bin/kafka-server-start.sh
+      - config/server.properties 
+      - --override 
+      - listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093 
+      - --override 
+      - advertised.listeners=PLAINTEXT://{{appconfig[appname].ip}}:9092,SSL://kafka.{{inventory_hostname}}:443 
+      - --override 
+      - ssl.keystore.location=/certs/cfg/live/{{inventory_hostname}}/privkey.p12 
+      - --override 
+      - ssl.keystore.password=password
+      - --override 
+      - ssl.key.password=password
+      - --override 
+      - zookeeper.connect=zookeeper:2181
+      - --override 
+      - log.dirs=/kafka-data
     env:
       LOG_DIR: /tmp/logs
-      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-0.17.2.jar=9779:/config/kafka-metrics-config.yml
+      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-0.18.0.jar=9779:/config/kafka-metrics-config.yml
     labels: |
       {
         "traefik.enable": "true",
