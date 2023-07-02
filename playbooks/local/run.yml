@@ -39,9 +39,9 @@
         # observability
         # - cadvisor
         # - prometheus
-        - loki
+        # - loki
         # - mimir
-        # - grafana-agent
+        - grafana-agent
         # - tempo
         # - grafana-alpha
         # - grafana
