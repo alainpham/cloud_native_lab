@@ -7,6 +7,18 @@
     name: docker_lab
     tasks_from: infra-provision
 
+- name: "Read a mimir dev tenant admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/mimir/data/dev_admin.token
+  register: mdev_admin_token
+  when: appconfig[appname].appstate == 'started'
+
+- name: "Read a loki dev tenant admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/loki/data/dev_admin.token
+  register: ldev_admin_token
+  when: appconfig[appname].appstate == 'started'
+
 - name: Template {{appname}} config
   when:  appconfig[appname].appstate == 'started'
   become: true
@@ -26,16 +38,16 @@
     group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0644'
 
-
+# gem app
 - stat:
     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip"
   register: apppackage
 
 - stat:
     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
-  register: apppackagefolder
+  register: pluginsfolder
 
-- name: Download gel plugin
+- name: Download plugin
   ansible.builtin.get_url:
     url: "{{ appconfig[appname].gem_app_url }}"
     dest: /home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip
@@ -53,28 +65,73 @@
     mode: '0755'
     owner: "{{ appconfig[appname].exec_as_user }}"
     group: "{{ appconfig[appname].exec_as_group }}"
-  when: not apppackagefolder.stat.exists  and appconfig[appname].appstate == 'started'
+  when: not pluginsfolder.stat.exists  and appconfig[appname].appstate == 'started'
+
+- name: unarchive plugin
+  ansible.builtin.unarchive:
+    src:  "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip"
+    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
+    remote_src: yes
+  when: not pluginsfolder.stat.exists and appconfig[appname].appstate == 'started'
+
+- name: "Read a admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/mimir/data/admin-token.txt
+  register: gemadmtoken
+  when: appconfig[appname].appstate == 'started'
+
+
+
+# gel app
+- stat:
+    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app.zip"
+  register: apppackage
+
+- stat:
+    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app"
+  register: pluginsfolder
+
+- name: Download plugin
+  ansible.builtin.get_url:
+    url: "{{ appconfig[appname].gel_app_url }}"
+    dest: /home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app.zip
+    mode: '0644'
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+    validate_certs: false
+  when: not apppackage.stat.exists and appconfig[appname].appstate == 'started'
+
 
 - name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app"
+    state: directory
+    mode: '0755'
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+  when: not pluginsfolder.stat.exists  and appconfig[appname].appstate == 'started'
+
+- name: unarchive plugin
+  ansible.builtin.unarchive:
+    src:  "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app.zip"
+    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app"
+    remote_src: yes
+  when: not pluginsfolder.stat.exists and appconfig[appname].appstate == 'started'
+
+- name: "Read a admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/loki/data/admin-token.txt
+  register: geladmtoken
+  when: appconfig[appname].appstate == 'started'
+
+# provision datasources
+- name: Create provisioning
   ansible.builtin.file:
     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugin-provisioning"
     state: directory
     mode: '0755'
     owner: "{{ appconfig[appname].exec_as_user }}"
     group: "{{ appconfig[appname].exec_as_group }}"
-  when: not apppackagefolder.stat.exists  and appconfig[appname].appstate == 'started'
-
-- name: unarchive gel plugin
-  ansible.builtin.unarchive:
-    src:  "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip"
-    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
-    remote_src: yes
-  when: not apppackagefolder.stat.exists and appconfig[appname].appstate == 'started'
-
-- name: "Read a admin token content"
-  shell: |
-    cat /home/{{ansible_user}}/apps/mimir/data/admin-token.txt
-  register: admtoken
   when: appconfig[appname].appstate == 'started'
 
 - name: configure gex apps
@@ -91,10 +148,20 @@
             base64EncodedAccessTokenSet: true
             adminApiVersion: v3
           secureJsonData:
-            base64EncodedAccessToken: "{{ (':' + admtoken.stdout) | b64encode }}"
+            base64EncodedAccessToken: "{{ (':' + gemadmtoken.stdout) | b64encode }}"
+        - type: grafana-enterprise-logs-app
+          org_id: 1
+          jsonData:
+            backendUrl: http://loki:3100
+            base64EncodedAccessTokenSet: true
+            adminApiVersion: v3
+          secureJsonData:
+            base64EncodedAccessToken: "{{ (':' + geladmtoken.stdout) | b64encode }}"
     mode: '0644'
     owner: "{{ appconfig[appname].exec_as_user }}"
     group: "{{ appconfig[appname].exec_as_group }}"
+
+
 
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:

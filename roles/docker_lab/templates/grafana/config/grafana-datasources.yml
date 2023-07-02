@@ -83,11 +83,11 @@ datasources:
   - name: MySQL
     type: mysql
     url: mariadb:3306
-    database: webshop
-    user: root
+    database: db
+    user: admin
     jsonData:
       maxOpenConns: 0
       maxIdleConns: 2
       connMaxLifetime: 14400
     secureJsonData:
-      password: myrootpassword
+      password: password

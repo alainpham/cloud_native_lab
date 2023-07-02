@@ -20,23 +20,35 @@ datasources:
     version: 1
     isDefault: true
     editable: false
+    basicAuth: true
+    basicAuthUser: dev
     jsonData:
       exemplarTraceIdDestinations:
         - datasourceUid: grafanacloud-traces
           name: traceId
       httpMethod: POST
+      prometheusType: Mimir
+      prometheusVersion: "2.4.0"
+      manageAlerts: true
+    secureJsonData:
+      basicAuthPassword: {{ mdev_admin_token.stdout }}
 
   - name: Loki
     uid: grafanacloud-logs
     type: loki
     access: proxy
-    url: http://loki
+    url: http://loki:3100
+    basicAuth: true
+    basicAuthUser: dev
     jsonData:
       derivedFields:
         - datasourceUid: grafanacloud-traces
           matcherRegex: "traceID=(\\w+)"
           name: traceId
           url: '$${__value.raw}'
+    secureJsonData:
+      basicAuthPassword: {{ ldev_admin_token.stdout }}
+
 
   - name: Tempo
     type: tempo
@@ -82,11 +94,11 @@ datasources:
   - name: MySQL
     type: mysql
     url: mariadb:3306
-    database: webshop
-    user: root
+    database: db
+    user: admin
     jsonData:
       maxOpenConns: 0
       maxIdleConns: 2
       connMaxLifetime: 14400
     secureJsonData:
-      password: myrootpassword
+      password: password

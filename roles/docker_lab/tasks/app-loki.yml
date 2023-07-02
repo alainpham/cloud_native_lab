@@ -7,6 +7,32 @@
     name: docker_lab
     tasks_from: infra-provision
 
+- name: "Read a dev tenant admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/mimir/data/dev_admin.token
+  register: dev_admin_token
+  when: appconfig[appname].appstate == 'started'
+
+- name: Template {{appname}} config
+  when:  appconfig[appname].appstate == 'started'
+  become: true
+  ansible.builtin.template:
+    src: templates/{{appname}}/config/config.template.j2
+    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/config.yml
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+    mode: '0644'
+
+- name: configure license
+  when:  appconfig[appname].appstate == 'started'
+  copy:
+    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/license.jwt"
+    content: |
+      {{ secretappconfig[appname].license }}
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+    mode: '0644'
+
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
@@ -23,7 +49,7 @@
     env:
     labels: |
       {
-        "traefik.http.services.{{appname}}.loadbalancer.server.port": "80",
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "3100",
         "traefik.http.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
         "traefik.http.routers.{{appname}}.tls": "true",
@@ -32,6 +58,7 @@
     volumes:
       - /home/{{ ansible_user }}/apps/{{appname}}/config/:/mnt/config:ro
       - /home/{{ ansible_user }}/apps/{{appname}}/data/:/data/:rw
+      - /home/{{ ansible_user }}/apps/{{ appname }}/config/license.jwt:/license/license.jwt:ro
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
@@ -48,6 +75,169 @@
   until: result.status == 200
   retries: 60
   delay: 2
+
+- name: check if token is present
+  stat:
+    path: /home/{{ ansible_user }}/apps/{{appname}}/data/admin-token.txt
+  register: stat_token
+
+- name: generate token
+  when: not stat_token.stat.exists and appconfig[appname].appstate == 'started'
+  shell: |
+    docker exec -it {{ appname }} sh -c "enterprise-logs --config.file=/mnt/config/config.yml --target=tokengen --tokengen.token-file=/data/admin-token.txt" 
+  args:
+    creates: /data/admin-token.txt
+
+- name: "Read token"
+  when:  appconfig[appname].appstate == 'started'
+  shell: |
+    cat /home/{{ ansible_user }}/apps/{{appname}}/data/admin-token.txt
+  register: token
+
+- name: Create tenant
+  when:  appconfig[appname].appstate == 'started'
+  uri: 
+    url: "https://{{appname}}.{{inventory_hostname}}/admin/api/v3/tenants"
+    user: "admin"
+    password: "{{ token.stdout }}"
+    method: POST
+    body_format: json
+    body: | 
+      {
+          "name":"{{ item }}",
+          "display_name": "{{ item }}",
+          "cluster": "loki"
+      }
+    force_basic_auth: yes
+    status_code: 
+      - 200
+      - 409
+  loop:
+    - dev
+    - prod
+
+- name: Create tenant admin accesspolicies
+  when:  appconfig[appname].appstate == 'started'
+  uri: 
+    url: "https://{{appname}}.{{inventory_hostname}}/admin/api/v3/accesspolicies"
+    user: "admin"
+    password: "{{ token.stdout }}"
+    method: POST
+    body_format: json
+    body: | 
+      {
+          "name":"{{ item }}_admin",
+          "display_name":"{{ item }}_admin",
+          "realms":[
+              {
+                  "tenant":"{{ item }}",
+                  "cluster":"loki"
+              }
+          ],
+          "scopes":[
+              "admin",
+              "alerts:read",
+              "alerts:write",
+              "logs:delete",
+              "logs:write",
+              "logs:read",
+              "rules:read",
+              "rules:write"
+          ]
+      }
+    force_basic_auth: yes
+    status_code:
+      - 200
+      - 409
+  loop:
+    - dev
+    - prod
+
+- name: Create label based tenant accesspolicies
+  when:  appconfig[appname].appstate == 'started'
+  uri: 
+    url: "https://{{appname}}.{{inventory_hostname}}/admin/api/v3/accesspolicies"
+    user: "admin"
+    password: "{{ token.stdout }}"
+    method: POST
+    body_format: json
+    body: | 
+      {
+          "name":"{{ item.tenant }}_{{ item.team }}",
+          "display_name":"{{ item.tenant }}_{{ item.team }}",
+          "realms":[
+              {
+                  "tenant":"{{ item.tenant }}",
+                  "cluster":"loki",
+                  "label_policies":[
+                      {
+                          "selector":"{team=\"{{ item.team }}\"}"
+                      }
+                  ]
+              }
+          ],
+          "scopes":[
+              "alerts:read",
+              "alerts:write",
+              "logs:read",
+              "rules:read",
+              "rules:write"
+          ]
+      }
+    force_basic_auth: yes
+    status_code:
+      - 200
+      - 409
+  loop:
+    - tenant: dev
+      team: frontend
+    - tenant: dev
+      team: backend
+    - tenant: prod
+      team: frontend
+    - tenant: prod
+      team: backend
+
+- name: Create tokens
+  when:  appconfig[appname].appstate == 'started'
+  uri: 
+    url: "https://{{appname}}.{{inventory_hostname}}/admin/api/v3/tokens"
+    user: "admin"
+    password: "{{ token.stdout }}"
+    method: POST
+    body_format: json
+    body: | 
+      {
+          "name":"{{ item.tenant }}_{{ item.team }}_token01", 
+          "display_name":"{{ item.tenant }}_{{ item.team }}_token01",
+          "access_policy": "{{ item.tenant }}_{{ item.team }}"
+      }
+    force_basic_auth: yes
+    status_code:
+      - 200
+      - 409
+  loop:
+    - tenant: dev
+      team: frontend
+    - tenant: dev
+      team: backend
+    - tenant: dev
+      team: admin
+    - tenant: prod
+      team: frontend
+    - tenant: prod
+      team: backend
+    - tenant: prod
+      team: admin
+  register: usertokens
+
+- name: copy tokens
+  copy:
+    dest: "/home/{{ ansible_user }}/apps/{{appname}}/data/{{ item.item.tenant }}_{{ item.item.team }}.token"
+    content: "{{ item.json.token }}"
+  loop: "{{ usertokens.results }}"
+  when: appconfig[appname].appstate == 'started' and item.status == 200 
+
 
 - name: delete infra
   ansible.builtin.include_role:

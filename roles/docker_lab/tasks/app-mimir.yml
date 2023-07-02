@@ -8,6 +8,7 @@
     tasks_from: infra-provision
 
 - name: configure license
+  when:  appconfig[appname].appstate == 'started'
   copy:
     dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/license.jwt"
     content: |
@@ -70,7 +71,159 @@
   shell: |
     docker exec -it {{ appname }} sh -c "{{ appname }} --config.file=/mnt/config/config.yml --target=tokengen --tokengen.token-file=/data/admin-token.txt" 
   args:
-    creates: /root/gel-admin-token.txt
+    creates: /data/admin-token.txt
+
+- name: "Read token"
+  when:  appconfig[appname].appstate == 'started'
+  shell: |
+    cat /home/{{ ansible_user }}/apps/{{appname}}/data/admin-token.txt
+  register: token
+
+- name: Create tenant
+  when:  appconfig[appname].appstate == 'started'
+  uri: 
+    url: "https://{{appname}}.{{inventory_hostname}}/admin/api/v3/tenants"
+    user: "admin"
+    password: "{{ token.stdout }}"
+    method: POST
+    body_format: json
+    body: | 
+      {
+          "name":"{{ item }}",
+          "display_name": "{{ item }}",
+          "cluster": "mimir"
+      }
+    force_basic_auth: yes
+    status_code: 
+      - 200
+      - 409
+  loop:
+    - dev
+    - prod
+
+- name: Create tenant admin accesspolicies
+  when:  appconfig[appname].appstate == 'started'
+  uri: 
+    url: "https://{{appname}}.{{inventory_hostname}}/admin/api/v3/accesspolicies"
+    user: "admin"
+    password: "{{ token.stdout }}"
+    method: POST
+    body_format: json
+    body: | 
+      {
+          "name":"{{ item }}_admin",
+          "display_name":"{{ item }}_admin",
+          "realms":[
+              {
+                  "tenant":"{{ item }}",
+                  "cluster":"mimir"
+              }
+          ],
+          "scopes":[
+              "admin",
+              "alerts:read",
+              "alerts:write",
+              "metrics:delete",
+              "metrics:write",
+              "metrics:read",
+              "rules:read",
+              "rules:write"
+          ]
+      }
+    force_basic_auth: yes
+    status_code:
+      - 200
+      - 409
+  loop:
+    - dev
+    - prod
+
+
+- name: Create label based tenant accesspolicies
+  when:  appconfig[appname].appstate == 'started'
+  uri: 
+    url: "https://{{appname}}.{{inventory_hostname}}/admin/api/v3/accesspolicies"
+    user: "admin"
+    password: "{{ token.stdout }}"
+    method: POST
+    body_format: json
+    body: | 
+      {
+          "name":"{{ item.tenant }}_{{ item.team }}",
+          "display_name":"{{ item.tenant }}_{{ item.team }}",
+          "realms":[
+              {
+                  "tenant":"{{ item.tenant }}",
+                  "cluster":"mimir",
+                  "label_policies":[
+                      {
+                          "selector":"{team=\"{{ item.team }}\"}"
+                      }
+                  ]
+              }
+          ],
+          "scopes":[
+              "alerts:read",
+              "alerts:write",
+              "metrics:read",
+              "rules:read",
+              "rules:write"
+          ]
+      }
+    force_basic_auth: yes
+    status_code:
+      - 200
+      - 409
+  loop:
+    - tenant: dev
+      team: frontend
+    - tenant: dev
+      team: backend
+    - tenant: prod
+      team: frontend
+    - tenant: prod
+      team: backend
+
+- name: Create tokens
+  when:  appconfig[appname].appstate == 'started'
+  uri: 
+    url: "https://{{appname}}.{{inventory_hostname}}/admin/api/v3/tokens"
+    user: "admin"
+    password: "{{ token.stdout }}"
+    method: POST
+    body_format: json
+    body: | 
+      {
+          "name":"{{ item.tenant }}_{{ item.team }}_token01", 
+          "display_name":"{{ item.tenant }}_{{ item.team }}_token01",
+          "access_policy": "{{ item.tenant }}_{{ item.team }}"
+      }
+    force_basic_auth: yes
+    status_code:
+      - 200
+      - 409
+  loop:
+    - tenant: dev
+      team: frontend
+    - tenant: dev
+      team: backend
+    - tenant: dev
+      team: admin
+    - tenant: prod
+      team: frontend
+    - tenant: prod
+      team: backend
+    - tenant: prod
+      team: admin
+  register: usertokens
+
+- name: copy tokens
+  copy:
+    dest: "/home/{{ ansible_user }}/apps/{{appname}}/data/{{ item.item.tenant }}_{{ item.item.team }}.token"
+    content: "{{ item.json.token }}"
+  loop: "{{ usertokens.results }}"
+  when: appconfig[appname].appstate == 'started' and item.status == 200 
+
 
 - name: delete infra
   ansible.builtin.include_role:
