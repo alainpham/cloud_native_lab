@@ -19,6 +19,12 @@
   register: ldev_admin_token
   when: appconfig[appname].appstate == 'started'
 
+- name: "Read a tempo dev tenant admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/tempo/data/dev_admin.token
+  register: tdev_admin_token
+  when: appconfig[appname].appstate == 'started'
+
 - name: Template {{appname}} config
   when:  appconfig[appname].appstate == 'started'
   become: true
@@ -124,6 +130,48 @@
   register: geladmtoken
   when: appconfig[appname].appstate == 'started'
 
+# get app
+- stat:
+    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app.zip"
+  register: apppackage
+
+- stat:
+    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app"
+  register: pluginsfolder
+
+- name: Download plugin
+  ansible.builtin.get_url:
+    url: "{{ appconfig[appname].get_app_url }}"
+    dest: /home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app.zip
+    mode: '0644'
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+    validate_certs: false
+  when: not apppackage.stat.exists and appconfig[appname].appstate == 'started'
+
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app"
+    state: directory
+    mode: '0755'
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+  when: not pluginsfolder.stat.exists  and appconfig[appname].appstate == 'started'
+
+- name: unarchive plugin
+  ansible.builtin.unarchive:
+    src:  "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app.zip"
+    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app"
+    remote_src: yes
+  when: not pluginsfolder.stat.exists and appconfig[appname].appstate == 'started'
+
+- name: "Read a admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/tempo/data/admin-token.txt
+  register: getadmtoken
+  when: appconfig[appname].appstate == 'started'
+
 # provision datasources
 - name: Create provisioning
   ansible.builtin.file:
@@ -157,6 +205,14 @@
             adminApiVersion: v3
           secureJsonData:
             base64EncodedAccessToken: "{{ (':' + geladmtoken.stdout) | b64encode }}"
+        - type: grafana-enterprise-traces-app
+          org_id: 1
+          jsonData:
+            backendUrl: http://tempo:3100
+            base64EncodedAccessTokenSet: true
+            adminApiVersion: v3
+          secureJsonData:
+            base64EncodedAccessToken: "{{ (':' + getadmtoken.stdout) | b64encode }}"
     mode: '0644'
     owner: "{{ appconfig[appname].exec_as_user }}"
     group: "{{ appconfig[appname].exec_as_group }}"

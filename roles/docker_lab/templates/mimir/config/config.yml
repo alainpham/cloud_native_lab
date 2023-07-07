@@ -91,3 +91,5 @@ compactor:
 server:
   log_level: info
 
+limits:
+  cardinality_analysis_enabled: true

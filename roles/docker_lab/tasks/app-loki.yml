@@ -86,7 +86,7 @@
   shell: |
     docker exec -it {{ appname }} sh -c "enterprise-logs --config.file=/mnt/config/config.yml --target=tokengen --tokengen.token-file=/data/admin-token.txt" 
   args:
-    creates: /data/admin-token.txt
+    creates: /home/{{ ansible_user }}/apps/{{appname}}/data/admin-token.txt
 
 - name: "Read token"
   when:  appconfig[appname].appstate == 'started'

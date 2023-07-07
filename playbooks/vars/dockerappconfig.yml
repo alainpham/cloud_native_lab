@@ -428,7 +428,7 @@ appconfig:
     prom_url: http://mimir:8080/prometheus
     gem_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/gem-app/4.0.3/grafana-metrics-enterprise-app-v4.0.3.zip
     gel_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/gel-app/3.0.1/grafana-enterprise-logs-app-3.0.1.zip
-    get_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/gel-app/3.0.1/grafana-enterprise-logs-app-3.0.1.zip
+    get_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/get-app/2.0.0/grafana-enterprise-traces-app-2.0.0.zip
 
   grafana-agent:
     ip: 172.18.0.75
@@ -441,8 +441,8 @@ appconfig:
     appstate: "{{ global_appstate }}"
     recreate: "{{ global_recreate }}"
     purge: "{{ global_purge }}"
-    exec_as_user: 1000
-    exec_as_group: 1000
+    exec_as_user: 0
+    exec_as_group: 0
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
@@ -493,7 +493,7 @@ appconfig:
 
   tempo: 
     ip: 172.18.0.79
-    image: "{{ images['tempo'] }}"
+    image: "{{ images['enterprise-traces'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"

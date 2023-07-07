@@ -54,26 +54,21 @@ datasources:
     type: tempo
     access: proxy
     uid: grafanacloud-traces
-    url: http://tempo
+    url: http://tempo:3100
+    basicAuth: true
+    basicAuthUser: dev
     jsonData:
       nodeGraph:
         enabled: true
-      tracesToLogs:
+      tracesToLogsV2:
+        customQuery: true
         datasourceUid: grafanacloud-logs
-        filterByTraceID: false
-        spanEndTimeShift: "500ms"
-        spanStartTimeShift: "-500ms"
-        tags: ['service']
-        mappedTags: [{key: 'service.name', value: 'service'}]
-        mapTagNamesEnabled: true
       serviceMap:
         datasourceUid: grafanacloud-prom
-      tracesToMetrics:
-        datasourceUid: 'grafanacloud-prom'
-        tags: [{key: 'service.name', value: 'service_name'}]
-        queries:
-          - name: 'Requests Rate'
-            query: 'sum(rate(traces_spanmetrics_calls_total{$__tags}[1m]))'
+      lokiSearch:
+        datasourceUid: grafanacloud-logs
+    secureJsonData:
+      basicAuthPassword: {{ tdev_admin_token.stdout }}
 
   - name: Postgres
     uid: postgres

@@ -9,10 +9,52 @@ metrics:
     - url: "http://mimir:8080/api/v1/push"
       basic_auth:
         username: dev
-        password: {{ dev_admin_token.stdout }}
+        password: {{ mdev_admin_token.stdout }}
   configs:
     - name: mimir
 {% filter indent(width=6) %}
       {% include 'scrape_configs.yml' %}
 {% endfilter %}
 
+logs:
+  configs:
+  - name: loki
+    clients:
+      - url: http://loki:3100/loki/api/v1/push
+        basic_auth:
+          username: dev
+          password: {{ ldev_admin_token.stdout }}
+        external_labels:
+          cluster: local
+    positions:
+      filename: /data/logs/positions.yaml
+    scrape_configs:
+      - job_name: docker_logs
+        docker_sd_configs:
+          - host: unix:///var/run/docker.sock
+            refresh_interval: 5s
+        relabel_configs:
+          - source_labels: ['__meta_docker_container_name']
+            regex: '/(.*)'
+            target_label: 'container'
+          - source_labels: ['__meta_docker_container_log_stream']
+            target_label: 'logstream'
+          - source_labels: ['__meta_docker_container_label_logging_jobname']
+            target_label: 'job'
+
+traces:
+  configs:
+  - name: default
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+    remote_write:
+      - endpoint: tempo:4317
+        insecure: true
+        basic_auth:
+          username: dev
+          password: {{ tdev_admin_token.stdout }}
+    batch:
+      timeout: 5s
+      send_batch_size: 100

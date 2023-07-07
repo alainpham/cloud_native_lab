@@ -11,6 +11,8 @@
       - /data/loki-chunks
       - /data/loki-ruler
       - /data/loki-admin
+      - /data/tempo-admin
+      - /data/tempo-storage
       - /data/sandbox
 
 - name: provision infra

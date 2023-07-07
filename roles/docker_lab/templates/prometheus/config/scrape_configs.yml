@@ -19,8 +19,8 @@ scrape_configs:
         target_label: node_name
         replacement: $1
     scheme: https
-    tls_config:
-      ca_file: /tls/root-ca.pem
+    # tls_config:
+    #   ca_file: /tls/root-ca.pem
     static_configs:
       - targets:
           - "traefik.{{ inventory_hostname }}"
@@ -29,24 +29,24 @@ scrape_configs:
     relabel_configs:
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: application
         replacement: $1
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: node_name
         replacement: $2
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: kubernetes_pod_name
         replacement: $1-$2
       - target_label: namespace
         replacement: o11y
     scheme: https
-    tls_config:
-      ca_file: /tls/root-ca.pem
+    # tls_config:
+    #   ca_file: /tls/root-ca.pem
     static_configs:
       - targets:
           - "loki.{{ inventory_hostname }}"
@@ -62,17 +62,17 @@ scrape_configs:
         replacement: activemq-artemis
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: node_name
         replacement: $2
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: kubernetes_pod_name
         replacement: activemq-artemis-$2
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: statefulset_kubernetes_io_pod_name
         replacement: activemq-artemis-$2
       - target_label: broker
@@ -88,24 +88,24 @@ scrape_configs:
     relabel_configs:
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: application
         replacement: $1
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: node_name
         replacement: $2
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: kubernetes_pod_name
         replacement: $1-$2
       - target_label: namespace
         replacement: camel
     scheme: https
-    tls_config:
-      ca_file: /tls/root-ca.pem
+    # tls_config:
+    #   ca_file: /tls/root-ca.pem
     static_configs:
       - targets:
           - "bqueue.{{ inventory_hostname }}"
@@ -116,23 +116,37 @@ scrape_configs:
     relabel_configs:
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
-        target_label: application
+        regex: '(.+?)\.(.+?)\.(.*)'
+        target_label: app_kubernetes_io_part_of
         replacement: $1
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
-        target_label: application
+        regex: '(.+?)\.(.+?)\.(.*)'
+        target_label: app_kubernetes_io_name
         replacement: $1
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
-        target_label: node_name
+        regex: '(.+?)\.(.+?)\.(.*)'
+        target_label: app_kubernetes_io_component
+        replacement: $1
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+?)\.(.+?)\.(.*)'
+        target_label: app_kubernetes_io_instance
+        replacement: $1-master
+      - target_label: app_kubernetes_io_version
+        replacement: dev-snapshot
+      - target_label: cluster
+        replacement: local
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+?)\.(.+?)\.(.*)'
+        target_label: node
         replacement: $2
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
-        target_label: kubernetes_pod_name
+        regex: '(.+?)\.(.+?)\.(.*)'
+        target_label: pod
         replacement: $1-$2
       - target_label: namespace
         replacement: camel
@@ -145,17 +159,17 @@ scrape_configs:
     relabel_configs:
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: application
         replacement: $1
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: node_name
         replacement: $2
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: kubernetes_pod_name
         replacement: $1-$2
       - target_label: namespace
@@ -170,12 +184,12 @@ scrape_configs:
         replacement: kafka
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: node_name
         replacement: $2
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: kubernetes_pod_name
         replacement: kafka-$2
       - target_label: namespace
@@ -193,12 +207,12 @@ scrape_configs:
         replacement: kafka
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: node_name
         replacement: $2
       - source_labels: [__address__]
         separator: ";"
-        regex: '(.+)\.(.+)\.(.+)'
+        regex: '(.+?)\.(.+?)\.(.*)'
         target_label: kubernetes_pod_name
         replacement: zookeeper-$2
       - target_label: namespace
@@ -217,22 +231,22 @@ scrape_configs:
   #   relabel_configs:
   #     - source_labels: [__address__]
   #       separator: ";"
-  #       regex: '(.+)\.(.+)\.(.+)'
+  #       regex: '(.+?)\.(.+?)\.(.*)'
   #       target_label: application
   #       replacement: $1
   #     - source_labels: [__address__]
   #       separator: ";"
-  #       regex: '(.+)\.(.+)\.(.+)'
+  #       regex: '(.+?)\.(.+?)\.(.*)'
   #       target_label: application
   #       replacement: $1
   #     - source_labels: [__address__]
   #       separator: ";"
-  #       regex: '(.+)\.(.+)\.(.+)'
+  #       regex: '(.+?)\.(.+?)\.(.*)'
   #       target_label: node_name
   #       replacement: $2
   #     - source_labels: [__address__]
   #       separator: ";"
-  #       regex: '(.+)\.(.+)\.(.+)'
+  #       regex: '(.+?)\.(.+?)\.(.*)'
   #       target_label: kubernetes_pod_name
   #       replacement: $1-$2
   #     - target_label: namespace

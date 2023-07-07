@@ -11,14 +11,29 @@
 - name: "Read a dev tenant admin token content"
   shell: |
     cat /home/{{ansible_user}}/apps/mimir/data/dev_admin.token
-  register: dev_admin_token
+  register: mdev_admin_token
+  when: appconfig[appname].appstate == 'started'
+
+- name: "Read a dev tenant admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/loki/data/dev_admin.token
+  register: ldev_admin_token
+  when: appconfig[appname].appstate == 'started'
+
+- name: "Read a dev tenant admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/tempo/data/dev_admin.token
+  register: tdev_admin_token
   when: appconfig[appname].appstate == 'started'
 
 - name: Template {{appname}} config
   when:  appconfig[appname].appstate == 'started'
+  become: true
   ansible.builtin.template:
     src: templates/{{appname}}/config/agent.template.j2
     dest: "{{ appconfig[appname].config_folder }}/agent.yml"
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0644'
 
 
@@ -50,11 +65,19 @@
         "traefik.http.routers.{{appname}}-front-end-receiver.entrypoints": "http",
         "traefik.http.routers.{{appname}}-front-end-receiver.tls": "false",
         "traefik.http.routers.{{appname}}-front-end-receiver.rule": "Host(`{{appname}}-front-end-receiver.{{inventory_hostname}}`)",
+
+        "traefik.http.services.{{appname}}-grpc-otlp-traces.loadbalancer.server.port": "4317",
+        "traefik.http.services.{{appname}}-grpc-otlp-traces.loadbalancer.server.scheme": "h2c",
+        "traefik.http.routers.{{appname}}-grpc-otlp-traces.service": "{{appname}}-grpc-otlp-traces",
+        "traefik.http.routers.{{appname}}-grpc-otlp-traces.entrypoints": "https",
+        "traefik.http.routers.{{appname}}-grpc-otlp-traces.tls": "true",
+        "traefik.http.routers.{{appname}}-grpc-otlp-traces.rule": "Host(`{{appname}}-grpc-otlp-traces.{{inventory_hostname}}`)",
       }
     volumes:
       - /home/{{ ansible_user }}/apps/{{appname}}/config/agent.yml:/etc/agent/agent.yml:ro
       - /home/{{ ansible_user }}/apps/{{appname}}/data:/data:rw
-      - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/tls/root-ca.pem:ro
+      # - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/tls/root-ca.pem:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
