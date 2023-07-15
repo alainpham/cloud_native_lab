@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 32,
+  "id": 58,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -57,7 +57,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${datasource}"
       },
       "description": "",
       "fieldConfig": {
@@ -146,16 +146,16 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.2",
+      "pluginVersion": "10.0.1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count (CamelRoutesRunning_routes{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\"})",
+          "expr": "count (\n    camel_routes_running_routes{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        camelContext=\"$context\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\", \n        app_kubernetes_io_version=\"$version\"\n    }\n)",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -166,11 +166,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(CamelRoutesRunning_routes{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\"}) / sum(CamelRoutesAdded_routes{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\"})*100",
+          "expr": "sum(\n    camel_routes_running_routes{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        camelContext=\"$context\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\",\n        app_kubernetes_io_version=\"$version\"\n    }\n) \n/ \nsum(\n    camel_routes_added_routes{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        camelContext=\"$context\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\",\n        app_kubernetes_io_version=\"$version\"\n    }\n)\n*\n100",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -181,11 +181,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max(CamelRoutesAdded_routes{job=\"$job\",namespace=\"$namespace\",camelContext=\"$context\"})",
+          "expr": "max(\n    camel_routes_added_routes{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        camelContext=\"$context\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\",\n        app_kubernetes_io_version=\"$version\"\n    }\n)",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -201,7 +201,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${datasource}"
       },
       "description": "Shows completed exchanges of the camel context in the time range",
       "fieldConfig": {
@@ -247,15 +247,15 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.2",
+      "pluginVersion": "10.0.1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(CamelExchangesTotal_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\"}[$__range]))",
+          "expr": "sum(\n    increase(\n        camel_exchanges_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\",\n            app_kubernetes_io_version=\"$version\"\n        }[$__range]\n    )\n)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -271,7 +271,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${datasource}"
       },
       "description": "",
       "fieldConfig": {
@@ -343,15 +343,15 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.2",
+      "pluginVersion": "10.0.1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (camelContext) (increase(CamelExchangesFailed_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\"}[$__range]))",
+          "expr": "sum by (camelContext) (\n    increase(\n        camel_exchanges_failed_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\",\n            app_kubernetes_io_version=\"$version\"\n        }[$__range]\n    )\n)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -363,10 +363,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (camelContext) (increase(CamelExchangesFailed_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\"}[$__range])) / sum by (camelContext) (increase(CamelExchangesTotal_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\"}[$__range]))",
+          "expr": "sum by (camelContext) (\n    increase(\n        camel_exchanges_failed_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\",\n            app_kubernetes_io_version=\"$version\"\n        }[$__range])\n    ) \n/ \nsum by (camelContext) (\n    increase(\n        camel_exchanges_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\",\n            app_kubernetes_io_version=\"$version\"\n        }[$__range]\n    )\n)*100",
           "hide": false,
           "legendFormat": "__auto",
           "range": true,
@@ -379,7 +379,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -467,11 +467,12 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (node_name) (process_cpu_usage{job=~\"$job\",namespace=\"$namespace\",$app_label=~\"$app\"})",
-          "legendFormat": "__auto",
+          "expr": "sum by(node) (\n    process_cpu_usage{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\",\n        app_kubernetes_io_version=\"$version\"\n    }\n)",
+          "interval": "",
+          "legendFormat": "{{label_name}}",
           "range": true,
           "refId": "A"
         }
@@ -482,7 +483,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -570,25 +571,25 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (kubernetes_pod_name,$app_label) (jvm_memory_used_bytes{job=~\"$job\",namespace=\"$namespace\",$app_label=~\"$app\", area=\"heap\"}) / sum by (kubernetes_pod_name,$app_label) (jvm_memory_max_bytes{job=~\"$job\",namespace=\"$namespace\",$app_label=~\"$app\", area=\"heap\"})",
+          "expr": "sum by (pod) (\n    jvm_memory_used_bytes{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\",\n        app_kubernetes_io_version=\"$version\",\n        area=\"heap\"\n    }\n) \n/ \nsum by (pod) (\n    jvm_memory_max_bytes{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\",\n        app_kubernetes_io_version=\"$version\",\n        area=\"heap\"\n    }\n)",
           "format": "time_series",
-          "legendFormat": "{{kubernetes_pod_name}} heap",
+          "legendFormat": "{{pod}} heap",
           "range": true,
           "refId": "A"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (kubernetes_pod_name,$app_label) (jvm_memory_used_bytes{job=~\"$job\",namespace=\"$namespace\",$app_label=~\"$app\", area=\"nonheap\"}) / sum by (kubernetes_pod_name,$app_label) (jvm_memory_max_bytes{job=~\"$job\",namespace=\"$namespace\",$app_label=~\"$app\", area=\"nonheap\"})",
+          "expr": "sum by (pod) (\n    jvm_memory_used_bytes{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\",\n        app_kubernetes_io_version=\"$version\",\n        area=\"nonheap\"\n    }\n) \n/ \nsum by (pod) (\n    jvm_memory_max_bytes{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\",\n        app_kubernetes_io_version=\"$version\",\n        area=\"nonheap\"\n    }\n)",
           "format": "time_series",
           "hide": false,
-          "legendFormat": "{{kubernetes_pod_name}} nonheap",
+          "legendFormat": "{{pod}} nonheap",
           "range": true,
           "refId": "B"
         }
@@ -600,9 +601,8 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${datasource}"
       },
-      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -610,7 +610,9 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
             "inspect": false
           },
           "mappings": [],
@@ -626,8 +628,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "short"
+          }
         },
         "overrides": [
           {
@@ -639,6 +640,18 @@
               {
                 "id": "custom.hidden",
                 "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "node"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Node Name"
               }
             ]
           },
@@ -672,8 +685,12 @@
                 "id": "color"
               },
               {
-                "id": "custom.displayMode",
-                "value": "lcd-gauge"
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "lcd",
+                  "type": "gauge",
+                  "valueDisplayMode": "color"
+                }
               },
               {
                 "id": "thresholds",
@@ -685,7 +702,7 @@
                       "value": null
                     },
                     {
-                      "color": "#EAB839",
+                      "color": "yellow",
                       "value": 0.6
                     },
                     {
@@ -694,18 +711,10 @@
                     }
                   ]
                 }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "node_name"
-            },
-            "properties": [
+              },
               {
-                "id": "displayName",
-                "value": "Node Name"
+                "id": "decimals",
+                "value": 1
               }
             ]
           }
@@ -717,45 +726,43 @@
         "x": 18,
         "y": 1
       },
-      "id": 285,
-      "links": [],
+      "id": 498,
       "options": {
+        "cellHeight": "sm",
         "footer": {
-          "enablePagination": false,
+          "countRows": false,
           "fields": "",
           "reducer": [
             "sum"
           ],
           "show": false
         },
-        "showHeader": true,
-        "sortBy": []
+        "showHeader": true
       },
-      "pluginVersion": "9.3.2",
+      "pluginVersion": "10.0.1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count by (node_name) (CamelRoutesRunning_routes{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\"})\n",
+          "expr": "count by (node) (\n    camel_routes_running_routes{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        camelContext=\"$context\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\", \n        app_kubernetes_io_version=\"$version\"\n    }\n)\n",
           "format": "table",
-          "hide": false,
           "instant": true,
-          "intervalFactor": 1,
+          "legendFormat": "__auto",
           "range": false,
           "refId": "Pod Count"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (node_name) (process_cpu_usage{job=~\"$job\",namespace=\"$namespace\",$app_label=~\"$app\"})",
+          "expr": "sum by (node) (\n    process_cpu_usage{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\", \n        app_kubernetes_io_version=\"$version\"\n    }\n)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -769,7 +776,7 @@
         {
           "id": "joinByField",
           "options": {
-            "byField": "node_name",
+            "byField": "node",
             "mode": "outer"
           }
         }
@@ -779,7 +786,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -823,15 +830,15 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.2",
+      "pluginVersion": "10.0.1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(CamelExchangesInflight{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\"})",
+          "expr": "sum(\n    camel_exchanges_inflight{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        camelContext=\"$context\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\",\n        app_kubernetes_io_version=\"$version\"\n    }\n)",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -858,13 +865,14 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -881,7 +889,7 @@
       },
       "gridPos": {
         "h": 13,
-        "w": 9,
+        "w": 7,
         "x": 0,
         "y": 8
       },
@@ -900,15 +908,15 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.2",
+      "pluginVersion": "10.0.1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (routeId) (irate(CamelExchangesTotal_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__rate_interval]))",
+          "expr": "sum by (routeId) (\n    irate(\n        camel_exchanges_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__rate_interval]\n    )\n)",
           "legendFormat": "{{routeId}}",
           "range": true,
           "refId": "A"
@@ -920,7 +928,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${datasource}"
       },
       "description": "",
       "fieldConfig": {
@@ -945,7 +953,7 @@
       "gridPos": {
         "h": 13,
         "w": 9,
-        "x": 9,
+        "x": 7,
         "y": 8
       },
       "id": 434,
@@ -966,17 +974,17 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.2",
+      "pluginVersion": "10.0.1",
       "repeatDirection": "v",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (routeId) (increase (CamelRoutePolicy_seconds_sum{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range])) \n \n/ \n \nsum by (routeId) (increase (CamelRoutePolicy_seconds_count{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range]))",
+          "expr": "sum by (routeId) (\n    increase (\n        camel_route_policy_seconds_sum{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    )\n) \n \n/ \n \nsum by (routeId) (\n    increase (\n        camel_route_policy_seconds_count{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    )\n)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -992,7 +1000,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1024,8 +1032,8 @@
       },
       "gridPos": {
         "h": 13,
-        "w": 6,
-        "x": 18,
+        "w": 8,
+        "x": 16,
         "y": 8
       },
       "id": 337,
@@ -1041,21 +1049,24 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.3.2",
+      "pluginVersion": "10.0.1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (routeId) (increase(CamelExchangesFailed_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range])) / sum by (routeId) (increase(CamelExchangesTotal_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range]))",
+          "exemplar": false,
+          "expr": "sum by (routeId) (\n    increase(\n        camel_exchanges_failed_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    )\n) \n/ \nsum by (routeId) (\n    increase(\n        camel_exchanges_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    ) > 0\n)",
+          "instant": true,
           "legendFormat": "{{routeId}}",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
       "title": "Errors : Failure Rates",
+      "transformations": [],
       "type": "gauge"
     },
     {
@@ -1075,9 +1086,9 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
-          "description": "Show the numbers of exchanges per second for a camel route",
+          "description": "Show the numbers of exchanges per second for camel route $route",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1089,7 +1100,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1124,17 +1136,17 @@
             },
             "textMode": "auto"
           },
-          "pluginVersion": "9.3.1",
+          "pluginVersion": "10.0.1",
           "repeat": "route",
           "repeatDirection": "v",
           "targets": [
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "grafanacloud-prom"
+                "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(irate(CamelExchangesTotal_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__rate_interval]))",
+              "expr": "sum(\n    irate(\n        camel_exchanges_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__rate_interval]\n    )\n)",
               "format": "table",
               "instant": true,
               "intervalFactor": 1,
@@ -1142,13 +1154,13 @@
               "refId": "A"
             }
           ],
-          "title": "Ex/sec $route",
+          "title": "Ex/sec",
           "type": "stat"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1191,7 +1203,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   }
                 ]
               },
@@ -1226,10 +1239,10 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "grafanacloud-prom"
+                "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum by (camelContext) (irate(CamelExchangesTotal_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__rate_interval]))",
+              "expr": "sum by (camelContext) (\n    irate(\n        camel_exchanges_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__rate_interval]\n    )\n)",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "__auto",
@@ -1243,7 +1256,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1285,7 +1298,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1324,10 +1338,10 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "grafanacloud-prom"
+                "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum by (kubernetes_pod_name) (irate(CamelExchangesTotal_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__rate_interval]))",
+              "expr": "sum by (pod) (\n    irate(\n        camel_exchanges_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__rate_interval]\n    )\n)",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "__auto",
@@ -1341,7 +1355,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "description": "",
           "fieldConfig": {
@@ -1390,7 +1404,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   }
                 ]
               },
@@ -1425,10 +1440,10 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "grafanacloud-prom"
+                "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum by (routeId) (increase(CamelExchangesFailed_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range])) / sum by (routeId) (increase(CamelExchangesTotal_total{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range]))",
+              "expr": "sum by (routeId) (\n    increase(\n        camel_exchanges_failed_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    )\n) \n/ \nsum by (routeId) (\n    increase(\n        camel_exchanges_total{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    )\n)",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "__auto",
@@ -1442,7 +1457,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "description": "Current number of inflight exchanges",
           "fieldConfig": {
@@ -1466,7 +1481,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1501,18 +1517,18 @@
             },
             "textMode": "auto"
           },
-          "pluginVersion": "9.3.1",
+          "pluginVersion": "10.0.1",
           "repeat": "route",
           "repeatDirection": "v",
           "targets": [
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "grafanacloud-prom"
+                "uid": "${datasource}"
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (camelContext) (CamelExchangesInflight{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"})",
+              "expr": "sum by (camelContext) (\n    camel_exchanges_inflight{\n        job=~\"$job\",\n        cluster=\"$cluster\",\n        namespace=\"$namespace\",\n        camelContext=\"$context\",\n        app_kubernetes_io_part_of=\"$part_of\",\n        app_kubernetes_io_name=\"$app_name\",\n        app_kubernetes_io_component=\"$component\",\n        app_kubernetes_io_instance=\"$instance\", \n        app_kubernetes_io_version=\"$version\",\n        routeId=~\"$route\"\n    }\n)",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 1,
@@ -1527,7 +1543,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1569,7 +1585,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1608,10 +1625,10 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "grafanacloud-prom"
+                "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum by (kubernetes_pod_name) (CamelExchangesInflight{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"})",
+              "expr": "sum by (kubernetes_pod_name) (camel_exchanges_inflight{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "{{kubernetes_pod_name}}",
@@ -1652,7 +1669,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "description": "Average execution time for a route",
           "fieldConfig": {
@@ -1665,7 +1682,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1700,18 +1718,18 @@
             },
             "textMode": "auto"
           },
-          "pluginVersion": "9.3.1",
+          "pluginVersion": "10.0.1",
           "repeat": "route",
           "repeatDirection": "v",
           "targets": [
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "grafanacloud-prom"
+                "uid": "${datasource}"
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (camelContext) (increase (CamelRoutePolicy_seconds_sum{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range])) \n \n/ \n \nsum by (camelContext) (increase (CamelRoutePolicy_seconds_count{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range]))",
+              "expr": "sum by (camelContext) (\n    increase (\n        camel_route_policy_seconds_sum{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    )\n) \n\n/ \n\nsum by (camelContext) (\n    increase (\n        camel_route_policy_seconds_count{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    )\n)",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -1727,7 +1745,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1771,7 +1789,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1810,10 +1829,10 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "grafanacloud-prom"
+                "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum by (camelContext) (increase (CamelRoutePolicy_seconds_sum{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range])) \n \n/ \n \nsum by (camelContext) (increase (CamelRoutePolicy_seconds_count{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range]))",
+              "expr": "sum by (camelContext) (\n    increase (\n        camel_route_policy_seconds_sum{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    )\n) \n \n/ \n \nsum by (camelContext) (\n    increase (\n        camel_route_policy_seconds_count{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    )\n)",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "__auto",
@@ -1827,7 +1846,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1871,7 +1890,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1910,10 +1930,10 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "grafanacloud-prom"
+                "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum by (kubernetes_pod_name) (increase (CamelRoutePolicy_seconds_sum{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range])) \n \n/ \n \nsum by (kubernetes_pod_name) (increase (CamelRoutePolicy_seconds_count{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"}[$__range]))",
+              "expr": "sum by (pod) (\n    increase (\n        camel_route_policy_seconds_sum{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    )\n) \n \n/ \n \nsum by (pod) (\n    increase (\n        camel_route_policy_seconds_count{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\"\n        }[$__range]\n    )\n)",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 1,
@@ -1927,7 +1947,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${datasource}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1936,7 +1956,9 @@
               },
               "custom": {
                 "align": "auto",
-                "displayMode": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
                 "inspect": false
               },
               "mappings": [],
@@ -1944,7 +1966,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1954,6 +1977,22 @@
               }
             },
             "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Avg Execution TIme"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "s"
+                  }
+                ]
+              },
               {
                 "matcher": {
                   "id": "byName",
@@ -1977,22 +2016,6 @@
                     "value": true
                   }
                 ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Value"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Avg Execution TIme"
-                  },
-                  {
-                    "id": "unit",
-                    "value": "s"
-                  }
-                ]
               }
             ]
           },
@@ -2006,7 +2029,9 @@
           "interval": "",
           "links": [],
           "options": {
+            "cellHeight": "sm",
             "footer": {
+              "countRows": false,
               "fields": "",
               "reducer": [
                 "sum"
@@ -2015,17 +2040,17 @@
             },
             "showHeader": true
           },
-          "pluginVersion": "9.3.1",
+          "pluginVersion": "10.0.1",
           "repeat": "route",
           "repeatDirection": "v",
           "targets": [
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "grafanacloud-prom"
+                "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum by (routeId,nodeId) (increase (CamelMessageHistory_seconds_sum{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\",nodeId=~\"$processor\"}[$__range])) \n/ \nsum by (routeId,nodeId) (increase (CamelMessageHistory_seconds_count{job=~\"$job\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\",nodeId=~\"$processor\"}[$__range]))\n",
+              "expr": "sum by (routeId,nodeId) (\n    increase (\n        camel_message_history_seconds_sum{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\",\n            nodeId=~\"$processor\"\n        }[$__range]\n    )\n) \n/ \nsum by (routeId,nodeId) (\n    increase (\n        camel_message_history_seconds_count{\n            job=~\"$job\",\n            cluster=\"$cluster\",\n            namespace=\"$namespace\",\n            camelContext=\"$context\",\n            app_kubernetes_io_part_of=\"$part_of\",\n            app_kubernetes_io_name=\"$app_name\",\n            app_kubernetes_io_component=\"$component\",\n            app_kubernetes_io_instance=\"$instance\", \n            app_kubernetes_io_version=\"$version\",\n            routeId=~\"$route\",\n            nodeId=~\"$processor\"\n        }[$__range]\n    )\n)\n",
               "format": "table",
               "hide": false,
               "instant": true,
@@ -2034,14 +2059,7 @@
             }
           ],
           "title": "Processor Execution Times - $route",
-          "transformations": [
-            {
-              "id": "merge",
-              "options": {
-                "reducers": []
-              }
-            }
-          ],
+          "transformations": [],
           "type": "table"
         }
       ],
@@ -2059,7 +2077,7 @@
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 37,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -2067,8 +2085,8 @@
       {
         "current": {
           "selected": true,
-          "text": "Prometheus-Mimir",
-          "value": "Prometheus-Mimir"
+          "text": "default",
+          "value": "default"
         },
         "hide": 0,
         "includeAll": false,
@@ -2093,7 +2111,7 @@
           "type": "prometheus",
           "uid": "grafanacloud-prom"
         },
-        "definition": "label_values(CamelRoutesRunning_routes{eventType=\"RouteEvent\"},job)",
+        "definition": "label_values(camel_routes_running_routes{eventType=\"RouteEvent\"},job)",
         "description": "",
         "hide": 0,
         "includeAll": true,
@@ -2102,13 +2120,40 @@
         "name": "job",
         "options": [],
         "query": {
-          "query": "label_values(CamelRoutesRunning_routes{eventType=\"RouteEvent\"},job)",
+          "query": "label_values(camel_routes_running_routes{eventType=\"RouteEvent\"},job)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "local",
+          "value": "local"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "grafanacloud-prom"
+        },
+        "definition": "label_values(camel_routes_running_routes{eventType=\"RouteEvent\"},cluster)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Cluster",
+        "multi": false,
+        "name": "cluster",
+        "options": [],
+        "query": {
+          "query": "label_values(camel_routes_running_routes{eventType=\"RouteEvent\"},cluster)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
         "type": "query"
       },
       {
@@ -2121,7 +2166,7 @@
           "type": "prometheus",
           "uid": "grafanacloud-prom"
         },
-        "definition": "label_values(CamelRoutesRunning_routes{eventType=\"RouteEvent\",job=~\"${job}\"},namespace)",
+        "definition": "label_values(camel_routes_running_routes{eventType=\"RouteEvent\",job=~\"${job}\",cluster=\"${cluster}\"},namespace)",
         "hide": 0,
         "includeAll": false,
         "label": "Namespace",
@@ -2129,8 +2174,8 @@
         "name": "namespace",
         "options": [],
         "query": {
-          "query": "label_values(CamelRoutesRunning_routes{eventType=\"RouteEvent\",job=~\"${job}\"},namespace)",
-          "refId": "StandardVariableQuery"
+          "query": "label_values(camel_routes_running_routes{eventType=\"RouteEvent\",job=~\"${job}\",cluster=\"${cluster}\"},namespace)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -2143,7 +2188,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "smoke-test-app",
           "value": "smoke-test-app"
         },
@@ -2151,7 +2196,7 @@
           "type": "prometheus",
           "uid": "grafanacloud-prom"
         },
-        "definition": "label_values(CamelRoutesRunning_routes{eventType=\"RouteEvent\",job=~\"${job}\",namespace=\"$namespace\"},camelContext)",
+        "definition": "label_values(camel_routes_running_routes{eventType=\"RouteEvent\",job=~\"${job}\",cluster=\"${cluster}\",namespace=\"$namespace\"},camelContext)",
         "hide": 0,
         "includeAll": false,
         "label": "Camel Context",
@@ -2159,8 +2204,8 @@
         "name": "context",
         "options": [],
         "query": {
-          "query": "label_values(CamelRoutesRunning_routes{eventType=\"RouteEvent\",job=~\"${job}\",namespace=\"$namespace\"},camelContext)",
-          "refId": "StandardVariableQuery"
+          "query": "label_values(camel_routes_running_routes{eventType=\"RouteEvent\",job=~\"${job}\",cluster=\"${cluster}\",namespace=\"$namespace\"},camelContext)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -2181,7 +2226,7 @@
           "type": "prometheus",
           "uid": "grafanacloud-prom"
         },
-        "definition": "label_values(CamelExchangesSucceeded_total{job=~\"${job}\",namespace=\"$namespace\",camelContext=\"$context\"},routeId)",
+        "definition": "label_values(camel_exchanges_succeeded_total{job=~\"${job}\",cluster=\"${cluster}\",namespace=\"$namespace\",camelContext=\"$context\"},routeId)",
         "hide": 0,
         "includeAll": true,
         "label": "Camel Route",
@@ -2189,8 +2234,8 @@
         "name": "route",
         "options": [],
         "query": {
-          "query": "label_values(CamelExchangesSucceeded_total{job=~\"${job}\",namespace=\"$namespace\",camelContext=\"$context\"},routeId)",
-          "refId": "StandardVariableQuery"
+          "query": "label_values(camel_exchanges_succeeded_total{job=~\"${job}\",cluster=\"${cluster}\",namespace=\"$namespace\",camelContext=\"$context\"},routeId)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -2211,7 +2256,7 @@
           "type": "prometheus",
           "uid": "grafanacloud-prom"
         },
-        "definition": "label_values(CamelMessageHistory_seconds_count{job=~\"${job}\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"},nodeId)",
+        "definition": "label_values(camel_message_history_seconds_count{job=~\"${job}\",cluster=\"${cluster}\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"},nodeId)",
         "hide": 0,
         "includeAll": true,
         "label": "Camel Processor",
@@ -2219,8 +2264,8 @@
         "name": "processor",
         "options": [],
         "query": {
-          "query": "label_values(CamelMessageHistory_seconds_count{job=~\"${job}\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"},nodeId)",
-          "refId": "StandardVariableQuery"
+          "query": "label_values(camel_message_history_seconds_count{job=~\"${job}\",cluster=\"${cluster}\",namespace=\"$namespace\",camelContext=\"$context\",routeId=~\"$route\"},nodeId)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -2232,49 +2277,140 @@
         "useTags": false
       },
       {
-        "current": {
-          "selected": true,
-          "text": "application",
-          "value": "application"
-        },
-        "description": "the label used to identify the application\nexamples : app.kubernetes.io/name, application, app..",
-        "hide": 0,
-        "label": "Application Label",
-        "name": "app_label",
-        "options": [
-          {
-            "selected": true,
-            "text": "application",
-            "value": "application"
-          }
-        ],
-        "query": "application",
-        "skipUrlSync": false,
-        "type": "textbox"
-      },
-      {
         "allValue": "",
         "current": {
           "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "text": "dev",
+          "value": "dev"
         },
         "datasource": {
           "type": "prometheus",
           "uid": "grafanacloud-prom"
         },
-        "definition": "label_values(CamelRoutesRunning_routes{job=~\"$job\",eventType=\"RouteEvent\",camelContext=\"$context\"},$app_label)",
+        "definition": "label_values(camel_routes_running_routes{job=~\"$job\",cluster=\"${cluster}\",eventType=\"RouteEvent\",camelContext=\"$context\"},app_kubernetes_io_part_of)",
         "hide": 0,
-        "includeAll": true,
-        "label": "Application Name",
-        "multi": true,
-        "name": "app",
+        "includeAll": false,
+        "label": "Part of",
+        "multi": false,
+        "name": "part_of",
         "options": [],
         "query": {
-          "query": "label_values(CamelRoutesRunning_routes{job=~\"$job\",eventType=\"RouteEvent\",camelContext=\"$context\"},$app_label)",
-          "refId": "StandardVariableQuery"
+          "query": "label_values(camel_routes_running_routes{job=~\"$job\",cluster=\"${cluster}\",eventType=\"RouteEvent\",camelContext=\"$context\"},app_kubernetes_io_part_of)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 2,
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "",
+        "current": {
+          "selected": false,
+          "text": "dev",
+          "value": "dev"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "grafanacloud-prom"
+        },
+        "definition": "label_values(camel_routes_running_routes{job=~\"$job\",cluster=\"${cluster}\",eventType=\"RouteEvent\",camelContext=\"$context\"},app_kubernetes_io_name)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Name",
+        "multi": false,
+        "name": "app_name",
+        "options": [],
+        "query": {
+          "query": "label_values(camel_routes_running_routes{job=~\"$job\",cluster=\"${cluster}\",eventType=\"RouteEvent\",camelContext=\"$context\"},app_kubernetes_io_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "",
+        "current": {
+          "selected": false,
+          "text": "dev",
+          "value": "dev"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "grafanacloud-prom"
+        },
+        "definition": "label_values(camel_routes_running_routes{job=~\"$job\",cluster=\"${cluster}\",eventType=\"RouteEvent\",camelContext=\"$context\"},app_kubernetes_io_component)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Component",
+        "multi": false,
+        "name": "component",
+        "options": [],
+        "query": {
+          "query": "label_values(camel_routes_running_routes{job=~\"$job\",cluster=\"${cluster}\",eventType=\"RouteEvent\",camelContext=\"$context\"},app_kubernetes_io_component)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "",
+        "current": {
+          "selected": true,
+          "text": "dev-master",
+          "value": "dev-master"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "grafanacloud-prom"
+        },
+        "definition": "label_values(camel_routes_running_routes{job=~\"$job\",cluster=\"${cluster}\",eventType=\"RouteEvent\",camelContext=\"$context\"},app_kubernetes_io_instance)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Instance",
+        "multi": false,
+        "name": "instance",
+        "options": [],
+        "query": {
+          "query": "label_values(camel_routes_running_routes{job=~\"$job\",cluster=\"${cluster}\",eventType=\"RouteEvent\",camelContext=\"$context\"},app_kubernetes_io_instance)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "",
+        "current": {
+          "selected": false,
+          "text": "dev-snapshot",
+          "value": "dev-snapshot"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "grafanacloud-prom"
+        },
+        "definition": "label_values(camel_routes_running_routes{job=~\"$job\",cluster=\"${cluster}\",eventType=\"RouteEvent\",camelContext=\"$context\"},app_kubernetes_io_version)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Version",
+        "multi": false,
+        "name": "version",
+        "options": [],
+        "query": {
+          "query": "label_values(camel_routes_running_routes{job=~\"$job\",cluster=\"${cluster}\",eventType=\"RouteEvent\",camelContext=\"$context\"},app_kubernetes_io_version)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -2314,6 +2450,6 @@
   "timezone": "",
   "title": "Apache Camel - Context view",
   "uid": "apache-camel-micrometer",
-  "version": 2,
+  "version": 11,
   "weekStart": ""
 }

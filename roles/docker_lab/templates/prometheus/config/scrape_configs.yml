@@ -89,17 +89,36 @@ scrape_configs:
       - source_labels: [__address__]
         separator: ";"
         regex: '(.+?)\.(.+?)\.(.*)'
-        target_label: application
+        target_label: app_kubernetes_io_part_of
         replacement: $1
       - source_labels: [__address__]
         separator: ";"
         regex: '(.+?)\.(.+?)\.(.*)'
-        target_label: node_name
+        target_label: app_kubernetes_io_name
+        replacement: $1
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+?)\.(.+?)\.(.*)'
+        target_label: app_kubernetes_io_component
+        replacement: $1
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+?)\.(.+?)\.(.*)'
+        target_label: app_kubernetes_io_instance
+        replacement: $1-master
+      - target_label: app_kubernetes_io_version
+        replacement: dev-snapshot
+      - target_label: cluster
+        replacement: dockerhost
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+?)\.(.+?)\.(.*)'
+        target_label: node
         replacement: $2
       - source_labels: [__address__]
         separator: ";"
         regex: '(.+?)\.(.+?)\.(.*)'
-        target_label: kubernetes_pod_name
+        target_label: pod
         replacement: $1-$2
       - target_label: namespace
         replacement: camel

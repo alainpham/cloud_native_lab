@@ -38,11 +38,11 @@
 
         # observability
         # - cadvisor
-        # - prometheus
-        # - loki
+        - prometheus
         # - mimir
-        - grafana-agent
+        # - loki
         # - tempo
+        - grafana-agent
         # - grafana-alpha
         # - grafana
         # - grafana-enterprise

@@ -120,7 +120,7 @@ images:
 
   # platform essentials
   # https://hub.docker.com/r/portainer/portainer-ce/tags?page=1&name=2.
-  portainer-ce: portainer/portainer-ce:2.18.3
+  portainer-ce: portainer/portainer-ce:2.18.4
   # https://hub.docker.com/_/registry/tags?page=1&name=2.
   registry: docker.io/registry:2.8.2 # docker.io/registry:2.8.2
   # https://hub.docker.com/r/joxit/docker-registry-ui/tags?page=1&name=2.
@@ -140,7 +140,7 @@ images:
   web-shop: alainpham/web-shop:1.8
   shopping-cart: alainpham/shopping-cart:1.3
   products: alainpham/products:otel-1.3
-  smoke-test-app: alainpham/smoke-test-app:2.0.0
+  smoke-test-app: alainpham/smoke-test-app:2.0.2
   serve: philippgille/serve:0.3.0
 
   # Misc
