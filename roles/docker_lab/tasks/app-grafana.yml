@@ -7,6 +7,26 @@
     name: docker_lab
     tasks_from: infra-provision
 
+
+- name: "Read a mimir dev tenant admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/mimir/data/dev_admin.token
+  register: mdev_admin_token
+  when: appconfig[appname].appstate == 'started'
+
+- name: "Read a loki dev tenant admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/loki/data/dev_admin.token
+  register: ldev_admin_token
+  when: appconfig[appname].appstate == 'started'
+
+- name: "Read a tempo dev tenant admin token content"
+  shell: |
+    cat /home/{{ansible_user}}/apps/tempo/data/dev_admin.token
+  register: tdev_admin_token
+  when: appconfig[appname].appstate == 'started'
+
+
 - name: Template {{appname}} config
   when:  appconfig[appname].appstate == 'started'
   become: true

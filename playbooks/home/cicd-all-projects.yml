@@ -1,7 +1,7 @@
 ---
 - name: build java bytecode on x86 machines
   hosts:
-    - awon.lan
+    - awon.cpss.duckdns.org
   serial: 1
   vars_files:
     - ../vars/appcicd.yml
@@ -16,8 +16,8 @@
 
 - name: build & push containers to registry
   hosts:
-    - awon.lan
-    - bbee.lan
+    - awon.cpss.duckdns.org
+    - bbee.cpss.duckdns.org
   vars_files:
     - ../vars/appcicd.yml
   tasks:
@@ -31,7 +31,7 @@
 
 - name: push multi arch manifest
   hosts:
-    - awon.lan
+    - awon.cpss.duckdns.org
   vars_files:
     - ../vars/appcicd.yml
   tasks:

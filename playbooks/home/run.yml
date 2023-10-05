@@ -1,65 +1,44 @@
 ---
-# - name: mvp networking
-#   hosts:
-#     - mvp
-#   vars:
-#     global_recreate: true
-#     global_appstate: started
-#     global_purge: true
-#   vars_files:
-#     - ../vars/images.yml
-#     - ../vars/dockerappconfig.yml
-#   tasks:
-#     - include_role:
-#         name: docker_lab
-#         tasks_from: app-{{ rolesvar }}
-#       loop:
-#         - traefik
-#         - portainer
-#         - cadvisor
-#       loop_control:
-#         loop_var: rolesvar
-
-# - name: awon utils
-#   hosts:
-#     - awon.lan
-#   vars:
-#     global_recreate: true
-#     global_appstate: started
-#     global_purge: true
-#   vars_files:
-#     - ../vars/images.yml
-#     - ../vars/dockerappconfig.yml
-#   tasks:
-#     - include_role:
-#         name: docker_lab
-#         tasks_from: app-{{ rolesvar }}
-#       loop:
-#         - registry
-#         - regui
-#         - minio
-#         - reposilite
-#       loop_control:
-#         loop_var: rolesvar
-
-- name: awon homelab services
+- name: build java bytecode on x86 machines
   hosts:
-    - awon.lan
-  vars:
-    global_recreate: true
-    global_appstate: started
-    global_purge: true
+    - awon.cpss.duckdns.org
+  serial: 1
   vars_files:
-    - ../vars/global.yml
-    - ../vars/images.yml
-    - ../vars/homelabappconfig.yml
+    - ../vars/appcicd.yml
   tasks:
     - include_role:
-        name: home_lab
-        tasks_from: app-{{ rolesvar }}
+        name: docker_lab
+        tasks_from: cicd-java-build
       loop:
-        # - plex
-        - teddycast
-        # - rentman
+        - smoke-test-app
+      loop_control:
+        loop_var: rolesvar
+
+- name: build & push containers to registry
+  hosts:
+    - awon.cpss.duckdns.org
+    - bbee.cpss.duckdns.org
+  vars_files:
+    - ../vars/appcicd.yml
+  tasks:
+    - include_role:
+        name: docker_lab
+        tasks_from: cicd-container-push
+      loop:
+        - smoke-test-app
+      loop_control:
+        loop_var: rolesvar
+
+- name: push multi arch manifest
+  hosts:
+    - awon.cpss.duckdns.org
+  vars_files:
+    - ../vars/appcicd.yml
+  tasks:
+    - include_role:
+        name: docker_lab
+        tasks_from: cicd-container-manifest
+      loop:
+        - smoke-test-app
       loop_control:
         loop_var: rolesvar

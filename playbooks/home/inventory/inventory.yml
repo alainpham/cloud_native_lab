@@ -1,56 +1,19 @@
 ---
 x86:
   hosts:
-    work.lan:
+    aphm.duckdns.org:
       ansible_connection: ssh
       ansible_user: apham
       ansible_python_interpreter: /usr/bin/python3
       arch: linux-amd64
-    hpel.lan:
-      ansible_connection: ssh
-      ansible_user: apham
-      ansible_python_interpreter: /usr/bin/python3
-      arch: linux-amd64
-    asus.lan:
-      ansible_connection: ssh
-      ansible_user: apham
-      ansible_python_interpreter: /usr/bin/python3
-      arch: linux-amd64
-    hppa.lan:
-      ansible_connection: ssh
-      ansible_user: apham
-      ansible_python_interpreter: /usr/bin/python3
-      arch: linux-amd64
-    leol.lan:
-      ansible_connection: ssh
-      ansible_user: apham
-      ansible_python_interpreter: /usr/bin/python3
-      arch: linux-amd64
-    awon.lan:
-      ansible_connection: ssh
-      ansible_user: apham
-      ansible_python_interpreter: /usr/bin/python3
-      arch: linux-amd64
-    fuja.lan:
-      ansible_connection: ssh
-      ansible_user: apham
-      ansible_python_interpreter: /usr/bin/python3
-      arch: linux-amd64
-    fujb.lan:
+    awon.cpss.duckdns.org:
       ansible_connection: ssh
       ansible_user: apham
       ansible_python_interpreter: /usr/bin/python3
       arch: linux-amd64
 arm:
   hosts:
-    cipi.lan:
-      ansible_host: 192.168.8.254
-      ansible_connection: ssh
-      ansible_user: apham
-      ansible_python_interpreter: /usr/bin/python3
-      arch: linux-arm-v7
-      globaldnsserver: true
-    bbee.lan:
+    bbee.cpss.duckdns.org:
       ansible_connection: ssh
       ansible_user: apham
       ansible_python_interpreter: /usr/bin/python3

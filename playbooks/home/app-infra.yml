@@ -1,7 +1,8 @@
 ---
 - name: mvp networking
   hosts:
-    - mvp
+    - awon.cpss.duckdns.org
+    - bbee.cpss.duckdns.org
   vars:
     global_recreate: true
     global_appstate: started
@@ -23,7 +24,7 @@
 
 - name: awon utils
   hosts:
-    - awon.lan
+    - awon.cpss.duckdns.org
   vars:
     global_recreate: true
     global_appstate: started
@@ -46,7 +47,7 @@
 
 - name: awon homelab services
   hosts:
-    - awon.lan
+    - awon.cpss.duckdns.org
   vars:
     global_recreate: true
     global_appstate: started

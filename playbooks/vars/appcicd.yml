@@ -8,15 +8,15 @@ apps:
     dockerfile: src/main/docker/Dockerfile.multiarch
     artifact: target/quarkus-app
     type: folder
-    buildVersion: "1.2.1"
+    buildVersion: "2.0.3"
     nextVersion:
     subfolder: 
-    mavenrepo: https://admin:password@reposilite.awon.lan/releases
+    mavenrepo: https://admin:password@reposilite.awon.cpss.duckdns.org/releases
     arch:
       - linux-amd64
       - linux-arm-v7
     registries: 
-      - registry.awon.lan
+      - registry.awon.cpss.duckdns.org
       - docker.io/alainpham
   rentman:
     artifactId: rentman
@@ -30,12 +30,12 @@ apps:
     buildVersion: "1.0.3"
     nextVersion:
     subfolder: 
-    mavenrepo: https://admin:password@reposilite.awon.lan/releases
+    mavenrepo: https://admin:password@reposilite.awon.cpss.duckdns.org/releases
     arch:
       - linux-amd64
       - linux-arm-v7
     registries: 
-      - registry.awon.lan
+      - registry.awon.cpss.duckdns.org
   teddycast:
     artifactId: teddycast
     groupId: com.itteddy
@@ -48,10 +48,10 @@ apps:
     buildVersion: "1.0.6"
     nextVersion:
     subfolder: 
-    mavenrepo: https://admin:password@reposilite.awon.lan/releases
+    mavenrepo: https://admin:password@reposilite.awon.cpss.duckdns.org/releases
     arch:
       - linux-amd64
       - linux-arm-v7
     registries: 
-      - registry.awon.lan
+      - registry.awon.cpss.duckdns.org
 

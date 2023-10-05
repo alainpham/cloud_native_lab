@@ -1,9 +1,9 @@
 ---
 - name: Deploy smoke-test-app
   shell: |
-    envsubst < /root/install/smoke-test-app/smoke-test-app.envsubst.yml | kubectl delete -f -
-    envsubst < /root/install/smoke-test-app/smoke-test-app.envsubst.yml | kubectl apply -f -
+    envsubst < /root/install/smoke-test-app/deploy.envsubst.yaml | kubectl delete -f -
+    envsubst < /root/install/smoke-test-app/deploy.envsubst.yaml | kubectl apply -f -
   environment:
     localregistry: "{{ localregistry }}"
-    metrics_server: "{{ images['smoke-test-app'] | regex_replace('.*/(.*)','\\1')  }}"
+    smoke_test_app: "{{ images['smoke-test-app'] | regex_replace('.*/(.*)','\\1')  }}"
     kube_ingress_root_domain: "{{ kube_ingress_root_domain }}"

@@ -2,13 +2,13 @@
 
 
 OS : Debian 12
-Kubernetes version : 1.25.11
+Kubernetes version : 1.27.5
 
 ## Prepare hosts
 
 ```console
 
-export kube_version=1.25.11
+export kube_version=1.27.5
 
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
 overlay

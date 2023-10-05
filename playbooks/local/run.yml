@@ -16,7 +16,7 @@
         name: docker_lab
         tasks_from: app-{{ rolesvar }}
       loop:
-        # platform essentials
+        # # platform essentials
         # - traefik
         # - portainer
         # - registry
@@ -36,20 +36,20 @@
         # - kafka
         # - artemis
 
-        # observability
+        # # observability
         # - cadvisor
-        - prometheus
-        # - mimir
         # - loki
+        # - mimir
+        # - prometheus
+        # - grafana-agent
         # - tempo
-        - grafana-agent
-        # - grafana-alpha
         # - grafana
         # - grafana-enterprise
+        # - grafana-alpha
 
 
         # # functional apps
-        # - smoke-test-app
+        - smoke-test-app
         # - shopping-cart
         # - products
         # - web-shop
