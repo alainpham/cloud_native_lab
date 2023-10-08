@@ -73,8 +73,8 @@ images:
 
   # Grafana
   # https://hub.docker.com/r/grafana/grafana/tags?page=1&name=10.
-  grafana: grafana/grafana:10.0.3
-  grafana-enterprise: grafana/grafana-enterprise:10.0.3
+  grafana: grafana/grafana:10.1.4
+  grafana-enterprise: grafana/grafana-enterprise:10.1.4
   # https://hub.docker.com/r/grafana/grafana-oss-dev/tags?page=1&ordering=last_updated&name=10.1
   grafana-oss-dev: grafana/grafana-oss-dev:10.2.0-131062
   

@@ -426,9 +426,9 @@ appconfig:
     ports: 
 
     prom_url: http://mimir:8080/prometheus
-    gem_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/gem-app/4.0.3/grafana-metrics-enterprise-app-v4.0.3.zip
-    gel_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/gel-app/3.0.1/grafana-enterprise-logs-app-3.0.1.zip
-    get_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/get-app/2.0.0/grafana-enterprise-traces-app-2.0.0.zip
+    gem_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/gem-app/4.0.6/grafana-metrics-enterprise-app-v4.0.6.zip
+    gel_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/gel-app/3.1.1/grafana-enterprise-logs-app-3.1.1.zip
+    get_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/get-app/2.1.1/grafana-enterprise-traces-app-2.1.1.zip
 
   grafana-agent:
     ip: 172.18.0.75

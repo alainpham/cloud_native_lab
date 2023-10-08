@@ -195,6 +195,22 @@
             backendUrl: http://mimir:8080
             base64EncodedAccessTokenSet: true
             adminApiVersion: v3
+            # versionedInitStatus: 
+            #   4.0.6--2023-09-22:
+            #     reimportedDashboards;
+            #       - dashboards/mimir-compactor.json
+            #       - dashboards/mimir-reads.json
+            #       - dashboards/mimir-writes.json
+            #       - dashboards/mimir-compactor-resources.json
+            #       - dashboards/mimir-reads-resources.json
+            #       - dashboards/mimir-writes-resources.json
+            #       - dashboards/mimir-alertmanager.json
+            #       - dashboards/mimir-alertmanager-resources.json
+            #       - dashboards/mimir-config.json
+            #       - dashboards/mimir-object-store.json
+            #       - dashboards/mimir-overrides.json
+            #       - dashboards/mimir-queries.json
+            #       - dashboards/mimir-ruler.json
           secureJsonData:
             base64EncodedAccessToken: "{{ (':' + gemadmtoken.stdout) | b64encode }}"
         - type: grafana-enterprise-logs-app
@@ -279,7 +295,7 @@
       - /home/{{ansible_user}}/apps/{{ appname }}/config/plugins:/plugins:rw
       - /home/{{ansible_user}}/apps/{{ appname }}/config/graphics:/usr/share/grafana/public/graphics:ro
       # - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
-      - /home/{{ansible_user}}/apps/{{ appname }}/config/rbac/rbac.yml:/etc/grafana/provisioning/access-control/rbac.yml:ro
+      # - /home/{{ansible_user}}/apps/{{ appname }}/config/rbac/rbac.yml:/etc/grafana/provisioning/access-control/rbac.yml:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/branding:/usr/share/grafana/public/branding:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/license.jwt:/license/license.jwt:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/data/:/data:rw
@@ -340,14 +356,10 @@
     - id: 1
       name: teamadmin
     - id: 2
-      name: egypt
-    - id: 3
-      name: greece
-    - id: 4
       name: sre
-    - id: 5
+    - id: 3
       name: frontend
-    - id: 6
+    - id: 4
       name: backend
 
 - name: Create folder
@@ -370,14 +382,10 @@
     - id: 1
       name: teamadmin
     - id: 2
-      name: egypt
-    - id: 3
-      name: greece
-    - id: 4
       name: sre
-    - id: 5
+    - id: 3
       name: frontend
-    - id: 6
+    - id: 4
       name: backend
 
 - name: Create folder permissions
@@ -408,14 +416,10 @@
     - id: 1
       name: teamadmin
     - id: 2
-      name: egypt
-    - id: 3
-      name: greece
-    - id: 4
       name: sre
-    - id: 5
+    - id: 3
       name: frontend
-    - id: 6
+    - id: 4
       name: backend
 
 
@@ -438,18 +442,38 @@
     - id: 1
       name: teamadmin
     - id: 2
-      name: egypt
-    - id: 3
-      name: greece
-    - id: 4
       name: sre
-    - id: 5
+    - id: 3
       name: frontend
-    - id: 6
+    - id: 4
       name: backend
 
 
-- name: Create team
+- name: Create custom role
+  when:  appconfig[appname].appstate == 'started'
+  ignore_errors: true
+  uri:
+    url: "https://{{appname}}.{{inventory_hostname}}/api/access-control/roles"
+    user: "admin"
+    password: "password"
+    method: POST
+    body_format: json
+    body: 
+      name: 'Team Admin'
+      uid: 'teamadmin'
+      description: 'Create data sources for the team'
+      global: false
+      permissions:
+        - action: 'datasources:create'
+        - action: 'datasources:write'
+        - action: 'datasources.permissions:read'
+          scope: 'datasources:uid:*'
+        - action: 'datasources.permissions:write'
+          scope: 'datasources:uid:*'
+    force_basic_auth: yes
+    status_code: 200, 201
+
+- name: Assign custom role to teamadmin team
   when:  appconfig[appname].appstate == 'started'
   ignore_errors: true
   uri:
