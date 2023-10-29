@@ -128,7 +128,7 @@ images:
   # https://hub.docker.com/r/joxit/docker-registry-ui/tags?page=1&name=2.
   docker-registry-ui: joxit/docker-registry-ui:2.5.2
   # https://hub.docker.com/_/traefik/tags?page=1&name=2.
-  traefik: docker.io/traefik:2.10.4
+  traefik: docker.io/traefik:2.10.5
   
   # https://hub.docker.com/r/nginxinc/nginx-unprivileged/tags?page=1&name=1.
   nginx: nginxinc/nginx-unprivileged:1.24-alpine
