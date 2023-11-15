@@ -18,7 +18,7 @@
       loop:
         # platform essentials
         # - traefik
-        - portainer
+        # - portainer
         # - registry
         # - regui
         # - keycloak
@@ -38,18 +38,18 @@
 
         # # observability
         # - cadvisor
-        # - loki
-        # - mimir
-        # - prometheus
-        # - grafana-agent
-        # - tempo
+        - mimir
+        - loki
+        - tempo
+        - prometheus
+        - grafana-agent
         # - grafana
-        # - grafana-enterprise
+        - grafana-enterprise
         # - grafana-alpha
 
 
         # # functional apps
-        # - smoke-test-app
+        - smoke-test-app
         # - shopping-cart
         # - products
         # - web-shop

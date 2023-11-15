@@ -445,6 +445,22 @@ appconfig:
     exec_as_group: 0
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
+    ports:
+ 
+  grafana-agent-flow:
+    ip: 172.18.0.80
+
+    #v0.28.x has working faro traces
+    image: "{{ images['agent'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
     ports: 
 
   grafana-alpha: 

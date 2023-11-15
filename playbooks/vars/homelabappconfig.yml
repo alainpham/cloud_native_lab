@@ -15,7 +15,7 @@ appconfig:
     
   rentman:
     ip: 172.18.1.20
-    image: registry.awon.lan/rentman:1.0.3
+    image: registry.awon.cpss.duckdns.org/rentman:1.0.3
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -30,7 +30,7 @@ appconfig:
 
   teddycast:
     ip: 172.18.1.21
-    image: registry.awon.lan/teddycast:1.0.6
+    image: registry.awon.cpss.duckdns.org/teddycast:1.0.7
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"

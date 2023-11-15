@@ -19,31 +19,33 @@
 # localhost name resolution is handled within DNS itself.
 #	127.0.0.1       localhost
 #	::1             localhost
-172.31.179.28 aphm.duckdns.org
-172.31.179.28 traefik.aphm.duckdns.org
-172.31.179.28 portainer.aphm.duckdns.org
-172.31.179.28 registry.aphm.duckdns.org
-172.31.179.28 regui.aphm.duckdns.org
-172.31.179.28 keycloak.aphm.duckdns.org
-172.31.179.28 reposilite.aphm.duckdns.org
+172.31.243.54 aphm.duckdns.org
+172.31.243.54 dev.aphm.duckdns.org
 
-172.31.179.28 minio.aphm.duckdns.org
-172.31.179.28 adminer.aphm.duckdns.org
+172.31.243.54 traefik.aphm.duckdns.org
+172.31.243.54 portainer.aphm.duckdns.org
+172.31.243.54 registry.aphm.duckdns.org
+172.31.243.54 regui.aphm.duckdns.org
+172.31.243.54 keycloak.aphm.duckdns.org
+172.31.243.54 reposilite.aphm.duckdns.org
 
-172.31.179.28 kafdrop.aphm.duckdns.org
-172.31.179.28 artemis-console.aphm.duckdns.org
+172.31.243.54 minio.aphm.duckdns.org
+172.31.243.54 adminer.aphm.duckdns.org
+
+172.31.243.54 kafdrop.aphm.duckdns.org
+172.31.243.54 artemis-console.aphm.duckdns.org
 
 
 
-172.31.179.28 cadvisor.aphm.duckdns.org
-172.31.179.28 mimir.aphm.duckdns.org
-172.31.179.28 loki.aphm.duckdns.org
-172.31.179.28 tempo.aphm.duckdns.org
-172.31.179.28 prometheus.aphm.duckdns.org
-172.31.179.28 grafana-agent.aphm.duckdns.org
-172.31.179.28 grafana.aphm.duckdns.org
-172.31.179.28 grafana-enterprise.aphm.duckdns.org
+172.31.243.54 cadvisor.aphm.duckdns.org
+172.31.243.54 mimir.aphm.duckdns.org
+172.31.243.54 loki.aphm.duckdns.org
+172.31.243.54 tempo.aphm.duckdns.org
+172.31.243.54 prometheus.aphm.duckdns.org
+172.31.243.54 grafana-agent.aphm.duckdns.org
+172.31.243.54 grafana.aphm.duckdns.org
+172.31.243.54 grafana-enterprise.aphm.duckdns.org
 
-172.31.179.28 smoke-test-app.aphm.duckdns.org
+172.31.243.54 smoke-test-app.aphm.duckdns.org
 
 

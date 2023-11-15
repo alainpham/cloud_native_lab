@@ -79,10 +79,9 @@ images:
   grafana-oss-dev: grafana/grafana-oss-dev:10.2.0-131062
   
   # https://hub.docker.com/r/grafana/agent/tags?page=1&name=0.
-  agent: grafana/agent:v0.35.4  # latest is with faro enable v0.28.1
-
+  agent: grafana/agent:v0.37.3  # latest is with faro enable v0.28.1
   # https://hub.docker.com/r/prom/prometheus/tags?page=1&name=2.
-  prometheus: prom/prometheus:v2.46.0
+  prometheus: prom/prometheus:v2.47.2
   # https://hub.docker.com/r/prom/node-exporter/tags?page=1&name=1.
   node-exporter: prom/node-exporter:v1.6.1
   # https://hub.docker.com/r/prom/alertmanager/tags?page=1&name=0.

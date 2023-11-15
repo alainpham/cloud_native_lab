@@ -1,0 +1,154 @@
+logging {
+	level = "info"
+}
+
+// ##### Grafana Agent Health ########
+prometheus.exporter.agent "agent" {
+}
+
+prometheus.scrape "agent" {
+  job_name = "integrations/agent"
+  targets = prometheus.exporter.agent.agent.targets
+  scrape_interval = "15s"
+  forward_to = [prometheus.relabel.agent.receiver]
+  clustering {
+    enabled = true
+  }
+}
+
+prometheus.relabel "agent" {
+  forward_to = [prometheus.remote_write.grafana_cloud_prometheus.receiver]
+
+  rule {
+    action        = "replace"
+    target_label  = "instance"
+	  replacement = "grafana-agent-flow"
+  }
+  
+  rule {
+    action        = "replace"
+    target_label  = "job"
+	  replacement = "integrations/agent"
+  }
+
+}
+
+loki.source.docker "agent" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = [
+    {
+      "name" = "grafana-agent-flow",
+    }
+  ]
+  labels = {
+		"job" = "integrations/agent",
+		"unit" = "grafana-agent.service",
+		"agent_hostname" = "grafana-agent.service",
+  }
+  relabel_rules = {
+      rule = {
+        action        = "keep"
+        source_labels = ["__meta_docker_container_name"]
+        regex         = "/(.*)"
+        target_label = "instance"
+      }
+  }
+  forward_to    = [loki.process.agent.receiver]
+}
+
+
+loki.process "agent" {
+
+  forward_to = [loki.write.grafana_cloud_loki.receiver]
+
+  stage.regex {
+	expression = "(level=(?P<log_level>[\\s]*debug|warn|info|error))"
+  }
+
+  stage.labels  {
+    values = {
+      level = "log_level",
+    }
+  }
+
+
+}
+
+// ##### END Grafana Agent Health ########
+
+
+
+
+// ##### OTEL Collector for full App Observability ########
+
+otelcol.receiver.otlp "default" {
+	// configures the default grpc endpoint "0.0.0.0:4317"
+	grpc { }
+	// configures the default http/protobuf endpoint "0.0.0.0:4318"
+	http { }
+
+	output {
+		metrics = [otelcol.processor.batch.default.input]
+		logs    = [otelcol.processor.batch.default.input]
+		traces  = [otelcol.processor.batch.default.input]
+	}
+}
+
+otelcol.processor.batch "default" {
+	// https://grafana.com/docs/agent/latest/flow/reference/components/otelcol.processor.batch/
+	output {
+		metrics = [ otelcol.exporter.prometheus.otlp_to_prometheus.input ]
+		logs    = [ otelcol.exporter.loki.otlp_to_loki.input ]
+		traces  = [ otelcol.exporter.otlp.grafana_cloud_tempo.input ]
+	}
+}
+
+otelcol.exporter.loki "otlp_to_loki" {
+	// https://grafana.com/docs/agent/latest/flow/reference/components/otelcol.exporter.loki/
+	forward_to = [loki.write.grafana_cloud_loki.receiver]
+}
+
+otelcol.exporter.prometheus "otlp_to_prometheus" {
+	// https://grafana.com/docs/agent/latest/flow/reference/components/otelcol.exporter.prometheus/
+	forward_to = [prometheus.remote_write.grafana_cloud_prometheus.receiver]
+	include_scope_info = false
+}
+
+// ##### ENDOTEL Collector for full App Observability ########
+
+// grafana_cloud_prometheus
+
+prometheus.remote_write "grafana_cloud_prometheus" {
+	// https://grafana.com/docs/agent/latest/flow/reference/components/prometheus.remote_write/
+	endpoint {
+		url = "https://prometheus-prod-01-eu-west-0.grafana.net/api/prom/push"
+
+		basic_auth {
+			username = "1196154"
+			password = "glc_eyJvIjoiNjQxNDgyIiwibiI6ImFsYWlucGhtLW1ldHJpY3MtcHVzaGVyLWFnZW50LWZsb3ctdGVzdGVyIiwiayI6Im43Mks0RmF0UzhQMjA2U0RvdzJHME43eSIsIm0iOnsiciI6ImV1In19"
+		}
+	}
+}
+
+loki.write "grafana_cloud_loki" {
+	endpoint {
+		url = "https://logs-prod-eu-west-0.grafana.net/loki/api/v1/push"
+
+		basic_auth {
+			username = "697152"
+			password = "glc_eyJvIjoiNjQxNDgyIiwibiI6ImFsYWlucGhtLW1ldHJpY3MtcHVzaGVyLWFnZW50LWZsb3ctdGVzdGVyIiwiayI6Im43Mks0RmF0UzhQMjA2U0RvdzJHME43eSIsIm0iOnsiciI6ImV1In19"
+		}
+	}
+}
+
+otelcol.exporter.otlp "grafana_cloud_tempo" {
+	client {
+		endpoint = "tempo-eu-west-0.grafana.net:443"
+		auth     = otelcol.auth.basic.grafana_cloud_tempo.handler
+	}
+}
+
+otelcol.auth.basic "grafana_cloud_tempo" {
+	username = "696256"
+	password = "glc_eyJvIjoiNjQxNDgyIiwibiI6ImFsYWlucGhtLW1ldHJpY3MtcHVzaGVyLWFnZW50LWZsb3ctdGVzdGVyIiwiayI6Im43Mks0RmF0UzhQMjA2U0RvdzJHME43eSIsIm0iOnsiciI6ImV1In19"
+} 
