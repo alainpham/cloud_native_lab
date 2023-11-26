@@ -1,0 +1,230 @@
+logging {
+	level = "info"
+}
+
+// ##### Grafana Agent Health ########
+prometheus.exporter.agent "agent" {
+}
+
+prometheus.scrape "agent" {
+  job_name = "integrations/agent"
+  targets = prometheus.exporter.agent.agent.targets
+  scrape_interval = "15s"
+  forward_to = [prometheus.relabel.agent.receiver]
+  clustering {
+    enabled = true
+  }
+}
+
+prometheus.relabel "agent" {
+  forward_to = [prometheus.remote_write.grafana_cloud_prometheus.receiver]
+
+  rule {
+    action        = "replace"
+    target_label  = "instance"
+	replacement = "work-flow"
+  }
+  
+  rule {
+    action        = "replace"
+    target_label  = "job"
+	replacement = "integrations/agent"
+  }
+
+}
+
+loki.source.windowsevent "agent" {
+  eventlog_name = "Application"
+  bookmark_path = "C:/workdrive-windows/grafana-agent-flow/bookmarks-agent.xml"
+  use_incoming_timestamp = true
+  xpath_query = "*[System[Provider[@Name='Grafana Agent Flow']]]"
+  labels = {
+		"job" = "integrations/agent",
+		"instance" = "work-flow",
+		"agent_hostname" = "work",
+		"unit"="grafana-agent.service" ,
+  }
+  forward_to    = [loki.process.agent.receiver]
+}
+
+loki.process "agent" {
+
+  forward_to = [loki.write.grafana_cloud_loki.receiver]
+
+  stage.json {
+	expressions = {	
+		"message" = "message",
+	}
+  }
+
+  stage.regex {
+	expression = "(level=(?P<log_level>[\\s]*debug|warn|info|error))"
+  }
+
+  stage.labels  {
+	values = {
+	  level = "log_level",
+	}
+  }
+
+  stage.output {
+	source = "message"
+  }
+
+}
+
+// ##### END Grafana Agent Health ########
+
+// ##### Windows Exporter ########
+prometheus.exporter.windows "windows" {
+	enabled_collectors= ["iis","cpu","cs","logical_disk","net","os","service","system"]
+}
+
+prometheus.scrape "windows" {
+  job_name = "integrations/windows_exporter"
+  targets = prometheus.exporter.windows.windows.targets
+  scrape_interval = "15s"
+  forward_to = [prometheus.relabel.windows.receiver]
+  clustering {
+    enabled = true
+  }
+}
+
+prometheus.relabel "windows" {
+  forward_to = [prometheus.remote_write.grafana_cloud_prometheus.receiver]
+  
+  rule {
+    action        = "replace"
+    target_label  = "job"
+	replacement = "integrations/windows_exporter"
+  }
+
+  rule {
+    action        = "replace"
+    target_label  = "instance"
+	replacement = "work-flow"
+  }
+
+}
+
+
+loki.source.windowsevent "applicationevents" {
+  eventlog_name = "Application"
+  bookmark_path = "C:/workdrive-windows/grafana-agent-flow/bookmarks-app.xml"
+  use_incoming_timestamp = true
+  labels = {
+		"job" = "integrations/windows_exporter",
+		"instance" = "work-flow",
+		"agent_hostname" = "work",
+  }
+  forward_to    = [loki.process.windows.receiver]
+}
+
+loki.source.windowsevent "systemevents" {
+  eventlog_name = "System"
+  bookmark_path = "C:/workdrive-windows/grafana-agent-flow/bookmarks-sys.xml"
+  use_incoming_timestamp = true
+  labels = {
+		"job" = "integrations/windows_exporter",
+		"instance" = "work-flow",
+		"agent_hostname" = "work",
+  }
+  forward_to    = [loki.process.windows.receiver]
+}
+
+loki.process "windows" {
+
+  forward_to = [loki.write.grafana_cloud_loki.receiver]
+
+  stage.json {
+	expressions = {	
+		"source" = "source",
+	}
+  }
+
+  stage.labels  {
+	values = {
+	  source = "source",
+	}
+  }
+
+}
+
+// ##### END Windows Exporter ########
+
+
+
+
+// ##### OTEL Collector for full App Observability ########
+
+otelcol.receiver.otlp "default" {
+	// configures the default grpc endpoint "0.0.0.0:4317"
+	grpc { }
+	// configures the default http/protobuf endpoint "0.0.0.0:4318"
+	http { }
+
+	output {
+		metrics = [otelcol.processor.batch.default.input]
+		logs    = [otelcol.processor.batch.default.input]
+		traces  = [otelcol.processor.batch.default.input]
+	}
+}
+
+otelcol.processor.batch "default" {
+	// https://grafana.com/docs/agent/latest/flow/reference/components/otelcol.processor.batch/
+	output {
+		metrics = [ otelcol.exporter.prometheus.otlp_to_prometheus.input ]
+		logs    = [ otelcol.exporter.loki.otlp_to_loki.input ]
+		traces  = [ otelcol.exporter.otlp.grafana_cloud_tempo.input ]
+	}
+}
+
+otelcol.exporter.loki "otlp_to_loki" {
+	// https://grafana.com/docs/agent/latest/flow/reference/components/otelcol.exporter.loki/
+	forward_to = [loki.write.grafana_cloud_loki.receiver]
+}
+
+otelcol.exporter.prometheus "otlp_to_prometheus" {
+	// https://grafana.com/docs/agent/latest/flow/reference/components/otelcol.exporter.prometheus/
+	forward_to = [prometheus.remote_write.grafana_cloud_prometheus.receiver]
+	include_scope_info = false
+}
+
+// ##### ENDOTEL Collector for full App Observability ########
+
+// grafana_cloud_prometheus
+
+prometheus.remote_write "grafana_cloud_prometheus" {
+	// https://grafana.com/docs/agent/latest/flow/reference/components/prometheus.remote_write/
+	endpoint {
+		url = "https://prometheus-prod-01-eu-west-0.grafana.net/api/prom/push"
+
+		basic_auth {
+			username = "1226536"
+			password = "glc_eyJvIjoiOTYxNzkzIiwibiI6ImFsYWluLWVrcy1pbnRlZ3JhdGlvbi1wdWJsaXNoZXItZWtzLWludGVncmF0aW9uLXB1Ymxpc2hlciIsImsiOiJUTXBzbU1wTzlvODIwN1A0ODE5SUUwSEoiLCJtIjp7InIiOiJ1cyJ9fQ=="
+		}
+	}
+}
+
+loki.write "grafana_cloud_loki" {
+	endpoint {
+		url = "https://logs-prod-eu-west-0.grafana.net/loki/api/v1/push"
+
+		basic_auth {
+			username = "712343"
+			password = "glc_eyJvIjoiOTYxNzkzIiwibiI6ImFsYWluLWVrcy1pbnRlZ3JhdGlvbi1wdWJsaXNoZXItZWtzLWludGVncmF0aW9uLXB1Ymxpc2hlciIsImsiOiJUTXBzbU1wTzlvODIwN1A0ODE5SUUwSEoiLCJtIjp7InIiOiJ1cyJ9fQ=="
+		}
+	}
+}
+
+otelcol.exporter.otlp "grafana_cloud_tempo" {
+	client {
+		endpoint = "tempo-eu-west-0.grafana.net:443"
+		auth     = otelcol.auth.basic.grafana_cloud_tempo.handler
+	}
+}
+
+otelcol.auth.basic "grafana_cloud_tempo" {
+	username = "711447"
+	password = "glc_eyJvIjoiOTYxNzkzIiwibiI6ImFsYWluLWVrcy1pbnRlZ3JhdGlvbi1wdWJsaXNoZXItZWtzLWludGVncmF0aW9uLXB1Ymxpc2hlciIsImsiOiJUTXBzbU1wTzlvODIwN1A0ODE5SUUwSEoiLCJtIjp7InIiOiJ1cyJ9fQ=="
+} 
