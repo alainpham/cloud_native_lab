@@ -17,18 +17,18 @@
         tasks_from: app-{{ rolesvar }}
       loop:
         # platform essentials
-        # - traefik
-        # - portainer
-        # - registry
-        # - regui
-        # - keycloak
-        # - reposilite
+        - traefik
+        - portainer
+        - registry
+        - regui
+        - keycloak
+        - reposilite
 
         # # databases
-        # - postgres
-        # - mariadb
+        - postgres
+        - mariadb
         # - oracledb
-        # - minio
+        - minio
         # - memcached
         # - adminer
 

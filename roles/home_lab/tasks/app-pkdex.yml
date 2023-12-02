@@ -1,9 +1,8 @@
 ---
 - set_fact:
-    appname: teddycast
+    appname: pkdex
 
-
-- name: "Manage {{appname}} container state - {{appconfig[appname].appstate}} - {{appconfig[appname].ip}}"
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
     hostname: "{{appname}}"
@@ -15,17 +14,18 @@
     detach: true
     user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
     ports: "{{ appconfig[appname].ports | default(omit,true)}}"
-
-    command: 
+    
+    command:
     env:
     labels: |
       {
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "8080",
+        "traefik.http.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
-        "traefik.http.routers.{{appname}}.tls": "true"
+        "traefik.http.routers.{{appname}}.tls": "true",
+        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
       }
     volumes:
-      - /home/{{ ansible_user }}/apps/plex/data/videos/general-videos:/videos
-      - /home/{{ ansible_user }}/apps/plex/data/music:/music
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
