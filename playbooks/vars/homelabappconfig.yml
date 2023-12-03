@@ -44,7 +44,7 @@ appconfig:
 
   pkdex:
     ip: 172.18.1.22
-    image: registry.awon.cpss.duckdns.org/pkdex:1.0.0
+    image: registry.awon.cpss.duckdns.org/pkdex:1.0.2
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
