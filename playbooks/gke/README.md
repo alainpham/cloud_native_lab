@@ -113,7 +113,7 @@ sudo kubectl -n ingress-nginx create  secret tls nginx-ingress-tls  --key="$(pwd
 # on GKE you can create ingress using LB
 kubectl apply -f ingress-lb.yaml
 
-# with local clusters like kind or other supporting hostport you can use this
+# with local clusters like kind or minishift or other supporting hostport you can use this
 kubectl apply -f ingress-hostport.yaml
 ```
 
