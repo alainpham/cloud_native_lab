@@ -11,6 +11,7 @@
         tasks_from: cicd-java-build
       loop:
         - teddycast
+        - rentman
       loop_control:
         loop_var: rolesvar
 
@@ -26,6 +27,7 @@
         tasks_from: cicd-container-push
       loop:
         - teddycast
+        - rentman
       loop_control:
         loop_var: rolesvar
 
@@ -40,5 +42,6 @@
         tasks_from: cicd-container-manifest
       loop:
         - teddycast
+        - rentman
       loop_control:
         loop_var: rolesvar

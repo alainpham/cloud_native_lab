@@ -1,7 +1,7 @@
 ---
 appconfig:
   plex: 
-    image: linuxserver/plex:1.30.2
+    image: "{{ images['plex'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -15,7 +15,7 @@ appconfig:
     
   rentman:
     ip: 172.18.1.20
-    image: registry.awon.cpss.duckdns.org/rentman:1.0.3
+    image: "{{ images['rentman'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -30,7 +30,7 @@ appconfig:
 
   teddycast:
     ip: 172.18.1.21
-    image: registry.awon.cpss.duckdns.org/teddycast:1.0.7
+    image: "{{ images['teddycast'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -44,7 +44,7 @@ appconfig:
 
   pkdex:
     ip: 172.18.1.22
-    image: registry.awon.cpss.duckdns.org/pkdex:1.0.2
+    image: "{{ images['pkdex'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"

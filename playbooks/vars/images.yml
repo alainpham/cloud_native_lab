@@ -121,13 +121,13 @@ images:
 
   # platform essentials
   # https://hub.docker.com/r/portainer/portainer-ce/tags?page=1&name=2.
-  portainer-ce: portainer/portainer-ce:2.19.1
+  portainer-ce: portainer/portainer-ce:2.19.4
   # https://hub.docker.com/_/registry/tags?page=1&name=2.
-  registry: docker.io/registry:2.8.2 # docker.io/registry:2.8.2
+  registry: docker.io/registry:2.8.3 # docker.io/registry:2.8.2
   # https://hub.docker.com/r/joxit/docker-registry-ui/tags?page=1&name=2.
-  docker-registry-ui: joxit/docker-registry-ui:2.5.2
+  docker-registry-ui: joxit/docker-registry-ui:2.5.6
   # https://hub.docker.com/_/traefik/tags?page=1&name=2.
-  traefik: docker.io/traefik:2.10.5
+  traefik: docker.io/traefik:2.10.7
   
   # https://hub.docker.com/r/nginxinc/nginx-unprivileged/tags?page=1&name=1.
   nginx: nginxinc/nginx-unprivileged:1.24-alpine
@@ -135,7 +135,7 @@ images:
   # https://quay.io/repository/keycloak/keycloak?tab=tags&tag=latest
   keycloak: quay.io/keycloak/keycloak:22.0.1-2
   # https://hub.docker.com/r/dzikoysk/reposilite/tags?page=1&name=3.
-  reposilite: dzikoysk/reposilite:3.4.10
+  reposilite: dzikoysk/reposilite:3.5.0
 
   # Demo Applications
   web-shop: alainpham/web-shop:1.8
@@ -151,3 +151,12 @@ images:
   eclipse-temurin: docker.io/eclipse-temurin:17.0.8.1_1-jre
   # https://hub.docker.com/r/sonatype/nexus3/tags?page=1&name=3.
   nexus3: sonatype/nexus3:3.59.0
+
+  # Media server
+  # https://hub.docker.com/r/linuxserver/plex/tags?page=1&name=1.
+  plex: linuxserver/plex:1.32.8
+  teddycast: registry.awon.cpss.duckdns.org/teddycast:1.0.7
+  rentman: registry.awon.cpss.duckdns.org/rentman:1.0.3
+  pkdex: registry.awon.cpss.duckdns.org/pkdex:1.0.2
+
+  wireguard: linuxserver/wireguard:1.0.20210914

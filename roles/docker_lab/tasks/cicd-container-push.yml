@@ -34,7 +34,7 @@
   ansible.builtin.get_url:
     url: "{{ application.mavenrepo }}/{{ application.groupId | replace('.','/') }}/{{ application.artifactId }}/{{ application.buildVersion }}/{{ application.artifactId }}-{{ application.buildVersion }}.tar.gz"
     dest: "/home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/target/{{ application.artifactId }}-{{ application.buildVersion }}.tar.gz"
-  
+    timeout: 120
 
 - name: Unarchive artefacts
   when: application.type == 'folder'
