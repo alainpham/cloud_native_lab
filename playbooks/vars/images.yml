@@ -155,6 +155,8 @@ images:
   # Media server
   # https://hub.docker.com/r/linuxserver/plex/tags?page=1&name=1.
   plex: linuxserver/plex:1.32.8
+  # https://hub.docker.com/r/linuxserver/jellyfin/tags?page=1&name=10.
+  jellyfin: linuxserver/jellyfin:10.8.13
   teddycast: registry.awon.cpss.duckdns.org/teddycast:1.0.7
   rentman: registry.awon.cpss.duckdns.org/rentman:1.0.3
   pkdex: registry.awon.cpss.duckdns.org/pkdex:1.0.2

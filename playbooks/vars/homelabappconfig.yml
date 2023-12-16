@@ -13,6 +13,8 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
     
+
+
   rentman:
     ip: 172.18.1.20
     image: "{{ images['rentman'] }}"
@@ -45,6 +47,20 @@ appconfig:
   pkdex:
     ip: 172.18.1.22
     image: "{{ images['pkdex'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  jellyfin: 
+    ip: 172.18.1.23
+    image: "{{ images['jellyfin'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"

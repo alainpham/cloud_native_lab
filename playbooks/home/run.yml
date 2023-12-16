@@ -16,8 +16,7 @@
         name: home_lab
         tasks_from: app-{{ rolesvar }}
       loop:
-        - rentman
-        - pkdex
+        - jellyfin
       loop_control:
         loop_var: rolesvar
 
