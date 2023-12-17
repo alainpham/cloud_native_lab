@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    appname: jellyfin
+    appname: transmission
 
 - name: provision infra
   ansible.builtin.include_role:
@@ -23,7 +23,7 @@
       TZ: "Europe/Paris"
     labels: |
       {
-        "traefik.http.services.{{appname}}.loadbalancer.server.port": "8096",
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "9091",
         "traefik.http.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
         "traefik.http.routers.{{appname}}.tls": "true",
@@ -31,12 +31,10 @@
       }
     volumes:
       - "/home/{{ansible_user}}/apps/{{appname}}/config:/config:rw"
-      - "/home/{{ansible_user}}/apps/{{appname}}/data/data01:/data01:ro"
+      - "/home/{{ansible_user}}/apps/media-content/downloads:/downloads:rw"
+      - "/home/{{ansible_user}}/apps/media-content/watch:/watch:rw"
     networks_cli_compatible: yes
-    network_mode: primenet
-    networks:
-      - name: primenet
-        ipv4_address: "{{appconfig[appname].ip}}"
+    network_mode: container:wireguard-client
 
 - name: delete infra
   ansible.builtin.include_role:

@@ -162,3 +162,8 @@ images:
   pkdex: registry.awon.cpss.duckdns.org/pkdex:1.0.2
 
   wireguard: linuxserver/wireguard:1.0.20210914
+  transmission: linuxserver/transmission:4.0.5
+  radarr: linuxserver/radarr:5.1.3
+
+  # https://hub.docker.com/r/jc21/nginx-proxy-manager/tags?page=1&name=2.
+  nginx-proxy-manager: jc21/nginx-proxy-manager:2.10.4

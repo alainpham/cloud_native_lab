@@ -1,5 +1,22 @@
 ---
 appconfig:
+
+  nginx-proxy-manager:
+    ip: 172.18.1.100
+    image: "{{ images['nginx-proxy-manager'] }}"
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+      - "10.13.13.2:80:80"
+      - "10.13.13.2:443:443"
+      - "10.13.13.2:81:81"
+
   plex: 
     image: "{{ images['plex'] }}"
 
@@ -62,6 +79,45 @@ appconfig:
     ip: 172.18.1.23
     image: "{{ images['jellyfin'] }}"
 
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+      - "8096:8096"
+
+  wireguard-client: 
+    ip: 172.18.1.101
+    image: "{{ images['wireguard'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  transmission: 
+    image: "{{ images['transmission'] }}"
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  radarr: 
+    image: "{{ images['radarr'] }}"
     declare_hostname: false
     appstate: "{{ global_appstate }}"
     recreate: "{{ global_recreate }}"

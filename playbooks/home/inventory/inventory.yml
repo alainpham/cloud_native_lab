@@ -11,6 +11,12 @@ x86:
       ansible_user: apham
       ansible_python_interpreter: /usr/bin/python3
       arch: linux-amd64
+    waaa.duckdns.org:
+      ansible_connection: ssh
+      ansible_user: apham
+      ansible_python_interpreter: /usr/bin/python3
+      arch: linux-amd64
+    
 arm:
   hosts:
     bbee.cpss.duckdns.org:

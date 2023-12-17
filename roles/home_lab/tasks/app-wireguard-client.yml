@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    appname: jellyfin
+    appname: wireguard-client
 
 - name: provision infra
   ansible.builtin.include_role:
@@ -23,21 +23,19 @@
       TZ: "Europe/Paris"
     labels: |
       {
-        "traefik.http.services.{{appname}}.loadbalancer.server.port": "8096",
-        "traefik.http.routers.{{appname}}.service": "{{appname}}",
-        "traefik.http.routers.{{appname}}.entrypoints": "https",
-        "traefik.http.routers.{{appname}}.tls": "true",
-        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
+        "traefik.enable": "false",
       }
     volumes:
-      - "/home/{{ansible_user}}/apps/{{appname}}/config:/config:rw"
-      - "/home/{{ansible_user}}/apps/{{appname}}/data/data01:/data01:ro"
+      - "/home/{{ansible_user}}/apps/{{appname}}/config/sensitive:/config/wg_confs"
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
       - name: primenet
         ipv4_address: "{{appconfig[appname].ip}}"
-
+    sysctls:
+      net.ipv4.conf.all.src_valid_mark: 1
+    capabilities:
+      - NET_ADMIN
 - name: delete infra
   ansible.builtin.include_role:
     name: docker_lab

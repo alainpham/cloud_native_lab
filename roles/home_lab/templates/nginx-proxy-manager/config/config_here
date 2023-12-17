@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    appname: jellyfin
+    appname: wireguard-client
 
 - name: provision infra
   ansible.builtin.include_role:

@@ -1,5 +1,6 @@
 ---
 
+
 - name: awon homelab services
   hosts:
     - awon.cpss.duckdns.org
@@ -16,8 +17,6 @@
         name: home_lab
         tasks_from: app-{{ rolesvar }}
       loop:
-        - jellyfin
+        - transmission
       loop_control:
         loop_var: rolesvar
-
-
