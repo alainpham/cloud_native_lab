@@ -31,8 +31,8 @@
       }
     volumes:
       - "/home/{{ansible_user}}/apps/{{appname}}/config:/config:rw"
-      - "/home/{{ansible_user}}/apps/media-content/downloads:/downloads:rw"
-      - "/home/{{ansible_user}}/apps/media-content/watch:/watch:rw"
+      - "/mnt/extdrv01/apps/media-content:/data01:rw"
+      - "/mnt/extdrv02/apps/media-content:/data02:rw"
     networks_cli_compatible: yes
     network_mode: container:wireguard-client
 

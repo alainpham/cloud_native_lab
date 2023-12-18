@@ -24,8 +24,8 @@
         "traefik.http.routers.{{appname}}.tls": "true"
       }
     volumes:
-      - /home/{{ ansible_user }}/apps/plex/data/videos/general-videos:/videos
-      - /home/{{ ansible_user }}/apps/plex/data/music:/music
+      - /mnt/extdrv02/apps/media-content//videos/general-videos:/videos
+      - /mnt/extdrv01/apps/media-content/music:/music
     networks_cli_compatible: yes
     network_mode: primenet
     networks:

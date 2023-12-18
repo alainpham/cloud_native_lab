@@ -31,7 +31,8 @@
       }
     volumes:
       - "/home/{{ansible_user}}/apps/{{appname}}/config:/config:rw"
-      - "/home/{{ansible_user}}/apps/{{appname}}/data/data01:/data01:ro"
+      - "/mnt/extdrv01/apps/media-content:/data01:ro"
+      - "/mnt/extdrv02/apps/media-content:/data02:ro"
     networks_cli_compatible: yes
     network_mode: primenet
     networks:

@@ -17,6 +17,6 @@
         name: home_lab
         tasks_from: app-{{ rolesvar }}
       loop:
-        - transmission
+        - teddycast
       loop_control:
         loop_var: rolesvar
