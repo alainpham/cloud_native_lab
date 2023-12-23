@@ -40,3 +40,8 @@
   ansible.builtin.include_role:
     name: docker_lab
     tasks_from: infra-delete
+
+- name: delete infra
+  ansible.builtin.include_role:
+    name: docker_lab
+    tasks_from: infra-delete

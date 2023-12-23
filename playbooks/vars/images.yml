@@ -81,9 +81,9 @@ images:
   # https://hub.docker.com/r/grafana/agent/tags?page=1&name=0.
   agent: grafana/agent:v0.37.3  # latest is with faro enable v0.28.1
   # https://hub.docker.com/r/prom/prometheus/tags?page=1&name=2.
-  prometheus: prom/prometheus:v2.47.2
+  prometheus: prom/prometheus:v2.48.1
   # https://hub.docker.com/r/prom/node-exporter/tags?page=1&name=1.
-  node-exporter: prom/node-exporter:v1.6.1
+  node-exporter: prom/node-exporter:v1.7.0
   # https://hub.docker.com/r/prom/alertmanager/tags?page=1&name=0.
   alertmanager: prom/alertmanager:v0.25.0
   
@@ -159,7 +159,7 @@ images:
   jellyfin: linuxserver/jellyfin:10.8.13
   teddycast: registry.awon.cpss.duckdns.org/teddycast:1.0.7
   rentman: registry.awon.cpss.duckdns.org/rentman:1.0.3
-  pkdex: registry.awon.cpss.duckdns.org/pkdex:1.0.2
+  pkdex: registry.awon.cpss.duckdns.org/pkdex:1.0.3
 
   wireguard: linuxserver/wireguard:1.0.20210914
   transmission: linuxserver/transmission:4.0.5

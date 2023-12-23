@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    appname: smoke-test-app
+    appname: node-exporter
 
 - name: provision infra
   ansible.builtin.include_role:
@@ -10,7 +10,6 @@
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
-    hostname: "{{appname}}"
     image: "{{appconfig[appname].image}}"
     state: "{{ appconfig[appname].appstate }}"
     recreate: "{{ appconfig[appname].recreate }}"
@@ -19,27 +18,22 @@
     detach: true
     user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
     ports: "{{ appconfig[appname].ports | default(omit,true)}}"
-    command: 
+    command: --path.rootfs=/host --no-collector.ipvs --no-collector.btrfs --no-collector.infiniband --no-collector.xfs --no-collector.zfs	--collector.netdev.device-exclude="^(veth.*|cali.*|[a-f0-9]{15})$" --collector.filesystem.ignored-mount-points="^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|tmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
     env:
     labels: |
       {
-        "traefik.http.services.{{appname}}.loadbalancer.server.port": "8080",
-        "traefik.http.routers.{{appname}}.service": "{{appname}}",
-        "traefik.http.routers.{{appname}}.entrypoints": "https",
-        "traefik.http.routers.{{appname}}.tls": "true",
-        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
+        "traefik.enable": "false"
       }
     volumes:
+      - "/:/host:ro,rslave"
     networks_cli_compatible: yes
-    network_mode: primenet
-    networks:
-      - name: primenet
-        ipv4_address: "{{appconfig[appname].ip}}"
+    network_mode: host
+    pid_mode: host
 
 - name: Check if server is up
   when:  appconfig[appname].appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{inventory_hostname}}/q/health/ready"
+    url: "http://{{inventory_hostname}}:9100/metrics"
     method: GET
     status_code: 200
   register: result
