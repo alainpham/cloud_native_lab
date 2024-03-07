@@ -1,6 +1,6 @@
-- name: mvp rpi specific glcoud
+- name: awon homelab services
   hosts:
-    - bbee.cpss.duckdns.org
+    - awon.cpss.duckdns.org
   vars:
     global_recreate: true
     global_appstate: started
@@ -8,13 +8,12 @@
   vars_files:
     - ../vars/global.yml
     - ../vars/images.yml
-    - ../vars/dockerappconfig.yml
-    - ../vars/sensitive/secretappconfig.yml
+    - ../vars/homelabappconfig.yml
   tasks:
     - include_role:
-        name: docker_lab
+        name: home_lab
         tasks_from: app-{{ rolesvar }}
       loop:
-        - promgcloud
+        - jellyfin
       loop_control:
         loop_var: rolesvar

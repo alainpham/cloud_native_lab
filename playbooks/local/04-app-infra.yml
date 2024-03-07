@@ -19,39 +19,44 @@
         # platform essentials
         - traefik
         - portainer
+
+        # artifact repositories
         - registry
         - regui
-        - keycloak
         - reposilite
 
+        # identity
+        - keycloak
+
         # databases
-        - postgres
-        - mariadb
         - oracledb
-        - minio
-        - memcached
+        - mysql
+        - mariadb
+        - postgres
         - adminer
+
+        #storage
+        - minio
 
         # messaging
         - kafka
         - artemis
 
         # observability
+        - node-exporter
+        - promgcloud
+        - memcached
         - cadvisor
-        - loki
-        - mimir
         - prometheus
-        - grafana-agent
+        - mimir
+        - loki
         - tempo
-        - grafana
         - grafana-enterprise
-        - grafana-alpha
-
+        - grafana
+        - grafana-agent
+        - grafana-agent-flow
 
         # functional apps
         - smoke-test-app
-        - shopping-cart
-        - products
-        - web-shop
       loop_control:
         loop_var: rolesvar

@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    appname: oracledb
+    appname: wireguard-client
 
 - name: provision infra
   ansible.builtin.include_role:
@@ -10,24 +10,28 @@
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
-    hostname: "{{appname}}"
     image: "{{appconfig[appname].image}}"
     state: "{{ appconfig[appname].appstate }}"
     recreate: "{{ appconfig[appname].recreate }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
     ports: "{{ appconfig[appname].ports | default(omit,true)}}"
-    command: 
     env:
-      ORACLE_PWD: password
+      PUID: "{{ appconfig[appname].exec_as_user }}"
+      PGID: "{{ appconfig[appname].exec_as_group }}"
+      TZ: "Europe/Paris"
     labels: |
       {
-        "traefik.enable": "false",
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "8096",
+        "traefik.http.routers.{{appname}}.service": "{{appname}}",
+        "traefik.http.routers.{{appname}}.entrypoints": "https",
+        "traefik.http.routers.{{appname}}.tls": "true",
+        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
       }
     volumes:
-      - "{{ appconfig[appname].data_folder }}:/opt/oracle/oradata:rw"
+      - "/home/{{ansible_user}}/apps/{{appname}}/config:/config:rw"
+      - "/home/{{ansible_user}}/apps/{{appname}}/data/data01:/data01:ro"
     networks_cli_compatible: yes
     network_mode: primenet
     networks:

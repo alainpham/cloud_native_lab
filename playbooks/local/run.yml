@@ -16,42 +16,47 @@
         name: docker_lab
         tasks_from: app-{{ rolesvar }}
       loop:
-        # platform essentials
-        - traefik
-        - portainer
-        - registry
-        - regui
-        - keycloak
-        - reposilite
+        # # platform essentials
+        # - traefik
+        # - portainer
+
+        # # artifact repositories
+        # - registry
+        # - regui
+        # - reposilite
+
+        # # identity
+        # - keycloak
 
         # # databases
-        - postgres
-        - mariadb
         # - oracledb
-        - minio
-        # - memcached
+        # - mysql
+        # - mariadb
+        # - postgres
         # - adminer
+
+        # #storage
+        # - minio
 
         # # messaging
         # - kafka
         # - artemis
 
         # # observability
+        # - node-exporter
+        # - promgcloud
+        # - memcached
         # - cadvisor
-        - mimir
-        - loki
-        - tempo
-        - prometheus
-        - grafana-agent
-        # - grafana
+        # - prometheus
+        # - mimir
+        # - loki
+        # - tempo
         - grafana-enterprise
-        # - grafana-alpha
-
+        # - grafana
+        # - grafana-agent
+        # - grafana-agent-flow
 
         # # functional apps
-        - smoke-test-app
-        # - shopping-cart
-        # - products
-        # - web-shop
+        # - smoke-test-app
       loop_control:
         loop_var: rolesvar

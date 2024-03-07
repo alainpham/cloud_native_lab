@@ -1,140 +1,8 @@
 
 appconfig:
-  # functional apps from 20 to 30 ip range
-  shopping-cart:
-    ip: 172.18.0.21
-    image: "{{ images['shopping-cart'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 0
-    exec_as_group: 0
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  products:
-    ip: 172.18.0.22
-    image: "{{ images['products'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 0
-    exec_as_group: 0
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-
-  web-shop:
-    ip: 172.18.0.23
-    image: "{{ images['web-shop'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 0
-    exec_as_group: 0
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  squid: 
-    ip: 172.18.0.24
-    image: "{{ images['squid'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 0
-    exec_as_group: 0
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  smoke-test-app:
-    ip: 172.18.0.29
-    image: "{{ images['smoke-test-app'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 1000
-    exec_as_group: 1000
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  serve:
-    ip: 172.18.0.30
-    image: "{{ images['serve'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 1000
-    exec_as_group: 1000
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  # platform essentials
-  portainer: 
-    ip: 172.18.0.40
-    image: "{{ images['portainer-ce'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 0
-    exec_as_group: 0
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  nexus: 
-    ip: 172.18.0.41
-    image: "{{ images['nexus3'] }}"
-    
-  registry: 
-    ip: 172.18.0.42
-    image: "{{ images['registry'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 1000
-    exec_as_group: 1000
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  regui: 
-    ip: 172.18.0.45
-    image: "{{ images['docker-registry-ui'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 0
-    exec_as_group: 0
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
+  # platform essentials on 172.18.0.x
   traefik: 
-    ip: 172.18.0.43
+    ip: 172.18.0.2
     image: "{{ images['traefik'] }}"
 
     declare_hostname: false
@@ -150,25 +18,9 @@ appconfig:
       - "443:443"
       # - "8080:8080"
 
-  keycloak: 
-    ip: 172.18.0.48
-    image: "{{ images['keycloak'] }}"
-
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 1000
-    exec_as_group: 1000
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  reposilite: 
-    ip: 172.18.0.49
-    image: "{{ images['reposilite'] }}"
-
+  portainer: 
+    ip: 172.18.0.3
+    image: "{{ images['portainer-ce'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -180,16 +32,72 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
-  # databases
-  mysql: 
-    ip: 172.18.0.50
-    image: "{{ images['mysql'] }}"
 
+  # artifact repositories 172.18.1.x
+  registry: 
+    ip: 172.18.1.2
+    image: "{{ images['registry'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  regui: 
+    ip: 172.18.1.3
+    image: "{{ images['docker-registry-ui'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  reposilite: 
+    ip: 172.18.1.4
+    image: "{{ images['reposilite'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  # identity and access Management 172.18.2.x
+  keycloak: 
+    ip: 172.18.2.2
+    image: "{{ images['keycloak'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+
+  # databases 172.18.3.x
   oracledb: 
-    ip: 172.18.0.51 
+    ip: 172.18.3.2 
     image: "{{ images['oracledb'] }}"
 
-    declare_hostname: true
+    declare_hostname: false
     appstate: "{{ global_appstate }}"
     recreate: "{{ global_recreate }}"
     purge: "{{ global_purge }}"
@@ -198,12 +106,28 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
+      - "1521:1521"
+
+  mysql: 
+    ip: 172.18.3.3
+    image: "{{ images['mysql'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+      - "3305:3306"
 
   mariadb: 
-    ip: 172.18.0.52 
+    ip: 172.18.3.4 
     image: "{{ images['mariadb'] }}"
 
-    declare_hostname: true
+    declare_hostname: false
     appstate: "{{ global_appstate }}"
     recreate: "{{ global_recreate }}"
     purge: "{{ global_purge }}"
@@ -212,14 +136,13 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
+      - "3306:3306"
       
-  infinispan:
-    ip: 172.18.0.53 
   postgres: 
-    ip: 172.18.0.54
+    ip: 172.18.3.5
     image: "{{ images['postgres'] }}"
 
-    declare_hostname: true
+    declare_hostname: false
     appstate: "{{ global_appstate }}"
     recreate: "{{ global_recreate }}"
     purge: "{{ global_purge }}"
@@ -228,15 +151,10 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
+      - "5432:5432"
 
-  elastic:
-    ip: 172.18.0.55
-    image: "{{ images['elasticsearch'] }}"
-  kibana:
-    ip: 172.18.0.56
-    image: "{{ images['kibana'] }}"
   adminer:
-    ip: 172.18.0.57
+    ip: 172.18.3.6
     image: "{{ images['adminer'] }}"
     
     declare_hostname: false
@@ -249,8 +167,9 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
     
+  # storage 172.18.4.x
   minio:
-    ip: 172.18.0.58
+    ip: 172.18.4.2
     image: "{{ images['minio'] }}"
 
     declare_hostname: false
@@ -263,23 +182,9 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
-  memcached:
-    ip: 172.18.0.59
-    image: "{{ images['memcached'] }}"
-    
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 1000
-    exec_as_group: 1000
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  # messaging
+  # messaging 172.18.5.x
   zookeeper: 
-    ip: 172.18.0.61
+    ip: 172.18.5.2
     image: "{{ images['kafka'] }}"
 
     declare_hostname: false
@@ -293,7 +198,7 @@ appconfig:
     ports: 
 
   kafka: 
-    ip: 172.18.0.62
+    ip: 172.18.5.3
     image: "{{ images['kafka'] }}"
 
     declare_hostname: false
@@ -307,7 +212,7 @@ appconfig:
     ports: 
 
   kafdrop: 
-    ip: 172.18.0.63
+    ip: 172.18.5.4
     image: "{{ images['kafdrop'] }}"
 
     declare_hostname: false
@@ -321,7 +226,7 @@ appconfig:
     ports: 
 
   kafkaexporter:
-    ip: 172.18.0.64
+    ip: 172.18.5.5
     image: "{{ images['kafka'] }}"
 
     declare_hostname: false
@@ -334,22 +239,8 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
-  kafkaui: 
-    ip: 172.18.0.65
-    image: "{{ images['kafka-ui'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 1000
-    exec_as_group: 1000
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
   artemis: 
-    ip: 172.18.0.66
+    ip: 172.18.5.6
     image: "{{ images['artemis'] }}"
 
     declare_hostname: false
@@ -363,8 +254,23 @@ appconfig:
     ports: 
 
   # observability
-  prometheus: 
-    ip: 172.18.0.70
+
+  #only needed for 32 bits systems when grafana agent does not work.
+  node-exporter: 
+    image: "{{ images['node-exporter'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  promgcloud: 
+    ip: 172.18.6.2
     image: "{{ images['prometheus'] }}"
 
     declare_hostname: false
@@ -378,9 +284,38 @@ appconfig:
     ports: 
 
 
-  grafana: 
-    ip: 172.18.0.71
-    image: "{{ images['grafana'] }}"
+  memcached:
+    ip: 172.18.6.3
+    image: "{{ images['memcached'] }}"
+    
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+
+  cadvisor: 
+    ip: 172.18.6.4
+    image: "{{ images['cadvisor'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  prometheus: 
+    ip: 172.18.6.5
+    image: "{{ images['prometheus'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -392,9 +327,22 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
-    prom_url: http://mimir:8080/prometheus
+  mimir: 
+    ip: 172.18.6.6
+    image: "{{ images['enterprise-metrics'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
   loki: 
-    ip: 172.18.0.72
+    ip: 172.18.6.7
     image: "{{ images['enterprise-logs'] }}"
 
     declare_hostname: false
@@ -407,12 +355,22 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
-  promtail: 
-    ip: 172.18.0.73
-    image: "{{ images['promtail'] }}"
+  tempo: 
+    ip: 172.18.6.8
+    image: "{{ images['enterprise-traces'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
 
   grafana-enterprise: 
-    ip: 172.18.0.74
+    ip: 172.18.6.9
     image: "{{ images['grafana-enterprise'] }}"
 
     declare_hostname: false
@@ -431,10 +389,7 @@ appconfig:
     get_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/get-app/2.1.1/grafana-enterprise-traces-app-2.1.1.zip
 
   grafana-agent:
-    ip: 172.18.0.75
-    # image: grafana/agent:v0.30.2 
-
-    #v0.28.x has working faro traces
+    ip: 172.18.6.10
     image: "{{ images['agent'] }}"
 
     declare_hostname: false
@@ -448,9 +403,7 @@ appconfig:
     ports:
  
   grafana-agent-flow:
-    ip: 172.18.0.80
-
-    #v0.28.x has working faro traces
+    ip: 172.18.6.11
     image: "{{ images['agent'] }}"
 
     declare_hostname: false
@@ -463,80 +416,10 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
-  grafana-alpha: 
-    ip: 172.18.0.76
-    image: "{{ images['grafana-oss-dev'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 1000
-    exec_as_group: 1000
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-    prom_url: http://mimir:9090/prometheus
-
-  cadvisor: 
-    ip: 172.18.0.77
-    image: "{{ images['cadvisor'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 0
-    exec_as_group: 0
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  mimir: 
-    ip: 172.18.0.78
-    image: "{{ images['enterprise-metrics'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 1000
-    exec_as_group: 1000
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  tempo: 
-    ip: 172.18.0.79
-    image: "{{ images['enterprise-traces'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 1000
-    exec_as_group: 1000
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  node-exporter: 
-    image: "{{ images['node-exporter'] }}"
-
-    declare_hostname: false
-    appstate: "{{ global_appstate }}"
-    recreate: "{{ global_recreate }}"
-    purge: "{{ global_purge }}"
-    exec_as_user: 0
-    exec_as_group: 0
-    config_folder: "{{ config_folder_default }}"
-    data_folder: "{{ data_folder_default }}"
-    ports: 
-
-  promgcloud: 
-    ip: 172.18.0.79
-    image: "{{ images['prometheus'] }}"
+  # functional applications are on network 172.18.100.X
+  smoke-test-app:
+    ip: 172.18.100.2
+    image: "{{ images['smoke-test-app'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"

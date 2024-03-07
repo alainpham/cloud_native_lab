@@ -70,6 +70,7 @@
   until: result.status == 200
   retries: 60
   delay: 2
+  delegate_to: 127.0.0.1
 
 - name: delete infra
   ansible.builtin.include_role:

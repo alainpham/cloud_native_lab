@@ -33,12 +33,13 @@
       - "/home/{{ansible_user}}/apps/{{appname}}/config:/config:rw"
       - "/mnt/extdrv01/apps/media-content:/data01:ro"
       - "/mnt/extdrv02/apps/media-content:/data02:ro"
+      - "/mnt/extdrv03/apps/media-content:/data03:ro"
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
       - name: primenet
         ipv4_address: "{{appconfig[appname].ip}}"
-    memory: 2048m
+    memory: 6144m
 
 - name: delete infra
   ansible.builtin.include_role:
