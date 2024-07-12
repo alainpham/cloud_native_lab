@@ -27,7 +27,7 @@ apps:
     dockerfile: src/main/docker/Dockerfile.multiarch
     artifact: target/quarkus-app
     type: folder
-    buildVersion: "1.0.3"
+    buildVersion: "1.0.4"
     nextVersion:
     subfolder: 
     mavenrepo: https://admin:password@reposilite.awon.cpss.duckdns.org/releases

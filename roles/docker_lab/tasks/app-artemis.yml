@@ -7,7 +7,7 @@
     name: docker_lab
     tasks_from: infra-provision
 
-- name: "Manage {{appname}} container state - {{appconfig[appname].appstate}}"
+- name: "Manage artemis container state"
   docker_container:
     name: "{{appname}}"
     hostname: "{{appname}}"
@@ -19,10 +19,11 @@
     detach: true
     user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
     ports: "{{ appconfig[appname].ports | default(omit,true)}}"
-
     command: 
     env:
       JAVA_APPEND_ARG: "-Xms64M -Xmx128M"
+      ARTEMIS_USER: "admin"
+      ARTEMIS_PASSWORD: "password"
     labels: |
       {
         "traefik.enable": "true",
@@ -33,13 +34,15 @@
         "traefik.tcp.routers.{{appname}}.rule": "HostSNI(`{{appname}}.{{inventory_hostname}}`)",
         
         "traefik.http.services.{{appname}}-console.loadbalancer.server.port": "8161",
+        "traefik.http.services.{{appname}}-console.loadbalancer.server.scheme": "http",
         "traefik.http.routers.{{appname}}-console.service": "{{appname}}-console",
-        "traefik.http.routers.{{appname}}-console.entrypoints": "http",
-        "traefik.http.routers.{{appname}}-console.tls": "false",
+        "traefik.http.routers.{{appname}}-console.entrypoints": "https",
+        "traefik.http.routers.{{appname}}-console.tls": "true",
         "traefik.http.routers.{{appname}}-console.rule": "Host(`{{appname}}-console.{{inventory_hostname}}`)",
+
       }
     volumes:
-      - "/home/{{ansible_user}}/apps/{{appname}}/data:/home/appuser/broker/data:rw"
+      - "/home/{{ansible_user}}/apps/{{appname}}/data:/var/lib/artemis-instance:rw"
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
@@ -49,8 +52,11 @@
 - name: Check if server is up
   when:  appconfig[appname].appstate == 'started'
   uri:
-    url: "http://{{appname}}-console.{{inventory_hostname}}/metrics"
+    url: "https://{{appname}}-console.{{inventory_hostname}}/console/jolokia/read/org.apache.activemq.artemis:broker=*/Started"
     method: GET
+    user: admin
+    password: password
+    force_basic_auth: true
     status_code: 200
   register: result
   until: result.status == 200

@@ -33,6 +33,7 @@
       - "/home/{{ansible_user}}/apps/{{appname}}/config:/config:rw"
       - "/mnt/extdrv01/apps/media-content:/data01:rw"
       - "/mnt/extdrv02/apps/media-content:/data02:rw"
+      - "/mnt/extdrv03/apps/media-content:/data03:rw"
     networks_cli_compatible: yes
     network_mode: container:wireguard-client
 

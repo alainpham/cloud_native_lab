@@ -20,6 +20,26 @@
         # - traefik
         # - portainer
 
+        # #storage
+        # - minio
+
+        # # observability
+        # - node-exporter
+        # - promgcloud
+        # - memcached
+        # - cadvisor
+        # - prometheus
+        # - otel-collector
+        # - mimir
+        # - loki
+        # - tempo
+
+        # # grafana enterprise observability
+        # - gem
+        - gel
+        # - get
+        # - grafana-enterprise
+
         # # artifact repositories
         # - registry
         # - regui
@@ -35,26 +55,9 @@
         # - postgres
         # - adminer
 
-        # #storage
-        # - minio
-
         # # messaging
         # - kafka
         # - artemis
-
-        # # observability
-        # - node-exporter
-        # - promgcloud
-        # - memcached
-        # - cadvisor
-        # - prometheus
-        # - mimir
-        # - loki
-        # - tempo
-        - grafana-enterprise
-        # - grafana
-        # - grafana-agent
-        # - grafana-agent-flow
 
         # # functional apps
         # - smoke-test-app

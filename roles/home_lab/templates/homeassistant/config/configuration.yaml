@@ -1,0 +1,28 @@
+http:
+  use_x_forwarded_for: true
+  trusted_proxies: 
+    - 172.18.0.2
+mobile_app:
+sonos:
+  media_player:
+    advertise_addr: 192.168.8.100
+    hosts:
+      - 192.168.8.21
+light:
+- platform: cozylife
+  lights:
+  - ip: 192.168.8.53
+    did: 71481413249494aa85f7
+    pid: p93sfg
+    dmn: Smart Bulb Light
+    dpid: [1, 2, 3, 4, 5, 7, 8, 9, 13, 14]
+  - ip: 192.168.8.212
+    did: 7148143824949420dc71
+    pid: p93sfg
+    dmn: Smart Bulb Light
+    dpid: [1, 2, 3, 4, 5, 7, 8, 9, 13, 14]
+  - ip: 192.168.8.231
+    did: 714814132494942d2027
+    pid: p93sfg
+    dmn: Smart Bulb Light
+    dpid: [1, 2, 3, 4, 5, 7, 8, 9, 13, 14]

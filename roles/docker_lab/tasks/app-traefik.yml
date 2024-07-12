@@ -27,7 +27,7 @@
     group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0644'
 
-- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+- name: Manage {{appname}} container state
   docker_container:
     name: "{{appname}}"
     hostname: "{{appname}}"
@@ -48,6 +48,8 @@
         "traefik.http.routers.{{appname}}.entrypoints": "https",
         "traefik.http.routers.{{appname}}.tls": "true",
         "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
+        "traefik.http.routers.{{appname}}.middlewares": "{{appname}}_basicauth",
+        "traefik.http.middlewares.{{appname}}_basicauth.basicauth.users": "admin:$2a$12$FsjaX8Rga9djEkPZfUE1MOl6B.8.spiM1Mi95/62MzYiLeBrWgFDu",
       }
     volumes:
       - "/home/{{ansible_user}}/apps/{{appname}}/config/traefik.yml:/etc/traefik/traefik.yml:ro"
@@ -60,17 +62,16 @@
       - name: primenet
         ipv4_address: "{{appconfig[appname].ip}}"
 
-- name: Check if server is up
+- name: Check if {{appname}} server is up
   when:  appconfig[appname].appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{inventory_hostname}}/metrics"
+    url: "http://{{appconfig[appname].ip}}:8080/metrics"
     method: GET
     status_code: 200
   register: result
   until: result.status == 200
   retries: 60
   delay: 2
-  delegate_to: 127.0.0.1
 
 - name: delete infra
   ansible.builtin.include_role:

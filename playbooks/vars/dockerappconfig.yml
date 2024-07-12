@@ -94,7 +94,7 @@ appconfig:
 
   # databases 172.18.3.x
   oracledb: 
-    ip: 172.18.3.2 
+    ip: 172.18.3.2
     image: "{{ images['oracledb'] }}"
 
     declare_hostname: false
@@ -106,7 +106,7 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
-      - "1521:1521"
+      # - "1521:1521"
 
   mysql: 
     ip: 172.18.3.3
@@ -121,7 +121,7 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
-      - "3305:3306"
+      # - "3305:3306"
 
   mariadb: 
     ip: 172.18.3.4 
@@ -136,7 +136,7 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
-      - "3306:3306"
+      # - "3306:3306"
       
   postgres: 
     ip: 172.18.3.5
@@ -151,7 +151,7 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
-      - "5432:5432"
+      # - "5432:5432"
 
   adminer:
     ip: 172.18.3.6
@@ -252,6 +252,7 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
+      - 61616:61616
 
   # observability
 
@@ -327,9 +328,9 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
-  mimir: 
+  gem: 
     ip: 172.18.6.6
-    image: "{{ images['enterprise-metrics'] }}"
+    image: "{{ images['gem'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -341,9 +342,9 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
-  loki: 
+  gel: 
     ip: 172.18.6.7
-    image: "{{ images['enterprise-logs'] }}"
+    image: "{{ images['gel'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -355,9 +356,9 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
-  tempo: 
+  get: 
     ip: 172.18.6.8
-    image: "{{ images['enterprise-traces'] }}"
+    image: "{{ images['get'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -388,9 +389,9 @@ appconfig:
     gel_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/gel-app/3.1.1/grafana-enterprise-logs-app-3.1.1.zip
     get_app_url: https://reposilite.aphm.duckdns.org/releases/com/grafana/get-app/2.1.1/grafana-enterprise-traces-app-2.1.1.zip
 
-  grafana-agent:
+  grafana-alloy:
     ip: 172.18.6.10
-    image: "{{ images['agent'] }}"
+    # image: "{{ images['agent'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -402,16 +403,16 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports:
  
-  grafana-agent-flow:
-    ip: 172.18.6.11
-    image: "{{ images['agent'] }}"
+  otel-collector:
+    ip: 172.18.6.12
+    image: "{{ images['otel-collector'] }}"
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
     recreate: "{{ global_recreate }}"
     purge: "{{ global_purge }}"
-    exec_as_user: 0
-    exec_as_group: 0
+    exec_as_user: 1000
+    exec_as_group: 1000
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 

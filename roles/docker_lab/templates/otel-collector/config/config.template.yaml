@@ -1,0 +1,46 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+exporters:
+  otlp:
+    endpoint: {{ secretappconfig.gcloud.tempo_url }}
+    tls:
+      insecure: false
+    auth:
+      authenticator: basicauth/traces
+  loki:
+    endpoint: {{ secretappconfig.gcloud.loki_url }}
+    auth:
+      authenticator: basicauth/logs
+  prometheusremotewrite:
+    endpoint: {{ secretappconfig.gcloud.mimir_url }}
+    auth:
+      authenticator: basicauth/metrics
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [otlp]
+    metrics:
+      receivers: [otlp]
+      exporters: [prometheusremotewrite]
+    logs:
+      receivers: [otlp]
+      exporters: [loki]
+  extensions: [basicauth/traces, basicauth/metrics, basicauth/logs, health_check]
+extensions:
+  health_check:
+  basicauth/traces:
+    client_auth:
+      username: {{secretappconfig.gcloud.tempo_usr}}
+      password:  {{secretappconfig.gcloud.key}}
+  basicauth/metrics:
+    client_auth:
+      username: {{secretappconfig.gcloud.mimir_usr}}
+      password: {{secretappconfig.gcloud.key}}
+  basicauth/logs:
+    client_auth:
+      username: {{secretappconfig.gcloud.loki_usr}}
+      password: {{secretappconfig.gcloud.key}}

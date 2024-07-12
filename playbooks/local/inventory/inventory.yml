@@ -13,6 +13,12 @@ vms:
       ansible_user: cloud-user
       ansible_python_interpreter: /usr/bin/python3
       arch: linux-amd64
+    demvm.duckdns.org:
+      ansible_connection: ssh
+      ansible_user: alain_pham_grafana_com
+      ansible_python_interpreter: /usr/bin/python3
+      arch: linux-amd64
+
 
 selected:
   # children:

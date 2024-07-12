@@ -1,0 +1,95 @@
+# enterprise params
+
+auth:
+  type: enterprise
+
+license:
+  path: /license/license.jwt
+
+cluster_name: gem
+
+admin_api:
+  leader_election:
+    enabled: true
+    ring:
+      kvstore:
+        store: memberlist
+
+admin_client:
+  storage:
+    backend: s3
+    s3:
+      endpoint: minio:9000
+      bucket_name: gem-admin
+      access_key_id: admin
+      secret_access_key: password
+      insecure: true
+
+# OSS params
+target: all,alertmanager
+
+ingester:
+  ring:
+    min_ready_duration: 1s
+    replication_factor: 1
+
+blocks_storage:
+  backend: s3
+  s3:
+    endpoint: minio:9000
+    bucket_name: gem-tsdb
+    access_key_id: admin
+    secret_access_key: password
+    insecure: true
+  tsdb:
+    dir: /data/tsdb/
+  bucket_store:
+    sync_dir: /data/tsdb-sync/
+
+memberlist:
+  join_members: 
+    - gem
+
+activity_tracker:
+  filepath: /data/metrics-activity.log
+
+ruler: 
+  rule_path: /data/data-ruler/
+
+ruler_storage:
+  backend: s3
+  s3:
+    endpoint: minio:9000
+    bucket_name: gem-ruler
+    access_key_id: admin
+    secret_access_key: password
+    insecure: true
+
+alertmanager:
+  data_dir: /data/alertmanager
+  enable_api: true
+  fallback_config_file: /mnt/config/alertmanager_fallback_config.yaml
+
+alertmanager_storage:
+  backend: s3
+  s3:
+    endpoint: minio:9000
+    bucket_name: gem-alertmanager
+    access_key_id: admin
+    secret_access_key: password
+    insecure: true
+
+  # backend: filesystem
+  # filesystem:
+  #   dir: /data/backendalertmanager
+
+
+compactor:
+  data_dir: /data/data-compactor/
+  compaction_interval: 30m
+
+server:
+  log_level: info
+
+limits:
+  cardinality_analysis_enabled: true

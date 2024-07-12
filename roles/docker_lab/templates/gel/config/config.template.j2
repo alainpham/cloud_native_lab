@@ -1,19 +1,19 @@
 admin_client:
   storage:
     s3:
-      bucket_name: loki-admin
+      bucket_name: gel-admin
 auth:
   type: enterprise
 auth_enabled: true
-cluster_name: loki
+cluster_name: gel
 common:
-  compactor_address: http://loki:3100
-  path_prefix: /data/loki
+  compactor_address: http://gel:3100
+  path_prefix: /data/
   replication_factor: 1
   storage:
     s3:
       endpoint: minio:9000
-      bucketnames: loki-chunks
+      bucketnames: gel-chunks
       access_key_id: admin
       secret_access_key: password
       insecure: true
@@ -23,7 +23,6 @@ compactor:
   delete_batch_size: 70
   delete_max_interval: 0s
   delete_request_cancel_period: 24h
-  deletion_mode: filter-and-delete
   retention_delete_delay: 1h
   retention_delete_worker_count: 150
   retention_enabled: true
@@ -33,7 +32,7 @@ ingester:
 license:
   path: /license/license.jwt
 limits_config:
-  enforce_metric_name: false
+  deletion_mode: filter-and-delete
   ingestion_burst_size_mb: 6
   ingestion_rate_mb: 4
   max_cache_freshness_per_query: 10m
@@ -58,11 +57,11 @@ query_range:
   align_queries_with_step: true
 ruler:
   wal:
-    dir: /data/loki/ruler-wal
+    dir: /data/ruler-wal
   alertmanager_client:
-    basic_auth_username: dev
-    basic_auth_password: "{{ dev_admin_token.stdout }}"
-  alertmanager_url: http://mimir:8080/alertmanager #external alert manager
+    basic_auth_username: prod
+    basic_auth_password: "{{ gem_prod_admin_token.stdout }}"
+  alertmanager_url: http://gem:8080/alertmanager #external alert manager
   enable_api: true
   enable_alertmanager_v2: true
   enable_sharding: true
@@ -72,16 +71,16 @@ ruler:
     clients:
       prom:
         basic_auth:
-          username: dev
-          password: "{{ dev_admin_token.stdout }}"
+          username: prod
+          password: "{{ gem_prod_admin_token.stdout }}"
         headers: {}
         remote_timeout: 30s
         tls_config:
           insecure_skip_verify: true
-        url: http://mimir:8080/api/v1/push
+        url: http://gem:8080/api/v1/push
         write_relabel_configs:
         - action: replace
-          replacement: loki
+          replacement: gel
           target_label: cluster
     config_refresh_period: 10s
     enabled: true
@@ -89,7 +88,7 @@ ruler:
     type: s3
     s3:
       endpoint: minio:9000
-      bucketnames: loki-ruler
+      bucketnames: gel-ruler
       access_key_id: admin
       secret_access_key: password
       insecure: true
@@ -98,12 +97,12 @@ runtime_config:
   file: /mnt/config/runtime-config.yaml
 schema_config:
   configs:
-  - from: "2023-01-01"
+  - from: "2024-01-01"
     index:
       period: 24h
       prefix: loki_index_
     object_store: s3
-    schema: v12
+    schema: v13
     store: tsdb
 server:
   grpc_listen_port: 9095

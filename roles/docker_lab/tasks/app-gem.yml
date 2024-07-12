@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    appname: mimir
+    appname: gem
 
 - name: provision infra
   ansible.builtin.include_role:
@@ -17,7 +17,7 @@
     group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0644'
 
-- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+- name: "Manage {{appname}} container state - {{appstate}}"
   docker_container:
     name: "{{appname}}"
     hostname: "{{appname}}"
@@ -69,7 +69,7 @@
 - name: generate token
   when: not stat_token.stat.exists and appconfig[appname].appstate == 'started'
   shell: |
-    docker exec -it {{ appname }} sh -c "{{ appname }} --config.file=/mnt/config/config.yml --target=tokengen --tokengen.token-file=/data/admin-token.txt" 
+    docker exec -it {{ appname }} sh -c "mimir --config.file=/mnt/config/config.yml --target=tokengen --tokengen.token-file=/data/admin-token.txt" 
   args:
     creates: /home/{{ ansible_user }}/apps/{{appname}}/data/admin-token.txt
 
@@ -91,7 +91,7 @@
       {
           "name":"{{ item }}",
           "display_name": "{{ item }}",
-          "cluster": "mimir"
+          "cluster": "gem"
       }
     force_basic_auth: yes
     status_code: 
@@ -116,7 +116,7 @@
           "realms":[
               {
                   "tenant":"{{ item }}",
-                  "cluster":"mimir"
+                  "cluster":"gem"
               }
           ],
           "scopes":[
@@ -154,7 +154,7 @@
           "realms":[
               {
                   "tenant":"{{ item.tenant }}",
-                  "cluster":"mimir",
+                  "cluster":"gem",
                   "label_policies":[
                       {
                           "selector":"{team=\"{{ item.team }}\"}"

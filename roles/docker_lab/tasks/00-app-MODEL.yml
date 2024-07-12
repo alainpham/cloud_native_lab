@@ -7,14 +7,17 @@
     name: docker_lab
     tasks_from: infra-provision
 
-- name: Template MODEL config
+- name: Template {{appname}} config
   when:  appconfig[appname].appstate == 'started'
+  become: true
   ansible.builtin.template:
     src: templates/{{appname}}/config/MODEL.template.j2
     dest: "{{ appconfig[appname].config_folder }}/MODEL.yml"
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0644'
 
-- name: "Manage MODEL container state"
+- name: "Manage {{appname}} container state"
   docker_container:
     name: "{{appname}}"
     hostname: "{{appname}}"
@@ -32,6 +35,7 @@
       {
         "traefik.enable": "true",
         "traefik.http.services.{{appname}}.loadbalancer.server.port": "9090",
+        "traefik.http.services.{{appname}}.loadbalancer.server.scheme": "http",
         "traefik.http.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
         "traefik.http.routers.{{appname}}.tls": "true",
@@ -46,7 +50,7 @@
       - name: primenet
         ipv4_address: "{{appconfig[appname].ip}}"
 
-- name: Check if server is up
+- name: Check if {{appname}} server is up
   when:  appconfig[appname].appstate == 'started'
   uri:
     url: "https://{{appname}}.{{inventory_hostname}}/metrics"

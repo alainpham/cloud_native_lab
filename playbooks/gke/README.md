@@ -152,9 +152,9 @@ export KUBE_INGRESS_ROOT_DOMAIN=yourowndomain.duckdns.org
 kubectl create ns broker
 
 wget -O /tmp/broker.yaml https://raw.githubusercontent.com/alainpham/hotel-platform-demo/master/broker/broker.envsubst.yaml
+envsubst < /tmp/broker.yaml | kubectl apply -n broker -f -
 
 envsubst < /tmp/broker.yaml | kubectl delete -n broker -f -
-envsubst < /tmp/broker.yaml | kubectl apply -n broker -f -
 ```
 
 ### availability-service
@@ -166,9 +166,9 @@ export CONTAINER_REGISTRY=alainpham
 export KUBE_INGRESS_ROOT_DOMAIN=yourowndomain.duckdns.org
 
 wget -O /tmp/availability-service.yaml https://raw.githubusercontent.com/alainpham/hotel-platform-demo/master/availability-service/src/main/kube/deploy.envsubst.yaml
+envsubst < /tmp/availability-service.yaml | kubectl apply -f -
 
 envsubst < /tmp/availability-service.yaml | kubectl delete -f -
-envsubst < /tmp/availability-service.yaml | kubectl apply -f -
 ```
 
 Check out https://availability-service.yourowndomain.duckdns.org/swagger-ui/index.html?url=/v3/api-docs

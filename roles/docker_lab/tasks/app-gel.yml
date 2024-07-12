@@ -1,16 +1,16 @@
 ---
 - set_fact:
-    appname: loki
+    appname: gel
 
 - name: provision infra
   ansible.builtin.include_role:
     name: docker_lab
     tasks_from: infra-provision
 
-- name: "Read a dev tenant admin token content"
+- name: "Read gem prod tenant admin token content"
   shell: |
-    cat /home/{{ansible_user}}/apps/mimir/data/dev_admin.token
-  register: dev_admin_token
+    cat /home/{{ansible_user}}/apps/gem/data/prod_admin.token
+  register: gem_prod_admin_token
   when: appconfig[appname].appstate == 'started'
 
 - name: Template {{appname}} config
@@ -106,7 +106,7 @@
       {
           "name":"{{ item }}",
           "display_name": "{{ item }}",
-          "cluster": "loki"
+          "cluster": "gel"
       }
     force_basic_auth: yes
     status_code: 
@@ -131,7 +131,7 @@
           "realms":[
               {
                   "tenant":"{{ item }}",
-                  "cluster":"loki"
+                  "cluster":"gel"
               }
           ],
           "scopes":[
@@ -168,7 +168,7 @@
           "realms":[
               {
                   "tenant":"{{ item.tenant }}",
-                  "cluster":"loki",
+                  "cluster":"gel",
                   "label_policies":[
                       {
                           "selector":"{team=\"{{ item.team }}\"}"
