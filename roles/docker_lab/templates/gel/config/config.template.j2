@@ -6,113 +6,50 @@ auth:
   type: enterprise
 auth_enabled: true
 cluster_name: gel
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9095
+  log_level: info
+  grpc_server_max_concurrent_streams: 1000
+
 common:
-  compactor_address: http://gel:3100
-  path_prefix: /data/
+  instance_addr: 127.0.0.1
+  path_prefix: /tmp/loki
+  storage:
+    filesystem:
+      chunks_directory: /tmp/loki/chunks
+      rules_directory: /tmp/loki/rules
   replication_factor: 1
-  storage:
-    s3:
-      endpoint: minio:9000
-      bucketnames: gel-chunks
-      access_key_id: admin
-      secret_access_key: password
-      insecure: true
-      s3forcepathstyle: true
-compactor:
-  compaction_interval: 10m
-  delete_batch_size: 70
-  delete_max_interval: 0s
-  delete_request_cancel_period: 24h
-  retention_delete_delay: 1h
-  retention_delete_worker_count: 150
-  retention_enabled: true
-  retention_table_timeout: 0s
-ingester:
-  max_chunk_age: 2h
-license:
-  path: /license/license.jwt
-limits_config:
-  deletion_mode: filter-and-delete
-  ingestion_burst_size_mb: 6
-  ingestion_rate_mb: 4
-  max_cache_freshness_per_query: 10m
-  max_chunks_per_query: 2000000
-  max_line_size: 0
-  max_line_size_truncate: false
-  max_query_parallelism: 32
-  max_query_series: 500
-  reject_old_samples: true
-  reject_old_samples_max_age: 1w
-  retention_period: 31d
-  retention_stream: []
-  split_queries_by_interval: 15m
-  unordered_writes: true
-memberlist:
-  join_members:
-    - loki:7946
-querier:
-  max_concurrent: 15
-  query_ingesters_within: 15m
+  ring:
+    kvstore:
+      store: inmemory
+
 query_range:
-  align_queries_with_step: true
-ruler:
-  wal:
-    dir: /data/ruler-wal
-  alertmanager_client:
-    basic_auth_username: prod
-    basic_auth_password: "{{ gem_prod_admin_token.stdout }}"
-  alertmanager_url: http://gem:8080/alertmanager #external alert manager
-  enable_api: true
-  enable_alertmanager_v2: true
-  enable_sharding: true
-  evaluation_interval: 1m
-  poll_interval: 1m
-  remote_write:
-    clients:
-      prom:
-        basic_auth:
-          username: prod
-          password: "{{ gem_prod_admin_token.stdout }}"
-        headers: {}
-        remote_timeout: 30s
-        tls_config:
-          insecure_skip_verify: true
-        url: http://gem:8080/api/v1/push
-        write_relabel_configs:
-        - action: replace
-          replacement: gel
-          target_label: cluster
-    config_refresh_period: 10s
-    enabled: true
-  storage:
-    type: s3
-    s3:
-      endpoint: minio:9000
-      bucketnames: gel-ruler
-      access_key_id: admin
-      secret_access_key: password
-      insecure: true
-      s3forcepathstyle: true
-runtime_config:
-  file: /mnt/config/runtime-config.yaml
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 100
+
 schema_config:
   configs:
-  - from: "2024-01-01"
-    index:
-      period: 24h
-      prefix: loki_index_
-    object_store: s3
-    schema: v13
-    store: tsdb
-server:
-  grpc_listen_port: 9095
-  http_listen_port: 3100
-  http_server_read_timeout: 5m
-  http_server_write_timeout: 5m
-  log_level: info
-table_manager:
-  retention_deletes_enabled: false
-  retention_period: 0
+    - from: 2020-10-24
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
 
-analytics:
-  reporting_enabled: false
+pattern_ingester:
+  enabled: true
+  metric_aggregation:
+    enabled: true
+    loki_address: localhost:3100
+
+ruler:
+  alertmanager_url: http://localhost:9093
+
+frontend:
+  encoding: protobuf

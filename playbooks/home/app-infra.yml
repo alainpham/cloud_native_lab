@@ -50,6 +50,7 @@
         - registry
         - regui
         - reposilite
+        - static
       loop_control:
         loop_var: rolesvar
 
@@ -81,6 +82,7 @@
         - transmission
         - pkdex
         - homeassistant
+        - syncthing
         # - nextcloud
         # - bazarr
         # - radarr

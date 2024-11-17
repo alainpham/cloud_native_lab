@@ -44,7 +44,7 @@
     command: bin/zookeeper-server-start.sh /config/zookeeper.properties 
     env:
       LOG_DIR: /tmp/logs
-      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-0.18.0.jar=9779:/config/zookeeper-metrics-config.yml
+      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-1.0.1.jar=9779:/config/zookeeper-metrics-config.yml
     labels: |
       {
         "traefik.enable": "true",
@@ -103,7 +103,7 @@
       - log.dirs=/kafka-data
     env:
       LOG_DIR: /tmp/logs
-      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-0.18.0.jar=9779:/config/kafka-metrics-config.yml
+      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-1.0.1.jar=9779:/config/kafka-metrics-config.yml
     labels: |
       {
         "traefik.enable": "true",

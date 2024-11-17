@@ -86,7 +86,7 @@
 - name: Check if server is up {{inventory_hostname}}
   when:  appconfig[appname].appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{inventory_hostname}}/health"
+    url: "https://{{appname}}.{{inventory_hostname}}/realms/master"
     method: GET
     status_code: 200
   register: result

@@ -76,6 +76,21 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
+  static: 
+    ip: 172.18.1.5
+    image: "{{ images['static'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+      - 8787:80
+
   # identity and access Management 172.18.2.x
   keycloak: 
     ip: 172.18.2.2
@@ -151,7 +166,7 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
-      # - "5432:5432"
+      - "5432:5432"
 
   adminer:
     ip: 172.18.3.6

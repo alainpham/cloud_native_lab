@@ -36,6 +36,7 @@
     mode: '0644'
 
 - name: configure license
+  when:  appconfig[appname].appstate == 'started'
   copy:
     dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/license.jwt"
     content: |

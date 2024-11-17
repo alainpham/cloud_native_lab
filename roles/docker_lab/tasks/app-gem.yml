@@ -69,7 +69,7 @@
 - name: generate token
   when: not stat_token.stat.exists and appconfig[appname].appstate == 'started'
   shell: |
-    docker exec -it {{ appname }} sh -c "mimir --config.file=/mnt/config/config.yml --target=tokengen --tokengen.token-file=/data/admin-token.txt" 
+    docker exec -it {{ appname }} mimir --config.file=/mnt/config/config.yml --target=tokengen --tokengen.token-file=/data/admin-token.txt
   args:
     creates: /home/{{ ansible_user }}/apps/{{appname}}/data/admin-token.txt
 

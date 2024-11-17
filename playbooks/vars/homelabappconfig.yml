@@ -169,3 +169,19 @@ appconfig:
     ports: 
       - "8123:8123"
       - "1400:1400"
+
+  syncthing:
+    ip: 172.18.200.11
+    image: "{{ images['syncthing'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+      - "8384:8384"
+      - "22000:22000"

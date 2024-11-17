@@ -48,9 +48,9 @@
         - memcached
         - cadvisor
         - prometheus
-        - mimir
-        - loki
-        - tempo
+        - gem
+        - gel
+        - get
         - grafana-enterprise
         - otel-collector
 

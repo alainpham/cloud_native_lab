@@ -33,7 +33,7 @@ images:
 
   # Minio
   # https://hub.docker.com/r/minio/minio/tags
-  minio: minio/minio:RELEASE.2024-07-10T18-41-49Z
+  minio: minio/minio:RELEASE.2024-09-22T00-33-43Z
 
   # https://hub.docker.com/_/busybox/tags?page=1&name=1.
   busybox: docker.io/busybox:1.36.1
@@ -43,31 +43,31 @@ images:
 
   # Metrics
   # https://hub.docker.com/r/grafana/enterprise-metrics/tags?page=1&name=2.
-  gem: grafana/enterprise-metrics:v2.12.0
+  gem: grafana/enterprise-metrics:v2.13.1
   # https://hub.docker.com/r/grafana/mimir/tags?page=1&name=2.
   mimir: grafana/mimir:2.13.0
   # https://hub.docker.com/r/bitnami/memcached/tags?page=1&name=1.
-  memcached: bitnami/memcached:1.6.28
+  memcached: bitnami/memcached:1.6.31
   # https://hub.docker.com/r/bitnami/memcached-exporter/tags?page=1&name=0..
-  memcached-exporter: bitnami/memcached-exporter:0.14.3
+  memcached-exporter: bitnami/memcached-exporter:0.14.4
   # Logs
   # https://hub.docker.com/r/grafana/enterprise-logs/tags?page=1&name=3.
-  gel: grafana/enterprise-logs:3.1.0
+  gel: grafana/enterprise-logs:3.2.0
   # https://hub.docker.com/r/grafana/loki/tags?page=1&name=3.
-  loki: grafana/loki:3.1.0
+  loki: grafana/loki:3.2.0
   # https://hub.docker.com/r/grafana/promtail/tags?page=1&name=3.
-  promtail: grafana/promtail:3.1.0
+  promtail: grafana/promtail:3.2.0
 
   # Traces
   # https://hub.docker.com/r/grafana/enterprise-traces/tags?page=1&name=2.
   get: grafana/enterprise-traces:v2.5.0
   # https://hub.docker.com/r/grafana/tempo/tags?page=1&name=2.
-  tempo: grafana/tempo:2.5.0
+  tempo: grafana/tempo:2.6.0
 
   # Grafana
   # https://hub.docker.com/r/grafana/grafana/tags?page=1&name=11.
-  grafana: grafana/grafana:11.0.1
-  grafana-enterprise: grafana/grafana-enterprise:11.0.1
+  grafana: grafana/grafana:11.2.1
+  grafana-enterprise: grafana/grafana-enterprise:11.2.1
   
   # https://hub.docker.com/r/grafana/alloy/tags?page=1&name=v1.
   alloy: grafana/alloy:v1.2.1
@@ -106,7 +106,7 @@ images:
 
   # messaging
   # https://quay.io/repository/strimzi/kafka?tab=tags&tag=latest
-  kafka: quay.io/strimzi/kafka:0.42.0-kafka-3.7.1
+  kafka: quay.io/strimzi/kafka:0.43.0-kafka-3.8.0
   # https://hub.docker.com/r/obsidiandynamics/kafdrop/tags?page=1&name=4.
   kafdrop: obsidiandynamics/kafdrop:4.0.2
   # https://hub.docker.com/r/apache/activemq-artemis/tags?page=1&name=2.
@@ -114,14 +114,14 @@ images:
 
   # platform essentials
   # https://hub.docker.com/r/portainer/portainer-ce/tags?page=1&name=2.
-  portainer-ce: portainer/portainer-ce:2.20.3
+  portainer-ce: portainer/portainer-ce:2.21.2
   # https://hub.docker.com/_/registry/tags?page=1&name=2.
   registry: docker.io/registry:2.8.3 # docker.io/registry:2.8.2
   # https://hub.docker.com/r/joxit/docker-registry-ui/tags?page=1&name=2.
   docker-registry-ui: joxit/docker-registry-ui:2.5.7
   # https://hub.docker.com/_/traefik/tags?page=1&name=3.
   # https://github.com/traefik/traefik/releases 
-  traefik: docker.io/traefik:3.0.4
+  traefik: docker.io/traefik:3.1.4
   
   # https://hub.docker.com/r/nginxinc/nginx-unprivileged/tags?page=&page_size=&ordering=&name=1.
   nginx: nginxinc/nginx-unprivileged:1.27.0
@@ -161,3 +161,12 @@ images:
 
   # https://hub.docker.com/r/linuxserver/homeassistant/tags
   homeassistant: linuxserver/homeassistant:2024.7.2
+
+  # https://hub.docker.com/r/linuxserver/netbootxyz/tags?page=&page_size=&ordering=&name=0.
+  netbootxyz: linuxserver/netbootxyz:0.7.1
+
+  # https://hub.docker.com/r/joseluisq/static-web-server/tags
+  static: joseluisq/static-web-server:2.32.0
+
+  # https://hub.docker.com/r/syncthing/syncthing/tags?page=&page_size=&ordering=&name=1.
+  syncthing: syncthing/syncthing:1.27.10
