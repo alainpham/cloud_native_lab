@@ -26,8 +26,11 @@
     detach: true
     user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
     ports: "{{ appconfig[appname].ports | default(omit,true)}}"
-
     command: 
+      - "--web.enable-remote-write-receiver"
+      - "--web.enable-otlp-receiver"
+      - "--enable-feature=exemplar-storage,native-histograms"
+      - "--config.file=/etc/prometheus/prometheus.yml"
     env:
     labels: |
       {
@@ -40,7 +43,6 @@
     volumes:
       - /home/{{ansible_user}}/apps/prometheus/data:/prometheus:rw
       - /home/{{ansible_user}}/apps/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/tls/root-ca.pem:ro
     networks_cli_compatible: yes
     network_mode: primenet
     networks:

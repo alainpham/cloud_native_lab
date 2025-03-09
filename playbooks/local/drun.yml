@@ -4,7 +4,7 @@
     - selected
   vars:
     global_recreate: true
-    global_appstate: started
+    global_appstate: absent
     global_purge: true
   vars_files:
     - ../vars/global.yml
@@ -58,11 +58,8 @@
         # # messaging
         # - kafka
         # - artemis
-        
         # AI
-        # - ollama
-        # - openwebui
-        - win11
+        - ollama
         # # functional apps
         # - smoke-test-app
       loop_control:

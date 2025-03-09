@@ -432,6 +432,76 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
+  loki:
+    ip: 172.18.6.13
+    image: "{{ images['loki'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  tempo:
+    ip: 172.18.6.14
+    image: "{{ images['tempo'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 1000
+    exec_as_group: 1000
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  ollama:
+    ip: 172.18.7.1
+    image: "{{ images['ollama'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  openwebui:
+    ip: 172.18.7.2
+    image: "{{ images['openwebui'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
+  win11:
+    ip: 172.18.8.1
+    image: "{{ images['windows'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+
   # functional applications are on network 172.18.100.X
   smoke-test-app:
     ip: 172.18.100.2
@@ -446,3 +516,4 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
+

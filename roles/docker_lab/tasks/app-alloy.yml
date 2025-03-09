@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    appname: MODEL
+    appname: alloy
 
 - name: provision infra
   ansible.builtin.include_role:
@@ -11,8 +11,8 @@
   when:  appconfig[appname].appstate == 'started'
   become: true
   ansible.builtin.template:
-    src: templates/{{appname}}/config/MODEL.template.j2
-    dest: "{{ appconfig[appname].config_folder }}/MODEL.yaml"
+    src: templates/{{appname}}/config/alloy.template.j2
+    dest: "{{ appconfig[appname].config_folder }}/alloy.yml"
     owner: "{{ appconfig[appname].exec_as_user }}"
     group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0644'

@@ -1,99 +1,63 @@
 # config file version
 apiVersion: 1
 datasources:
-  - name: Prometheus-src
-    uid: grafanacloud-prom-src
-    type: prometheus
-    access: proxy
-    orgId: 1
-    url: http://prometheus:9090
-    version: 1
-    isDefault: false
-    editable: false
-
   - name: Prometheus
     uid: grafanacloud-prom
     type: prometheus
     access: proxy
-    orgId: 1
-    url: {{ appconfig[appname].prom_url }}
-    version: 1
-    isDefault: true
-    editable: false
-    basicAuth: true
-    basicAuthUser: dev
+    url: http://prometheus:9090
     jsonData:
       exemplarTraceIdDestinations:
         - datasourceUid: grafanacloud-traces
-          name: traceId
+          name: trace_id
       httpMethod: POST
-      prometheusType: Mimir
-      prometheusVersion: "2.4.0"
-      manageAlerts: true
-    secureJsonData:
-      basicAuthPassword: {{ mdev_admin_token.stdout }}
+      prometheusType: "Prometheus"
+    isDefault: true
+    editable: true
+
 
   - name: Loki
     uid: grafanacloud-logs
     type: loki
     access: proxy
     url: http://loki:3100
-    basicAuth: true
-    basicAuthUser: dev
+    editable: true
     jsonData:
       derivedFields:
         - datasourceUid: grafanacloud-traces
-          matcherRegex: "traceID=(\\w+)"
           name: traceId
+          matcherRegex: '[tT]race_?[iI][dD]"?[:=]"?(\w+)'
           url: '$${__value.raw}'
-    secureJsonData:
-      basicAuthPassword: {{ ldev_admin_token.stdout }}
-
+        - datasourceUid: grafanacloud-traces
+          name: trace_id
+          matcherRegex: trace_id
+          matcherType: label
+          url: "${__value.raw}"
 
   - name: Tempo
     type: tempo
     access: proxy
     uid: grafanacloud-traces
-    url: http://tempo:3100
-    basicAuth: true
-    basicAuthUser: dev
+    url: http://tempo:3200
+    editable: true
     jsonData:
       nodeGraph:
         enabled: true
-      tracesToLogsV2:
-        customQuery: true
-        datasourceUid: grafanacloud-logs
       serviceMap:
         datasourceUid: grafanacloud-prom
-      lokiSearch:
+      tracesToLogsV2:
         datasourceUid: grafanacloud-logs
-    secureJsonData:
-      basicAuthPassword: {{ tdev_admin_token.stdout }}
+        filterBySpanID: false
+        filterByTraceID: false
+        spanEndTimeShift: "10m"
+        spanStartTimeShift: "-10m"
+        customQuery: true
+        query: |
+          { service_namespace = "$${__span.tags['service.namespace']}", service_name = "$${__span.tags['service.name']}"} | trace_id="$${__trace.traceId}"
 
-  - name: Postgres
-    uid: postgres
-    type: postgres
-    url: postgres:5432
-    database: db
-    user: admin
-    secureJsonData:
-      password: 'password'
-    jsonData:
-      sslmode: 'disable' 
-      maxOpenConns: 5 
-      maxIdleConns: 2
-      connMaxLifetime: 14400 
-      postgresVersion: 1200
-      timescaledb: false
-
-  - name: MySQL
-    type: mysql
-    url: mariadb:3306
-    database: db
-    user: admin
-    jsonData:
-      maxOpenConns: 0
-      maxIdleConns: 2
-      connMaxLifetime: 14400
-    secureJsonData:
-      password: password
+  - name: Grafana Test Data
+    uid: grafana-test-data
+    type: grafana-testdata-datasource
+    typeLogoUrl: "public/app/plugins/datasource/grafana-testdata-datasource/img/testdata.svg"
+    access: proxy
+    editable: true

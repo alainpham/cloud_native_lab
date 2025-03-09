@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    appname: MODEL
+    appname: openwebui
 
 - name: provision infra
   ansible.builtin.include_role:
@@ -11,8 +11,8 @@
   when:  appconfig[appname].appstate == 'started'
   become: true
   ansible.builtin.template:
-    src: templates/{{appname}}/config/MODEL.template.j2
-    dest: "{{ appconfig[appname].config_folder }}/MODEL.yaml"
+    src: templates/{{appname}}/config/openwebui.template.j2
+    dest: "{{ appconfig[appname].config_folder }}/openwebui.yaml"
     owner: "{{ appconfig[appname].exec_as_user }}"
     group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0644'
@@ -31,10 +31,12 @@
     ports: "{{ appconfig[appname].ports | default(omit,true)}}"
     command: 
     env:
+      OLLAMA_BASE_URL: "http://ollama:11434"
+
     labels: |
       {
         "traefik.enable": "true",
-        "traefik.http.services.{{appname}}.loadbalancer.server.port": "9090",
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "8080",
         "traefik.http.services.{{appname}}.loadbalancer.server.scheme": "http",
         "traefik.http.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
@@ -42,7 +44,7 @@
         "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
       }
     volumes:
-      - "{{ appconfig[appname].data_folder }}:/data:rw"
+      - "{{ appconfig[appname].data_folder }}:/app/backend/data:rw"
       - "{{ appconfig[appname].config_folder }}:/config:ro"
     networks_cli_compatible: yes
     network_mode: primenet
@@ -53,7 +55,7 @@
 - name: Check if {{appname}} server is up
   when:  appconfig[appname].appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{inventory_hostname}}/metrics"
+    url: "https://{{appname}}.{{inventory_hostname}}"
     method: GET
     status_code: 200
   register: result

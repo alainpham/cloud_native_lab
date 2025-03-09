@@ -11,18 +11,24 @@ sonos:
 light:
 - platform: cozylife
   lights:
-  - ip: 192.168.8.53
+  - ip: 192.168.8.103
     did: 71481413249494aa85f7
     pid: p93sfg
     dmn: Smart Bulb Light
     dpid: [1, 2, 3, 4, 5, 7, 8, 9, 13, 14]
-  - ip: 192.168.8.212
+  - ip: 192.168.8.171
     did: 7148143824949420dc71
     pid: p93sfg
     dmn: Smart Bulb Light
     dpid: [1, 2, 3, 4, 5, 7, 8, 9, 13, 14]
-  - ip: 192.168.8.231
+  - ip: 192.168.8.107
     did: 714814132494942d2027
     pid: p93sfg
     dmn: Smart Bulb Light
     dpid: [1, 2, 3, 4, 5, 7, 8, 9, 13, 14]
+  - ip: 192.168.8.170 # max room
+    did: 70822970249494aba359
+    pid: p93sfg
+    dmn: Smart Bulb Light
+    dpid: [1, 2, 3, 4, 5, 7, 8, 9, 13, 14]
+

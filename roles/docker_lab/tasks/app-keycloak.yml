@@ -33,9 +33,10 @@
     command: start
     env:
       KC_HTTP_ENABLED: "true"
-      KC_HOSTNAME: "{{appname}}.{{inventory_hostname}}"
-      # KC_HOSTNAME_ADMIN: "{{appname}}.{{inventory_hostname}}"
-      KC_PROXY: edge
+      KC_HOSTNAME: "https://{{appname}}.{{inventory_hostname}}"
+      KC_HOSTNAME_ADMIN: "https://{{appname}}.{{inventory_hostname}}"
+      KC_HOSTNAME_STRICT: "false"
+      KC_PROXY_ADDRESS_FORWARDING: "true"
       # KC_HOSTNAME_PORT:  "443"
       # KC_HOSTNAME_STRICT: "true"
       # KC_HOSTNAME: "172.18.0.80"
@@ -44,8 +45,8 @@
       # KC_HTTPS_CERTIFICATE_KEY_FILE: /certs/{{inventory_hostname}}.key
       KC_HEALTH_ENABLED: "true"
       KC_METRICS_ENABLED: "true"
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: password
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: password
     # labels: |
     #   {
     #     "traefik.tcp.services.{{appname}}.loadbalancer.server.port": "8443",

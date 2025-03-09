@@ -1,7 +1,7 @@
 ---
 baremetal:
   hosts:
-    aphm.duckdns.org:
+    zez.duckdns.org:
       ansible_connection: ssh
       ansible_user: apham
       ansible_python_interpreter: /usr/bin/python3
@@ -25,4 +25,4 @@ selected:
   #   x86:
   #   vms:
   hosts:
-    aphm.duckdns.org:
+    zez.duckdns.org:

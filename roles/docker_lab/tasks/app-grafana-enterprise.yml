@@ -7,23 +7,23 @@
     name: docker_lab
     tasks_from: infra-provision
 
-- name: "Read a mimir dev tenant admin token content"
-  shell: |
-    cat /home/{{ansible_user}}/apps/mimir/data/dev_admin.token
-  register: mdev_admin_token
-  when: appconfig[appname].appstate == 'started'
+# - name: "Read a mimir dev tenant admin token content"
+#   shell: |
+#     cat /home/{{ansible_user}}/apps/mimir/data/dev_admin.token
+#   register: mdev_admin_token
+#   when: appconfig[appname].appstate == 'started'
 
-- name: "Read a loki dev tenant admin token content"
-  shell: |
-    cat /home/{{ansible_user}}/apps/loki/data/dev_admin.token
-  register: ldev_admin_token
-  when: appconfig[appname].appstate == 'started'
+# - name: "Read a loki dev tenant admin token content"
+#   shell: |
+#     cat /home/{{ansible_user}}/apps/loki/data/dev_admin.token
+#   register: ldev_admin_token
+#   when: appconfig[appname].appstate == 'started'
 
-- name: "Read a tempo dev tenant admin token content"
-  shell: |
-    cat /home/{{ansible_user}}/apps/tempo/data/dev_admin.token
-  register: tdev_admin_token
-  when: appconfig[appname].appstate == 'started'
+# - name: "Read a tempo dev tenant admin token content"
+#   shell: |
+#     cat /home/{{ansible_user}}/apps/tempo/data/dev_admin.token
+#   register: tdev_admin_token
+#   when: appconfig[appname].appstate == 'started'
 
 - name: Template {{appname}} config
   when:  appconfig[appname].appstate == 'started'
@@ -45,196 +45,194 @@
     group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0644'
 
-# gem app
-- stat:
-    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip"
-  register: apppackage
+# # gem app
+# - stat:
+#     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip"
+#   register: apppackage
 
-- stat:
-    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
-  register: pluginsfolder
+# - stat:
+#     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
+#   register: pluginsfolder
 
-- name: Download plugin
-  ansible.builtin.get_url:
-    url: "{{ appconfig[appname].gem_app_url }}"
-    dest: /home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip
-    mode: '0644'
-    owner: "{{ appconfig[appname].exec_as_user }}"
-    group: "{{ appconfig[appname].exec_as_group }}"
-    validate_certs: false
-  when: not apppackage.stat.exists and appconfig[appname].appstate == 'started'
-
-
-- name: Create a directory if it does not exist
-  ansible.builtin.file:
-    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
-    state: directory
-    mode: '0755'
-    owner: "{{ appconfig[appname].exec_as_user }}"
-    group: "{{ appconfig[appname].exec_as_group }}"
-  when: not pluginsfolder.stat.exists  and appconfig[appname].appstate == 'started'
-
-- name: unarchive plugin
-  ansible.builtin.unarchive:
-    src:  "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip"
-    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
-    remote_src: yes
-  when: not pluginsfolder.stat.exists and appconfig[appname].appstate == 'started'
-
-- name: "Read a admin token content"
-  shell: |
-    cat /home/{{ansible_user}}/apps/mimir/data/admin-token.txt
-  register: gemadmtoken
-  when: appconfig[appname].appstate == 'started'
+# - name: Download plugin
+#   ansible.builtin.get_url:
+#     url: "{{ appconfig[appname].gem_app_url }}"
+#     dest: /home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip
+#     mode: '0644'
+#     owner: "{{ appconfig[appname].exec_as_user }}"
+#     group: "{{ appconfig[appname].exec_as_group }}"
+#     validate_certs: false
+#   when: not apppackage.stat.exists and appconfig[appname].appstate == 'started'
 
 
+# - name: Create a directory if it does not exist
+#   ansible.builtin.file:
+#     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
+#     state: directory
+#     mode: '0755'
+#     owner: "{{ appconfig[appname].exec_as_user }}"
+#     group: "{{ appconfig[appname].exec_as_group }}"
+#   when: not pluginsfolder.stat.exists  and appconfig[appname].appstate == 'started'
 
-# gel app
-- stat:
-    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app.zip"
-  register: apppackage
+# - name: unarchive plugin
+#   ansible.builtin.unarchive:
+#     src:  "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app.zip"
+#     dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gem-app"
+#     remote_src: yes
+#   when: not pluginsfolder.stat.exists and appconfig[appname].appstate == 'started'
 
-- stat:
-    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app"
-  register: pluginsfolder
-
-- name: Download plugin
-  ansible.builtin.get_url:
-    url: "{{ appconfig[appname].gel_app_url }}"
-    dest: /home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app.zip
-    mode: '0644'
-    owner: "{{ appconfig[appname].exec_as_user }}"
-    group: "{{ appconfig[appname].exec_as_group }}"
-    validate_certs: false
-  when: not apppackage.stat.exists and appconfig[appname].appstate == 'started'
-
-
-- name: Create a directory if it does not exist
-  ansible.builtin.file:
-    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app"
-    state: directory
-    mode: '0755'
-    owner: "{{ appconfig[appname].exec_as_user }}"
-    group: "{{ appconfig[appname].exec_as_group }}"
-  when: not pluginsfolder.stat.exists  and appconfig[appname].appstate == 'started'
-
-- name: unarchive plugin
-  ansible.builtin.unarchive:
-    src:  "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app.zip"
-    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app"
-    remote_src: yes
-  when: not pluginsfolder.stat.exists and appconfig[appname].appstate == 'started'
-
-- name: "Read a admin token content"
-  shell: |
-    cat /home/{{ansible_user}}/apps/loki/data/admin-token.txt
-  register: geladmtoken
-  when: appconfig[appname].appstate == 'started'
-
-# get app
-- stat:
-    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app.zip"
-  register: apppackage
-
-- stat:
-    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app"
-  register: pluginsfolder
-
-- name: Download plugin
-  ansible.builtin.get_url:
-    url: "{{ appconfig[appname].get_app_url }}"
-    dest: /home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app.zip
-    mode: '0644'
-    owner: "{{ appconfig[appname].exec_as_user }}"
-    group: "{{ appconfig[appname].exec_as_group }}"
-    validate_certs: false
-  when: not apppackage.stat.exists and appconfig[appname].appstate == 'started'
+# - name: "Read a admin token content"
+#   shell: |
+#     cat /home/{{ansible_user}}/apps/mimir/data/admin-token.txt
+#   register: gemadmtoken
+#   when: appconfig[appname].appstate == 'started'
 
 
-- name: Create a directory if it does not exist
-  ansible.builtin.file:
-    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app"
-    state: directory
-    mode: '0755'
-    owner: "{{ appconfig[appname].exec_as_user }}"
-    group: "{{ appconfig[appname].exec_as_group }}"
-  when: not pluginsfolder.stat.exists  and appconfig[appname].appstate == 'started'
 
-- name: unarchive plugin
-  ansible.builtin.unarchive:
-    src:  "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app.zip"
-    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app"
-    remote_src: yes
-  when: not pluginsfolder.stat.exists and appconfig[appname].appstate == 'started'
+# # gel app
+# - stat:
+#     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app.zip"
+#   register: apppackage
 
-- name: "Read a admin token content"
-  shell: |
-    cat /home/{{ansible_user}}/apps/tempo/data/admin-token.txt
-  register: getadmtoken
-  when: appconfig[appname].appstate == 'started'
+# - stat:
+#     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app"
+#   register: pluginsfolder
+
+# - name: Download plugin
+#   ansible.builtin.get_url:
+#     url: "{{ appconfig[appname].gel_app_url }}"
+#     dest: /home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app.zip
+#     mode: '0644'
+#     owner: "{{ appconfig[appname].exec_as_user }}"
+#     group: "{{ appconfig[appname].exec_as_group }}"
+#     validate_certs: false
+#   when: not apppackage.stat.exists and appconfig[appname].appstate == 'started'
+
+
+# - name: Create a directory if it does not exist
+#   ansible.builtin.file:
+#     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app"
+#     state: directory
+#     mode: '0755'
+#     owner: "{{ appconfig[appname].exec_as_user }}"
+#     group: "{{ appconfig[appname].exec_as_group }}"
+#   when: not pluginsfolder.stat.exists  and appconfig[appname].appstate == 'started'
+
+# - name: unarchive plugin
+#   ansible.builtin.unarchive:
+#     src:  "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app.zip"
+#     dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/gel-app"
+#     remote_src: yes
+#   when: not pluginsfolder.stat.exists and appconfig[appname].appstate == 'started'
+
+# - name: "Read a admin token content"
+#   shell: |
+#     cat /home/{{ansible_user}}/apps/loki/data/admin-token.txt
+#   register: geladmtoken
+#   when: appconfig[appname].appstate == 'started'
+
+# # get app
+# - stat:
+#     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app.zip"
+#   register: apppackage
+
+# - stat:
+#     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app"
+#   register: pluginsfolder
+
+# - name: Download plugin
+#   ansible.builtin.get_url:
+#     url: "{{ appconfig[appname].get_app_url }}"
+#     dest: /home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app.zip
+#     mode: '0644'
+#     owner: "{{ appconfig[appname].exec_as_user }}"
+#     group: "{{ appconfig[appname].exec_as_group }}"
+#     validate_certs: false
+#   when: not apppackage.stat.exists and appconfig[appname].appstate == 'started'
+
+
+# - name: Create a directory if it does not exist
+#   ansible.builtin.file:
+#     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app"
+#     state: directory
+#     mode: '0755'
+#     owner: "{{ appconfig[appname].exec_as_user }}"
+#     group: "{{ appconfig[appname].exec_as_group }}"
+#   when: not pluginsfolder.stat.exists  and appconfig[appname].appstate == 'started'
+
+# - name: unarchive plugin
+#   ansible.builtin.unarchive:
+#     src:  "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app.zip"
+#     dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugins/get-app"
+#     remote_src: yes
+#   when: not pluginsfolder.stat.exists and appconfig[appname].appstate == 'started'
+
+# - name: "Read a admin token content"
+#   shell: |
+#     cat /home/{{ansible_user}}/apps/tempo/data/admin-token.txt
+#   register: getadmtoken
+#   when: appconfig[appname].appstate == 'started'
 
 # provision datasources
-- name: Create provisioning
-  ansible.builtin.file:
-    path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugin-provisioning"
-    state: directory
-    mode: '0755'
-    owner: "{{ appconfig[appname].exec_as_user }}"
-    group: "{{ appconfig[appname].exec_as_group }}"
-  when: appconfig[appname].appstate == 'started'
+# - name: Create provisioning
+#   ansible.builtin.file:
+#     path: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugin-provisioning"
+#     state: directory
+#     mode: '0755'
+#     owner: "{{ appconfig[appname].exec_as_user }}"
+#     group: "{{ appconfig[appname].exec_as_group }}"
+#   when: appconfig[appname].appstate == 'started'
 
-- name: configure gex apps
-  when: appconfig[appname].appstate == 'started'
-  copy:
-    dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugin-provisioning/provisioned-grafana-apps.yml"
-    content: |
-      apiVersion: 1
-      apps:
-        - type: grafana-metrics-enterprise-app
-          org_id: 1
-          jsonData:
-            backendUrl: http://mimir:8080
-            base64EncodedAccessTokenSet: true
-            adminApiVersion: v3
-            # versionedInitStatus: 
-            #   4.0.6--2023-09-22:
-            #     reimportedDashboards;
-            #       - dashboards/mimir-compactor.json
-            #       - dashboards/mimir-reads.json
-            #       - dashboards/mimir-writes.json
-            #       - dashboards/mimir-compactor-resources.json
-            #       - dashboards/mimir-reads-resources.json
-            #       - dashboards/mimir-writes-resources.json
-            #       - dashboards/mimir-alertmanager.json
-            #       - dashboards/mimir-alertmanager-resources.json
-            #       - dashboards/mimir-config.json
-            #       - dashboards/mimir-object-store.json
-            #       - dashboards/mimir-overrides.json
-            #       - dashboards/mimir-queries.json
-            #       - dashboards/mimir-ruler.json
-          secureJsonData:
-            base64EncodedAccessToken: "{{ (':' + gemadmtoken.stdout) | b64encode }}"
-        - type: grafana-enterprise-logs-app
-          org_id: 1
-          jsonData:
-            backendUrl: http://loki:3100
-            base64EncodedAccessTokenSet: true
-            adminApiVersion: v3
-          secureJsonData:
-            base64EncodedAccessToken: "{{ (':' + geladmtoken.stdout) | b64encode }}"
-        - type: grafana-enterprise-traces-app
-          org_id: 1
-          jsonData:
-            backendUrl: http://tempo:3100
-            base64EncodedAccessTokenSet: true
-            adminApiVersion: v3
-          secureJsonData:
-            base64EncodedAccessToken: "{{ (':' + getadmtoken.stdout) | b64encode }}"
-    mode: '0644'
-    owner: "{{ appconfig[appname].exec_as_user }}"
-    group: "{{ appconfig[appname].exec_as_group }}"
-
-
+# - name: configure gex apps
+#   when: appconfig[appname].appstate == 'started'
+#   copy:
+#     dest: "/home/{{ansible_user}}/apps/{{ appname }}/config/plugin-provisioning/provisioned-grafana-apps.yml"
+#     content: |
+#       apiVersion: 1
+#       apps:
+#         - type: grafana-metrics-enterprise-app
+#           org_id: 1
+#           jsonData:
+#             backendUrl: http://mimir:8080
+#             base64EncodedAccessTokenSet: true
+#             adminApiVersion: v3
+#             # versionedInitStatus: 
+#             #   4.0.6--2023-09-22:
+#             #     reimportedDashboards;
+#             #       - dashboards/mimir-compactor.json
+#             #       - dashboards/mimir-reads.json
+#             #       - dashboards/mimir-writes.json
+#             #       - dashboards/mimir-compactor-resources.json
+#             #       - dashboards/mimir-reads-resources.json
+#             #       - dashboards/mimir-writes-resources.json
+#             #       - dashboards/mimir-alertmanager.json
+#             #       - dashboards/mimir-alertmanager-resources.json
+#             #       - dashboards/mimir-config.json
+#             #       - dashboards/mimir-object-store.json
+#             #       - dashboards/mimir-overrides.json
+#             #       - dashboards/mimir-queries.json
+#             #       - dashboards/mimir-ruler.json
+#           secureJsonData:
+#             base64EncodedAccessToken: "{{ (':' + gemadmtoken.stdout) | b64encode }}"
+#         - type: grafana-enterprise-logs-app
+#           org_id: 1
+#           jsonData:
+#             backendUrl: http://loki:3100
+#             base64EncodedAccessTokenSet: true
+#             adminApiVersion: v3
+#           secureJsonData:
+#             base64EncodedAccessToken: "{{ (':' + geladmtoken.stdout) | b64encode }}"
+#         - type: grafana-enterprise-traces-app
+#           org_id: 1
+#           jsonData:
+#             backendUrl: http://tempo:3100
+#             base64EncodedAccessTokenSet: true
+#             adminApiVersion: v3
+#           secureJsonData:
+#             base64EncodedAccessToken: "{{ (':' + getadmtoken.stdout) | b64encode }}"
+#     mode: '0644'
+#     owner: "{{ appconfig[appname].exec_as_user }}"
+#     group: "{{ appconfig[appname].exec_as_group }}"
 
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
@@ -248,7 +246,6 @@
     detach: true
     user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
     ports: "{{ appconfig[appname].ports | default(omit,true)}}"
-
     command: 
     env:
       GF_SERVER_DOMAIN: "{{ appname }}.{{ inventory_hostname }}"
@@ -280,10 +277,11 @@
       GF_WHITE_LABELING_LOGIN_LOGO: "public/branding/logo.svg"
       GF_WHITE_LABELING_MENU_LOGO: "public/branding/logo.svg"
       # GF_FEATURE_TOGGLES_ENABLE: "publicDashboards ngalert accesscontrol panelTitleSearch tempoSearch tempoApmTable traceToMetrics recordedQueries"
-      # GF_INSTALL_PLUGINS: "grafana-k6-app,grafana-polystat-panel"
+      GF_INSTALL_PLUGINS: "grafana-polystat-panel,https://storage.googleapis.com/integration-artifacts/grafana-exploretraces-app/grafana-exploretraces-app-latest.zip;grafana-traces-app"
     labels: |
       {
         "traefik.http.services.{{appname}}.loadbalancer.server.port": "3000",
+        "traefik.http.services.{{appname}}.loadbalancer.server.scheme": "http",
         "traefik.http.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
         "traefik.http.routers.{{appname}}.tls": "true",
@@ -450,48 +448,48 @@
       name: backend
 
 
-- name: Create custom role
-  when:  appconfig[appname].appstate == 'started'
-  ignore_errors: true
-  uri:
-    url: "https://{{appname}}.{{inventory_hostname}}/api/access-control/roles"
-    user: "admin"
-    password: "password"
-    method: POST
-    body_format: json
-    body: 
-      name: 'Team Admin'
-      uid: 'teamadmin'
-      description: 'Create data sources for the team'
-      global: false
-      permissions:
-        - action: 'datasources:create'
-        - action: 'datasources:write'
-        - action: 'datasources.permissions:read'
-          scope: 'datasources:uid:*'
-        - action: 'datasources.permissions:write'
-          scope: 'datasources:uid:*'
-    force_basic_auth: yes
-    status_code: 200, 201
+# - name: Create custom role
+#   when:  appconfig[appname].appstate == 'started'
+#   ignore_errors: true
+#   uri:
+#     url: "https://{{appname}}.{{inventory_hostname}}/api/access-control/roles"
+#     user: "admin"
+#     password: "password"
+#     method: POST
+#     body_format: json
+#     body: 
+#       name: 'Team Admin'
+#       uid: 'teamadmin'
+#       description: 'Create data sources for the team'
+#       global: false
+#       permissions:
+#         - action: 'datasources:create'
+#         - action: 'datasources:write'
+#         - action: 'datasources.permissions:read'
+#           scope: 'datasources:uid:*'
+#         - action: 'datasources.permissions:write'
+#           scope: 'datasources:uid:*'
+#     force_basic_auth: yes
+#     status_code: 200, 201
 
-- name: Assign custom role to teamadmin team
-  when:  appconfig[appname].appstate == 'started'
-  ignore_errors: true
-  uri:
-    url: "https://{{appname}}.{{inventory_hostname}}/api/access-control/teams/{{ item.id }}/roles"
-    user: "admin"
-    password: "password"
-    method: POST
-    body_format: json
-    body: | 
-      {
-          "roleUid": "teamadmin"
-      }
-    force_basic_auth: yes
-    status_code: 200
-  loop:
-    - id: 1
-      name: teamadmin
+# - name: Assign custom role to teamadmin team
+#   when:  appconfig[appname].appstate == 'started'
+#   ignore_errors: true
+#   uri:
+#     url: "https://{{appname}}.{{inventory_hostname}}/api/access-control/teams/{{ item.id }}/roles"
+#     user: "admin"
+#     password: "password"
+#     method: POST
+#     body_format: json
+#     body: | 
+#       {
+#           "roleUid": "teamadmin"
+#       }
+#     force_basic_auth: yes
+#     status_code: 200
+#   loop:
+#     - id: 1
+#       name: teamadmin
 
 
 - name: delete infra

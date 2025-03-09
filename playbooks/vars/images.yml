@@ -68,8 +68,8 @@ images:
 
   # Grafana
   # https://hub.docker.com/r/grafana/grafana/tags?page=1&name=11.
-  grafana: grafana/grafana:11.3.1
-  grafana-enterprise: grafana/grafana-enterprise:11.3.1
+  grafana: grafana/grafana:11.3.2
+  grafana-enterprise: grafana/grafana-enterprise:11.3.2
   
   # https://hub.docker.com/r/grafana/alloy/tags?page=1&name=v1.
   alloy: grafana/alloy:v1.5.1
@@ -144,7 +144,7 @@ images:
   # https://hub.docker.com/r/linuxserver/plex/tags?page=1&name=1.
   plex: linuxserver/plex:1.41.2
   # https://hub.docker.com/r/linuxserver/jellyfin/tags?page=1&name=10.
-  jellyfin: linuxserver/jellyfin:10.10.3
+  jellyfin: linuxserver/jellyfin:10.10.6
   teddycast: registry.awon.cpss.duckdns.org/teddycast:1.0.7
   rentman: registry.awon.cpss.duckdns.org/rentman:1.0.4
   pkdex: registry.awon.cpss.duckdns.org/pkdex:1.0.4
@@ -172,3 +172,12 @@ images:
 
   # https://hub.docker.com/r/syncthing/syncthing/tags?page=&page_size=&ordering=&name=1.
   syncthing: syncthing/syncthing:1.28.1
+
+  # https://hub.docker.com/r/ollama/ollama/tags?name=0.
+  ollama: ollama/ollama:0.5.1
+
+  # https://github.com/open-webui/open-webui/pkgs/container/open-webui/versions
+  openwebui: ghcr.io/open-webui/open-webui:0.4.8
+
+  # win11
+  windows: dockurr/windows:4.06
