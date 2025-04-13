@@ -1,4 +1,4 @@
-- name: awon homelab services
+- name: awon devops utils
   hosts:
     - awon.cpss.duckdns.org
   vars:
@@ -8,12 +8,12 @@
   vars_files:
     - ../vars/global.yml
     - ../vars/images.yml
-    - ../vars/homelabappconfig.yml
+    - ../vars/dockerappconfig.yml
   tasks:
     - include_role:
-        name: home_lab
+        name: docker_lab
         tasks_from: app-{{ rolesvar }}
       loop:
-        - jellyfin
+        - acng
       loop_control:
         loop_var: rolesvar

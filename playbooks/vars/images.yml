@@ -45,50 +45,50 @@ images:
 
   # Metrics
   # https://hub.docker.com/r/grafana/enterprise-metrics/tags?page=1&name=2.
-  gem: grafana/enterprise-metrics:v2.14.1
+  gem: grafana/enterprise-metrics:v2.14.3
   # https://hub.docker.com/r/grafana/mimir/tags?page=1&name=2.
-  mimir: grafana/mimir:2.14.2
+  mimir: grafana/mimir:2.14.3
   # https://hub.docker.com/r/bitnami/memcached/tags?page=1&name=1.
-  memcached: bitnami/memcached:1.6.32
+  memcached: bitnami/memcached:1.6.38
   # https://hub.docker.com/r/bitnami/memcached-exporter/tags?page=1&name=0..
-  memcached-exporter: bitnami/memcached-exporter:0.15.0
+  memcached-exporter: bitnami/memcached-exporter:0.15.2
   # Logs
   # https://hub.docker.com/r/grafana/enterprise-logs/tags?page=1&name=3.
-  gel: grafana/enterprise-logs:3.3.0
+  gel: grafana/enterprise-logs:3.4.0
   # https://hub.docker.com/r/grafana/loki/tags?page=1&name=3.
-  loki: grafana/loki:3.3.0
+  loki: grafana/loki:3.4.2
   # https://hub.docker.com/r/grafana/promtail/tags?page=1&name=3.
-  promtail: grafana/promtail:3.3.0
+  promtail: grafana/promtail:3.4.2
 
   # Traces
   # https://hub.docker.com/r/grafana/enterprise-traces/tags?page=1&name=2.
-  get: grafana/enterprise-traces:v2.6.1
+  get: grafana/enterprise-traces:v2.7.0
   # https://hub.docker.com/r/grafana/tempo/tags?page=1&name=2.
-  tempo: grafana/tempo:2.6.1
+  tempo: grafana/tempo:2.7.2
 
   # Grafana
   # https://hub.docker.com/r/grafana/grafana/tags?page=1&name=11.
-  grafana: grafana/grafana:11.3.2
-  grafana-enterprise: grafana/grafana-enterprise:11.3.2
+  grafana: grafana/grafana:11.6.0
+  grafana-enterprise: grafana/grafana-enterprise:11.6.0
   
   # https://hub.docker.com/r/grafana/alloy/tags?page=1&name=v1.
-  alloy: grafana/alloy:v1.5.1
+  alloy: grafana/alloy:v1.7.5
   # https://hub.docker.com/r/prom/prometheus/tags?page=1&name=2.
-  prometheus: prom/prometheus:v3.0.1
+  prometheus: prom/prometheus:v3.2.1
   # https://hub.docker.com/r/prom/node-exporter/tags?page=1&name=1.
-  node-exporter: prom/node-exporter:v1.8.2
+  node-exporter: prom/node-exporter:v1.9.0
   # https://hub.docker.com/r/prom/alertmanager/tags?page=1&name=0.
-  alertmanager: prom/alertmanager:v0.27.0
+  alertmanager: prom/alertmanager:v0.28.1
 
   # https://hub.docker.com/r/otel/opentelemetry-collector-contrib/tags?page=&page_size=&ordering=&name=0.
-  otel-collector: otel/opentelemetry-collector-contrib:0.114.0
+  otel-collector: otel/opentelemetry-collector-contrib:0.122.1
   # https://hub.docker.com/r/bitnami/kubectl/tags?page=1&name=1.29
   kubectl: bitnami/kubectl:1.30.7
 
   # https://console.cloud.google.com/gcr/images/cadvisor/GLOBAL/cadvisor
-  cadvisor: gcr.io/cadvisor/cadvisor:v0.51.0
+  cadvisor: gcr.io/cadvisor/cadvisor:v0.52.1
   # https://github.com/kubernetes/kube-state-metrics
-  kube-state-metrics: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.14.0
+  kube-state-metrics: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0
   
   # Databases
   # https://hub.docker.com/_/mariadb
@@ -96,10 +96,10 @@ images:
   # https://hub.docker.com/_/mysql/tags?page=1&name=8.
   mysql: docker.io/mysql:8.4.3
   # https://hub.docker.com/_/postgres
-  postgres: docker.io/postgres:17.2
+  postgres: docker.io/postgres:17.4
   # https://hub.docker.com/_/elasticsearch
-  elasticsearch: docker.io/elasticsearch:8.15.5
-  kibana: docker.io/kibana:8.15.5
+  elasticsearch: docker.io/elasticsearch:8.17.4
+  kibana: docker.io/kibana:8.17.4
 
   # oracledb: container-registry.oracle.com/database/free:23.3.0.0
   oracledb: oracledb:19.3.0
@@ -116,29 +116,33 @@ images:
 
   # platform essentials
   # https://hub.docker.com/r/portainer/portainer-ce/tags?page=1&name=2.
-  portainer-ce: portainer/portainer-ce:2.24.1
+  portainer-ce: portainer/portainer-ce:2.27.3
   # https://hub.docker.com/_/registry/tags?page=1&name=2.
   registry: docker.io/registry:2.8.3 # docker.io/registry:2.8.2
   # https://hub.docker.com/r/joxit/docker-registry-ui/tags?page=1&name=2.
   docker-registry-ui: joxit/docker-registry-ui:2.5.7
+  
   # https://hub.docker.com/_/traefik/tags?page=1&name=3.
   # https://github.com/traefik/traefik/releases 
-  traefik: docker.io/traefik:3.2.1
+  traefik: docker.io/traefik:3.3.4
   
+  # https://github.com/sameersbn/docker-apt-cacher-ng
+  acng: sameersbn/apt-cacher-ng:3.7.4-20220421
+
   # https://hub.docker.com/r/nginxinc/nginx-unprivileged/tags?page=&page_size=&ordering=&name=1.
   nginx: nginxinc/nginx-unprivileged:1.27.3
     
   # https://quay.io/repository/keycloak/keycloak?tab=tags&tag=latest
-  keycloak: quay.io/keycloak/keycloak:26.0.7-0
+  keycloak: quay.io/keycloak/keycloak:26.1.4-0
   # https://hub.docker.com/r/dzikoysk/reposilite/tags?page=1&name=3.
-  reposilite: dzikoysk/reposilite:3.5.19
+  reposilite: dzikoysk/reposilite:3.5.23
 
   # Demo Applications
   smoke-test-app: alainpham/smoke-test-app:2.0.3
 
   # Misc
   # https://hub.docker.com/_/eclipse-temurin/tags?page=1&name=17.
-  eclipse-temurin: docker.io/eclipse-temurin:17.0.13_11-jre
+  eclipse-temurin: docker.io/eclipse-temurin:17.0.14_7-jre
 
   # Media server
   # https://hub.docker.com/r/linuxserver/plex/tags?page=1&name=1.

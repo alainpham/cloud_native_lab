@@ -32,6 +32,20 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
+  acng: 
+    ip: 172.18.0.4
+    image: "{{ images['acng'] }}"
+
+    declare_hostname: false
+    appstate: "{{ global_appstate }}"
+    recreate: "{{ global_recreate }}"
+    purge: "{{ global_purge }}"
+    exec_as_user: 0
+    exec_as_group: 0
+    config_folder: "{{ config_folder_default }}"
+    data_folder: "{{ data_folder_default }}"
+    ports: 
+      - "3142:3142"
 
   # artifact repositories 172.18.1.x
   registry: 

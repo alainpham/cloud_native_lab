@@ -16,6 +16,15 @@
         name: docker_lab
         tasks_from: app-{{ rolesvar }}
       loop:
+        # platform essentials
+        - traefik
+        - portainer
+
+        - prometheus
+        - loki
+        - tempo
+        - postgres
+        - keycloak
         - grafana-enterprise
 
       loop_control:

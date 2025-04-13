@@ -1,12 +1,12 @@
-user=ramses
+user=backowner
 password=password
 rawtoken=$( curl -s \
-    -d "client_id=grafana-enterprise.aphm.duckdns.org" \
+    -d "client_id=grafana-enterprise.zez.duckdns.org" \
     -d "client_secret=e2dt6BF1roELLGmksmArt9aIgm7jB6lB" \
     -d "username=$user" \
     -d "password=$password" \
     -d "grant_type=password" \
-    https://keycloak.aphm.duckdns.org/realms/apps/protocol/openid-connect/token)
+    https://keycloak.zez.duckdns.org/realms/apps/protocol/openid-connect/token)
 
 echo $rawtoken
 
@@ -18,6 +18,12 @@ echo $decoded
 
 curl -s --header 'Content-Type: application/json' \
     --header "Authorization: Bearer $accesstoken" \
-     https://keycloak.aphm.duckdns.org/realms/apps/protocol/openid-connect/userinfo
+     https://keycloak.zez.duckdns.org/realms/apps/protocol/openid-connect/userinfo
+
+curl -s --header 'Content-Type: application/json' \
+    --header "Authorization: Bearer $accesstoken" \
+     https://grafana-enterprise.zez.duckdns.org/api/plugins/grafana-exploretraces-app
+/settings
+
 
 docker exec keycloak /opt/keycloak/bin/kc.sh export --realm apps --users realm_file --file /opt/keycloak/data/apps-realm.json

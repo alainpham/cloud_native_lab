@@ -51,6 +51,7 @@
         - regui
         - reposilite
         - static
+        - acng
       loop_control:
         loop_var: rolesvar
 
